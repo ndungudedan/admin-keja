@@ -14,6 +14,7 @@ class DbOperations {
   static final featurestable = Constants.featurestable;
   static final apartmenttable = Constants.apartmenttable;
   static final paymenthistorytable = Constants.paymenthistorytable;
+  static final homesummarytable = Constants.homesummarytable;
   static final transactionstable = Constants.transactionstable;
   static final tenanttable = Constants.tenanttable;
 
@@ -170,6 +171,32 @@ class DbOperations {
 
 //Home
     Future<MyHome> insertHome(MyHome myhome) async {
+    Database _db = await instance.dbHelper.database;
+    var count = Sqflite.firstIntValue(await _db.rawQuery(
+        "SELECT COUNT(*) FROM $paymenthistorytable WHERE online_id = ?",
+        [myhome.id]));
+    if (count == 0) {
+      await _db.insert("$paymenthistorytable", myhome.toMap());
+    } else {
+      await _db.update(paymenthistorytable, myhome.toMap(),
+          where: 'id = ?', whereArgs: [myhome.id]);
+    }
+    return myhome;
+  }
+
+  Future<List<MyHome>> fetchHome() async {
+    Database _db = await instance.dbHelper.database;
+    List<Map> results = await _db.query("$paymenthistorytable",
+        columns: MyHome.columns, orderBy: "id DESC");
+    List<MyHome> myhomes = new List();
+    results.forEach((result) {
+      MyHome myHome = MyHome.fromMap(result);
+      myhomes.add(myHome);
+    });
+    return myhomes;
+  }
+//Home Summary
+      Future<MyHomeSummary> insertHomeSummary(MyHomeSummary myhome) async {
     Database _db = await instance.dbHelper.database;
     var count = Sqflite.firstIntValue(await _db.rawQuery(
         "SELECT COUNT(*) FROM $paymenthistorytable WHERE online_id = ?",

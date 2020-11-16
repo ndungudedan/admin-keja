@@ -82,6 +82,61 @@ class MyHome {
   }
 }
 
+  MyHomeSummary(
+      {this.expected,
+      this.paid,
+      this.due,
+      this.month,
+      this.year});
+
+  factory MyHome.fromJson(Map<String, dynamic> json) => _$MyHomeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MyHomeToJson(this);
+
+  static final columns = [
+    "year",
+    "month",
+    "expected",
+    "paid",
+    "due",
+  ];
+
+  Map<String, dynamic> toMap() {
+    Map<String, dynamic> map = {
+     "month": month,
+      "year": year,
+      "expected": expected,
+      "paid": paid,
+      "due": due,
+    };
+
+    return map;
+  }
+
+  static fromMap(Map map) {
+    MyHomeSummary myHomeSummary = MyHomeSummary();
+    myHomeSummary.year = map["year"];
+    myHomeSummary.month = map["month"];
+    myHomeSummary.due = map["due"];
+    myHomeSummary.expected = map["expected"];
+    myHomeSummary.paid = map["paid"];
+    return myHomeSummary;
+  }
+}
+
+@JsonSerializable()
+class MyHomeSummaryList {
+  List<MyHomeSummary> values;
+  MyHomeSummaryList({this.values});
+
+  factory MyHomeSummaryList.fromJson(List<dynamic> json) {
+    return MyHomeSummaryList(
+        values: json
+            .map((e) => MyHomeSummary.fromJson(e as Map<String, dynamic>))
+            .toList());
+  }
+}
+
 @JsonSerializable()
 class MyHomeList {
   List<MyHome> myhomes;
@@ -97,12 +152,14 @@ class MyHomeList {
 
 @JsonSerializable()
 class MyHomeResponse {
+  MyHomeSummaryList summary;
   MyHomeList data;
   Status status;
 
   MyHomeResponse({
     this.data,
     this.status,
+    this.summary,
   });
 
   factory MyHomeResponse.fromJson(Map<String, dynamic> json) =>

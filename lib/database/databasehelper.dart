@@ -13,6 +13,7 @@ class DatabaseHelper {
   static final featurestable = Constants.featurestable;
   static final apartmenttable = Constants.apartmenttable;
   static final paymenthistorytable = Constants.paymenthistorytable;
+  static final homesummarytable = Constants.homesummarytable;
   static final transactionstable = Constants.transactionstable;
   static final tenanttable = Constants.tenanttable;
 
@@ -134,6 +135,15 @@ class DatabaseHelper {
             apartment_id TEXT NOT NULL,
             title TEXT NOT NULL,
             company_id TEXT NOT NULL,
+            month TEXT NOT NULL,
+            year TEXT NOT NULL,
+            expected TEXT NOT NULL,
+            paid TEXT NOT NULL,
+            due TEXT NOT NULL
+          )
+          ''');
+    await db.execute('''
+          CREATE TABLE $homesummarytable (
             month TEXT NOT NULL,
             year TEXT NOT NULL,
             expected TEXT NOT NULL,
