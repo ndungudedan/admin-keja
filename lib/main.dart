@@ -3,7 +3,6 @@ import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/ui/introduction.dart';
 import 'package:admin_keja/ui/login.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

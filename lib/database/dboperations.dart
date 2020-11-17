@@ -196,27 +196,27 @@ class DbOperations {
     return myhomes;
   }
 //Home Summary
-      Future<MyHomeSummary> insertHomeSummary(MyHomeSummary myhome) async {
+      Future<MyHomeSummary> insertHomeSummary(MyHomeSummary myhomesummary) async {
     Database _db = await instance.dbHelper.database;
     var count = Sqflite.firstIntValue(await _db.rawQuery(
-        "SELECT COUNT(*) FROM $paymenthistorytable WHERE online_id = ?",
-        [myhome.id]));
+        "SELECT COUNT(*) FROM $homesummarytable WHERE online_id = ?",
+        [myhomesummary.id]));
     if (count == 0) {
-      await _db.insert("$paymenthistorytable", myhome.toMap());
+      await _db.insert("$homesummarytable", myhomesummary.toMap());
     } else {
-      await _db.update(paymenthistorytable, myhome.toMap(),
-          where: 'id = ?', whereArgs: [myhome.id]);
+      await _db.update(paymenthistorytable, myhomesummary.toMap(),
+          where: 'id = ?', whereArgs: [myhomesummary.id]);
     }
-    return myhome;
+    return myhomesummary;
   }
 
-  Future<List<MyHome>> fetchHome() async {
+  Future<List<MyHomeSummary>> fetchHomeSummary() async {
     Database _db = await instance.dbHelper.database;
-    List<Map> results = await _db.query("$paymenthistorytable",
-        columns: MyHome.columns, orderBy: "id DESC");
-    List<MyHome> myhomes = new List();
+    List<Map> results = await _db.query("$homesummarytable",
+        columns: MyHomeSummary.columns, orderBy: "id DESC");
+    List<MyHomeSummary> myhomes = new List();
     results.forEach((result) {
-      MyHome myHome = MyHome.fromMap(result);
+      MyHomeSummary myHome = MyHomeSummary.fromMap(result);
       myhomes.add(myHome);
     });
     return myhomes;

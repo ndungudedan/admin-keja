@@ -38,6 +38,7 @@ dependencies:
   dio: ^3.0.9  
   flutter_page_transition: ^0.1.0
   flare_splash_screen: ^3.0.1
+  firebase_core :
   firebase_auth: ^0.16.0
   google_sign_in: ^4.4.4
   shared_preferences:

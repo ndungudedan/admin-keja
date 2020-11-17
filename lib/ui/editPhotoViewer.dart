@@ -3,8 +3,8 @@ import 'package:admin_keja/database/dboperations.dart';
 import 'package:admin_keja/utility/utility.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
 class EditPhotoViewer extends StatefulWidget {
   File pic;

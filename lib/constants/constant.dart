@@ -26,6 +26,7 @@ class Constants {
   static final featurestable = 'features_table';
   static final apartmenttable = 'apartment_table';
   static final paymenthistorytable = 'payment_history_table';
+  static final homesummarytable = 'home_summary_table';
   static final transactionstable = 'transactions_table';
   static final tenanttable = 'tenant_table';
 }

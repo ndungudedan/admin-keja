@@ -82,16 +82,20 @@ class MyHome {
   }
 }
 
-  MyHomeSummary(
-      {this.expected,
-      this.paid,
-      this.due,
-      this.month,
-      this.year});
+@JsonSerializable()
+class MyHomeSummary {
+  String id;
+  String expected;
+  String paid;
+  String due;
+  String month;
+  String year;
+  MyHomeSummary({this.expected, this.paid, this.due, this.month, this.year});
 
-  factory MyHome.fromJson(Map<String, dynamic> json) => _$MyHomeFromJson(json);
+  factory MyHomeSummary.fromJson(Map<String, dynamic> json) =>
+      _$MyHomeSummaryFromJson(json);
 
-  Map<String, dynamic> toJson() => _$MyHomeToJson(this);
+  Map<String, dynamic> toJson() => _$MyHomeSummaryToJson(this);
 
   static final columns = [
     "year",
@@ -103,7 +107,7 @@ class MyHome {
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
-     "month": month,
+      "month": month,
       "year": year,
       "expected": expected,
       "paid": paid,

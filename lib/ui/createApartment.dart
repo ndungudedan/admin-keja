@@ -17,12 +17,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
-import 'package:video_player/video_player.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:path/path.dart' as path;
+import 'package:video_player/video_player.dart';
 
 class CreateApartment extends StatefulWidget {
   CreateApartment({Key key, this.title}) : super(key: key);
