@@ -1,0 +1,91 @@
+{
+  "project_info": {
+    "project_number": "269437489559",
+    "firebase_url": "https://apartments-78c97.firebaseio.com",
+    "project_id": "apartments-78c97",
+    "storage_bucket": "apartments-78c97.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269437489559:android:6a5df5f1e8bda069b9f4d2",
+        "android_client_info": {
+          "package_name": "com.example.admin_keja"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "269437489559-q1nvdk248lvkap4u4ve4mirn0u5mnef9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeUy2xAbqYuwqY0AlaEPCkK7IcYoDY4x8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "269437489559-q1nvdk248lvkap4u4ve4mirn0u5mnef9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "269437489559-ud8a77ibf5i18cputpv6j5hgt8jnsspu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.Tidtech.Apartments"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269437489559:android:93f6953decf03b2ab9f4d2",
+        "android_client_info": {
+          "package_name": "com.example.cheki_keja"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "269437489559-1ed27rm0uakde3h93mfahlklqca77r81.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cheki_keja",
+            "certificate_hash": "cf19c85200080561f2947a24ebc7975b261b6f92"
+          }
+        },
+        {
+          "client_id": "269437489559-q1nvdk248lvkap4u4ve4mirn0u5mnef9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeUy2xAbqYuwqY0AlaEPCkK7IcYoDY4x8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "269437489559-q1nvdk248lvkap4u4ve4mirn0u5mnef9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "269437489559-ud8a77ibf5i18cputpv6j5hgt8jnsspu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.Tidtech.Apartments"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
