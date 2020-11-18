@@ -6,7 +6,7 @@ class CustomBarWidget extends StatefulWidget implements PreferredSizeWidget {
   final double height;
   final GestureTapCallback prevPressed;
   final GestureTapCallback nextPressed;
-  final summary, sortMonth, year, totalExpected, totalPaid, totalDue;
+  final sortMonth, year, totalExpected, totalPaid, totalDue;
 
   const CustomBarWidget({
     Key key,
@@ -14,7 +14,6 @@ class CustomBarWidget extends StatefulWidget implements PreferredSizeWidget {
     @required this.prevPressed,
     @required this.height,
     @required this.sortMonth,
-    @required this.summary,
     @required this.year,
     @required this.totalDue,
     @required this.totalExpected,

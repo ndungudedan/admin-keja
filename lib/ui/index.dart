@@ -40,9 +40,10 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
   FancyBottomNavigationState fState;
   List<MyApartment> apartments = List<MyApartment>();
   List<MyHome> myHomes = List<MyHome>();
+  List<MyHomeSummary> myHomesummarys = List<MyHomeSummary>();
   Status status = Status();
   bool active;
-  var month,year;
+  var month, year;
   var phone, userid;
   bool signed_in = false;
   var companyId;
@@ -59,7 +60,7 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
     getPrefs();
     fetchCompany();
     fetchDbApartments();
-    fetchDbHome();
+    fetchDbHomeSummary();
   }
 
   @override
@@ -69,7 +70,7 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
         index: _selectedIndex,
         children: [
           Home(
-            myHomeList: myHomes,
+            myHomeSummary: myHomesummarys,
             companyId: companyId,
           ),
           Company(
@@ -134,11 +135,13 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
   }
 
   Future<void> fetchHome(var companyId) async {
-    var result = await NetworkApi().fetchHome(companyId, month,year.toString());
+    var result =
+        await NetworkApi().fetchHome(companyId, month, year.toString());
     print(result);
     var Map = json.decode(result);
     myHomeResponse = MyHomeResponse.fromJson(Map);
     insertHome(myHomeResponse.data.myhomes);
+    insertHomeSummary(myHomeResponse.summary.values);
   }
 
   void saveCompany(MyCompany company) {
@@ -209,10 +212,23 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> fetchDbHome() async {
-    var res = await dbHelper.fetchHome();
+  void insertHomeSummary(List<MyHomeSummary> myhomesummary) async {
+    for (int i = 0; i < myhomesummary.length; i++) {
+      MyHomeSummary myHome = MyHomeSummary();
+      myHome.year = myhomesummary.elementAt(i).year;
+      myHome.month = myhomesummary.elementAt(i).month;
+      myHome.paid = myhomesummary.elementAt(i).paid;
+      myHome.expected = myhomesummary.elementAt(i).expected;
+      myHome.due = myhomesummary.elementAt(i).due;
+      final id = await dbHelper.insertHomeSummary(myHome);
+      print('inserted row id: $id');
+    }
+  }
+
+  Future<void> fetchDbHomeSummary() async {
+    var res = await dbHelper.fetchHomeSummary();
     setState(() {
-      myHomes = res;
+      myHomesummarys = res;
     });
   }
 }

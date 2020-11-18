@@ -10,7 +10,6 @@ import 'package:admin_keja/models/transaction.dart';
 import 'package:admin_keja/ui/tenant.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 
 class Apartment extends StatefulWidget {
@@ -391,7 +390,7 @@ class _MyHomePageState extends State<Apartment> {
   }
 
   Future<void> fetchDbHome() async {
-    var res = await dbHelper.fetchHome();
+    var res = await dbHelper.fetchAllHome();
     populateSummary(res);
   }
 

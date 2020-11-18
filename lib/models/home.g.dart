@@ -36,6 +36,41 @@ Map<String, dynamic> _$MyHomeToJson(MyHome instance) => <String, dynamic>{
       'banner': instance.banner,
     };
 
+MyHomeSummary _$MyHomeSummaryFromJson(Map<String, dynamic> json) {
+  return MyHomeSummary(
+    expected: json['expected'] as String,
+    paid: json['paid'] as String,
+    due: json['due'] as String,
+    month: json['month'] as String,
+    year: json['year'] as String,
+  )..id = json['id'] as String;
+}
+
+Map<String, dynamic> _$MyHomeSummaryToJson(MyHomeSummary instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'expected': instance.expected,
+      'paid': instance.paid,
+      'due': instance.due,
+      'month': instance.month,
+      'year': instance.year,
+    };
+
+MyHomeSummaryList _$MyHomeSummaryListFromJson(Map<String, dynamic> json) {
+  return MyHomeSummaryList(
+    values: (json['values'] as List)
+        ?.map((e) => e == null
+            ? null
+            : MyHomeSummary.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+  );
+}
+
+Map<String, dynamic> _$MyHomeSummaryListToJson(MyHomeSummaryList instance) =>
+    <String, dynamic>{
+      'values': instance.values,
+    };
+
 MyHomeList _$MyHomeListFromJson(Map<String, dynamic> json) {
   return MyHomeList(
     myhomes: (json['myhomes'] as List)
@@ -57,11 +92,15 @@ MyHomeResponse _$MyHomeResponseFromJson(Map<String, dynamic> json) {
     status: json['status'] == null
         ? null
         : Status.fromJson(json['status'] as Map<String, dynamic>),
+    summary: json['summary'] == null
+        ? null
+        : MyHomeSummaryList.fromJson(json['summary'] as List),
   );
 }
 
 Map<String, dynamic> _$MyHomeResponseToJson(MyHomeResponse instance) =>
     <String, dynamic>{
+      'summary': instance.summary,
       'data': instance.data,
       'status': instance.status,
     };

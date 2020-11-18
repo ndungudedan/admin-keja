@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:admin_keja/common/styles.dart';
 import 'package:admin_keja/connection/networkapi.dart';
+import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/database/dboperations.dart';
 import 'package:admin_keja/models/home.dart';
 import 'package:admin_keja/ui/apartment.dart';
@@ -8,11 +9,10 @@ import 'package:admin_keja/utility/utility.dart';
 import 'package:admin_keja/views/customAppBar.dart';
 import 'package:admin_keja/views/richtext.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
-  Home({Key key, this.myHomeList, this.companyId}) : super(key: key);
-  List<MyHome> myHomeList;
+  Home({Key key, this.companyId, this.myHomeSummary}) : super(key: key);
+  List<MyHomeSummary> myHomeSummary;
   var companyId;
 
   @override
@@ -27,8 +27,9 @@ class _MyHomePageState extends State<Home> {
   var companyId;
   var month, sortMonth, year, sortYear;
   var totalExpected = 0, totalPaid = 0, totalDue = 0;
-  List<MyHome> summary = List<MyHome>();
+  MyHomeSummary summary = MyHomeSummary();
   List<MyHome> sorted = List<MyHome>();
+  List<MyHomeSummary> summarys = List<MyHomeSummary>();
   MyHomeResponse myHomeResponse = MyHomeResponse();
   var currDate = DateTime.now();
 
@@ -40,7 +41,7 @@ class _MyHomePageState extends State<Home> {
     year = currDate.year;
     sortYear = year;
     sortMonth = month;
-    populateSummary(widget.myHomeList);
+    summarys = widget.myHomeSummary;
     show = false;
   }
 
@@ -53,31 +54,35 @@ class _MyHomePageState extends State<Home> {
   Widget build(BuildContext context) {
     companyId = widget.companyId;
     if (!homelistInitialized) {
-      populateSummary(widget.myHomeList);
+      summarys = widget.myHomeSummary;
     }
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: CustomBarWidget(
         height: 150,
-        sortMonth: sortMonth,
-        summary: summary,
-        year: year,
-        totalDue: totalDue,
-        totalExpected: totalExpected,
-        totalPaid: totalPaid,
+        sortMonth: summary.month,
+        year: summary.year,
+        totalDue: summary.due,
+        totalExpected: summary.expected,
+        totalPaid: summary.paid,
         nextPressed: () {
-          sort(summary, sortMonth + 1);
+          if (month <= currDate.month) {
+            if (month == Constants.dec) {
+              sort(summarys, '01', year+1);
+            } else {
+              sort(summarys, month + 1, year);
+            }
+          }
         },
         prevPressed: () {
-          if(sortMonth==1){
-            fetchMore(summary, sortMonth - 1, year-1);
-          sort(summary, sortMonth - 1);
-          }else{
-            fetchMore(summary, sortMonth - 1, year);
-          sort(summary, sortMonth - 1);
-          }        },
+          if (month == Constants.jan) {
+              sort(summarys, '12', year-1);
+            } else {
+              sort(summarys, month - 1, year);
+            }
+        },
       ),
-      body: summary != null && summary.isNotEmpty
+      body: summary != null
           ? SingleChildScrollView(
               physics: ScrollPhysics(),
               child: Column(
@@ -107,10 +112,10 @@ class _MyHomePageState extends State<Home> {
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => Apartment(
-                  month: summary.elementAt(index).month,
-                  apartmentId: summary.elementAt(index).apartment_id,
+                  month: summary.month,
+                  apartmentId: sorted.elementAt(index).apartment_id,
                   passedList:
-                      passList(summary, summary.elementAt(index).apartment_id),
+                      passList(sorted, sorted.elementAt(index).apartment_id),
                 )));
       },
       child: Container(
@@ -181,79 +186,20 @@ class _MyHomePageState extends State<Home> {
     );
   }
 
-  Future<void> fetchHome(var companyId, var month, var year) async {
-    var result = await NetworkApi().fetchHome(companyId, month, year.toString());
-    print(result);
-    var Map = json.decode(result);
-    myHomeResponse = MyHomeResponse.fromJson(Map);
-    insertHome(myHomeResponse.data.myhomes);
-    fetchDbHome();
-  }
-
-  void populateSummary(List<MyHome> myHomeList) {
-    if (myHomeList != null) {
-      if (myHomeList.isNotEmpty) {
-        homelistInitialized = true;
-        setState(() {
-          for (var i = 0; i < myHomeList.length; i++) {
-            summary.add(myHomeList.elementAt(i));
-          }
-        });
-      } else {
-        setState(() {
-          hasMore = false;
-        });
-      }
-    }
-    sort(summary, sortMonth);
-  }
-
-  void sort(List<MyHome> values, var mnth) {
+  void sort(List<MyHomeSummary> summarys, var mnth, var year) {
     setState(() {
-      var due = 0;
-      var expected = 0;
-      var paid = 0;
-      if (values != null && values.isNotEmpty) {
-        if (mnth <= month) {
-          sorted.clear();
-          sortMonth = mnth;
-          for (int i = 0; i < values.length; i++) {
-            var c = values.elementAt(i).month;
-            if (values.elementAt(i).month == '0' + mnth.toString()) {
-              year =int.parse(values.elementAt(i).year);
-              dbHelper
-                  .fetchSingleImage('image0', values.elementAt(i).apartment_id)
-                  .then((value) => {updateState(i, value, values)});
-              due = due + int.parse(values.elementAt(i).due);
-              expected = expected + int.parse(values.elementAt(i).expected);
-              paid = paid + int.parse(values.elementAt(i).paid);
-            }
-          }
-          totalDue = due;
-          totalExpected = expected;
-          totalPaid = paid;
-        } else {}
-      }
-    });
-  }
-
-  void updateState(var index, var value, var values) {
-    setState(() {
-      values.elementAt(index).banner = value;
-      sorted.add(values.elementAt(index));
-    });
-  }
-
-  void fetchMore(List<MyHome> values, var month, var year) {
-    if (hasMore) {
-      for (int i = 0; i < values.length; i++) {
-        if (values.elementAt(i).month == '0' + month.toString()) {
-          if (i == values.length - 1) {
-            fetchHome(companyId, month - 1, year);
+      month = mnth;
+      year = year;
+      if (summarys != null && summarys.isNotEmpty) {
+        for (int i = 0; i < summarys.length; i++) {
+          if (summarys.elementAt(i).month == mnth &&
+              summarys.elementAt(i).year == year) {
+            summary = summarys.elementAt(i);
           }
         }
       }
-    }
+    });
+    fetchDbHome();
   }
 
   List<MyHome> passList(List<MyHome> values, var selectedId) {
@@ -266,25 +212,11 @@ class _MyHomePageState extends State<Home> {
     return pass;
   }
 
-  void insertHome(List<MyHome> myhomes) async {
-    for (int i = 0; i < myhomes.length; i++) {
-      MyHome myHome = MyHome();
-      myHome.id = myhomes.elementAt(i).id;
-      myHome.apartment_id = myhomes.elementAt(i).apartment_id;
-      myHome.company_id = myhomes.elementAt(i).company_id;
-      myHome.title = myhomes.elementAt(i).title;
-      myHome.year = myhomes.elementAt(i).year;
-      myHome.month = myhomes.elementAt(i).month;
-      myHome.paid = myhomes.elementAt(i).paid;
-      myHome.expected = myhomes.elementAt(i).expected;
-      myHome.due = myhomes.elementAt(i).due;
-      final id = await dbHelper.insertHome(myHome);
-      print('inserted row id: $id');
-    }
-  }
-
   Future<void> fetchDbHome() async {
-    var res = await dbHelper.fetchHome();
-    populateSummary(res);
+    var res = await dbHelper.fetchHome(month, year);
+    setState(() {
+      sorted = res;
+    });
+    sort(summarys, month, year);
   }
 }
