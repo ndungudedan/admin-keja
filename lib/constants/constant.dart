@@ -21,6 +21,9 @@ class Constants {
   static final fail = '0'; //network query failed
   static final success = '1'; //network query successful
 
+  static final jan = '1';
+  static final dec = '12';
+
   static final imagestable = 'images_table';
   static final tagstable = 'tags_table';
   static final featurestable = 'features_table';

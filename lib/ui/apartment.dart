@@ -390,7 +390,7 @@ class _MyHomePageState extends State<Apartment> {
   }
 
   Future<void> fetchDbHome() async {
-    var res = await dbHelper.fetchHome();
+    var res = await dbHelper.fetchAllHome();
     populateSummary(res);
   }
 
