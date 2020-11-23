@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:flutter/material.dart';
 
 class PhotoViewer extends StatefulWidget {
@@ -37,7 +38,7 @@ class _MyHomePageState extends State<PhotoViewer> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.black,
+      backgroundColor: LightColors.kLightYellow,
       appBar: AppBar(
         automaticallyImplyLeading: true,
         leading: IconButton(

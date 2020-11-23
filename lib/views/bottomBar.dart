@@ -1,19 +1,22 @@
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:flutter/material.dart';
 
 class MyBottomAppBar extends StatelessWidget {
   const MyBottomAppBar({
-      this.companyPressed, this.homePressed, this.settingsPressed,});
+    this.companyPressed,
+    this.homePressed,
+    this.settingsPressed,
+    this.selected,
+  });
   final GestureTapCallback homePressed;
   final GestureTapCallback companyPressed;
   final GestureTapCallback settingsPressed;
-  static final centerLocations = <FloatingActionButtonLocation>[
-    FloatingActionButtonLocation.centerDocked,
-    FloatingActionButtonLocation.centerFloat,
-  ];
+  final int selected;
 
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
+      color: LightColors.kDarkYellow,
       // shape: shape,
       child: IconTheme(
         data: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
@@ -21,10 +24,10 @@ class MyBottomAppBar extends StatelessWidget {
           //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             IconButton(
-              tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-              icon: const Icon(
+              icon:  Icon(
                 Icons.menu,
-                color: Colors.amberAccent,
+                color: selected==0 ? Colors.deepOrange :Colors.white,
+                size: 30,
               ),
               onPressed: () {
                 homePressed();
@@ -32,19 +35,20 @@ class MyBottomAppBar extends StatelessWidget {
             ),
             //        if (centerLocations.contains(fabLocation)) const Spacer(),
             IconButton(
-              icon: const Icon(
+              icon:  Icon(
                 Icons.search,
-                color: Colors.amber,
+                color: selected==1 ? Colors.deepOrange :Colors.white,
+                size: 30,
               ),
               onPressed: () {
-                
                 companyPressed();
               },
             ),
             IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.favorite,
-                color: Colors.amberAccent,
+                color: selected==2 ? Colors.deepOrange :Colors.white,
+                size: 30,
               ),
               onPressed: () {
                 settingsPressed();

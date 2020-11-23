@@ -38,12 +38,13 @@ Map<String, dynamic> _$MyHomeToJson(MyHome instance) => <String, dynamic>{
 
 MyHomeSummary _$MyHomeSummaryFromJson(Map<String, dynamic> json) {
   return MyHomeSummary(
+    id: json['id'] as String,
     expected: json['expected'] as String,
     paid: json['paid'] as String,
     due: json['due'] as String,
     month: json['month'] as String,
     year: json['year'] as String,
-  )..id = json['id'] as String;
+  );
 }
 
 Map<String, dynamic> _$MyHomeSummaryToJson(MyHomeSummary instance) =>

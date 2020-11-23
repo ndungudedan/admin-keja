@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:admin_keja/models/company.dart';
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/views/textfield.dart';
 import 'package:flutter/material.dart';
 
@@ -30,15 +31,12 @@ class _MyHomePageState extends State<EditCompany> {
   final FocusNode _phoneFocus = FocusNode();
   final FocusNode _locationFocus = FocusNode();
   MyCompany company = MyCompany();
-  List<String> accounts = [
-    'Credit',
-    'Saving',
-  ];
 
   @override
   void initState() {
     super.initState();
     company = widget.company;
+    initText(company);
   }
 
   @override
@@ -46,42 +44,22 @@ class _MyHomePageState extends State<EditCompany> {
     super.dispose();
   }
 
+  void initText(MyCompany company) {
+    _titleController.text = company.name ??'';
+    _emailController.text = company.email??'';
+    _addressController.text = company.address??'';
+    _phoneController.text = company.phone??'';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('data'),
+          title: Text('Edit Company Details'),
+          backgroundColor: LightColors.kDarkYellow,
         ),
         body: ListView(
           children: <Widget>[
-            Center(
-                child: Stack(
-              children: <Widget>[
-                CircleAvatar(
-                  minRadius: 50,
-                  maxRadius: 70,
-                  backgroundImage: imageuri != null
-                      ? FileImage(imageuri)
-                      : AssetImage('assets/images/avatar.png'),
-                  backgroundColor: Colors.amber,
-                ),
-                Positioned(
-                  bottom: 5,
-                  right: 5,
-                  child: CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.white,
-                    child: IconButton(
-                      icon: Icon(Icons.edit),
-                      color: Colors.blue,
-                      onPressed: () {
-
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            )),
             Form(
               key: _formKey,
               child: Column(
@@ -128,7 +106,7 @@ class _MyHomePageState extends State<EditCompany> {
                         borderRadius: BorderRadius.circular(80.0),
                         side: BorderSide(color: Colors.amberAccent),
                       ),
-                      color: Colors.lightBlueAccent,
+                      color: const Color.fromRGBO(247, 64, 106, 1.0),
                       highlightElevation: 10,
                       elevation: 15,
                       animationDuration: Duration(seconds: 2),
@@ -148,12 +126,9 @@ class _MyHomePageState extends State<EditCompany> {
                 ],
               ),
             ),
-          
           ],
-        )
-        );
+        ));
   }
 
   void submit() {}
-
 }

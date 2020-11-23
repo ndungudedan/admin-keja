@@ -1,10 +1,14 @@
 import 'dart:convert';
 
 import 'package:admin_keja/connection/networkapi.dart';
+import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/database/dboperations.dart';
+import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/models/tenant.dart';
 import 'package:admin_keja/models/transaction.dart';
+import 'package:admin_keja/theme/colors/light_colors.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 //add call,message and email functions
@@ -18,85 +22,10 @@ class Tenant extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<Tenant> {
-  List<String> tableList = [
-    'Send to Mpesa',
-    'Deposit',
-    'Send Money',
-    'Loans',
-    'Savings',
-    'Utilities'
-  ];
-
-  List<String> icons = [
-    'assets/images/ic_account.png',
-    'assets/images/ic_fund_transfer.png',
-    'assets/images/ic_statement.png',
-    'assets/images/ic_loan.png',
-    'assets/images/ic_deposite.png',
-    'assets/images/ic_more.png'
-  ];
-  List<String> accounts = [
-    'Savings Account',
-    'Credit Account',
-    'Savings Account',
-    'Credit Account'
-  ];
-
-  List<Icon> hide = [
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-  ];
   bool show;
   bool check = false;
   var apartmentId;
+  Constants constants=Constants();
   final dbHelper = DbOperations.instance;
   MyTenant myTenant = MyTenant();
   MyTransaction transaction = MyTransaction();
@@ -127,60 +56,74 @@ class _MyHomePageState extends State<Tenant> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Tenant'),
+          backgroundColor: LightColors.kDarkYellow,
         ),
         body: ListView(
           children: <Widget>[
-            Card(
-              elevation: 10,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: NetworkImage(''),
-                  ),
-                  Container(
-                    child: Column(
-                      children: <Widget>[
-                        Text('Name'),
-                        Text('Name'),
-                        Text('Name'),
-                        Text('Name'),
-                        myTenant.unit == null
-                            ? RaisedButton(
-                                child: Text("unit"),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text("Assign Unit"),
-                                        content: TextFormField(
-                                          controller: unitController,
-                                        ),
-                                        actions: <Widget>[
-                                          FlatButton(
-                                            child: Text("OK"),
-                                            onPressed: () {
-                                              Navigator.pop(
-                                                  context, unitController.text);
-                                            },
-                                          )
-                                        ],
-                                      );
-                                    },
-                                  ).then((val) {
-                                    setState(() {
-                                      unit = val;
-                                    });
-                                  });
-                                },
-                              )
-                            : Text('unit: ' + myTenant.unit)
-                      ],
+            Container(
+              margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
+              child: Card(
+                elevation: 10,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    CachedNetworkImage(
+                            fit: BoxFit.cover,
+                            imageUrl: constants.path+sharedPreferences.getCompanyId()
+                            +constants.folder+myTenant.photo,
+                            placeholder: (context, url) => Container(
+                                alignment: Alignment(0.0, 2.0),
+                                child:
+                                    Center(child: CircularProgressIndicator())),
+                            errorWidget: (context, url, error) => Container(
+                                alignment: Alignment(0.0, 2.0),
+                                child: Center(child: Icon(Icons.error))),
                     ),
-                  )
-                ],
+                    Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(myTenant.name),
+                          Text(myTenant.email),
+                          Text(myTenant.name),
+                          Text(myTenant.email),
+                          myTenant.unit == null
+                              ? RaisedButton(
+                                  child: Text("unit"),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text("Assign Unit"),
+                                          content: TextFormField(
+                                            controller: unitController,
+                                          ),
+                                          actions: <Widget>[
+                                            FlatButton(
+                                              child: Text("OK"),
+                                              onPressed: () {
+                                                Navigator.pop(
+                                                    context, unitController.text);
+                                              },
+                                            )
+                                          ],
+                                        );
+                                      },
+                                    ).then((val) {
+                                      setState(() {
+                                        unit = val;
+                                      });
+                                    });
+                                  },
+                                )
+                              : Text('unit: ' + myTenant.unit)
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
             Container(

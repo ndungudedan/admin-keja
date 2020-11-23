@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:admin_keja/common/app_icons.dart';
 import 'package:admin_keja/connection/networkapi.dart';
+import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/database/dboperations.dart';
 import 'package:admin_keja/management/management.dart';
-import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/home.dart';
 import 'package:admin_keja/models/tenant.dart';
 import 'package:admin_keja/models/transaction.dart';
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/tenant.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -15,13 +16,13 @@ import 'package:intl/intl.dart';
 class Apartment extends StatefulWidget {
   Apartment({
     Key key,
-    this.passedList,
     this.apartmentId,
     this.month,
+    this.year,
   }) : super(key: key);
-  List<MyHome> passedList;
   String apartmentId;
   String month;
+  String year;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -31,38 +32,34 @@ class _MyHomePageState extends State<Apartment> {
   bool check = false;
   bool hasMore = true;
   final dbHelper = DbOperations.instance;
+  Constants constants=Constants();
   MyTenant tenant = MyTenant();
-  List<MyHome> passedList = List<MyHome>();
   List<MyTenant> tenantList = List<MyTenant>();
   TransactionList transactionList = TransactionList();
   List<MyTransaction> transactions = List<MyTransaction>();
-  List<MyTransaction> sortedtransactions = List<MyTransaction>();
-  List<MyHome> summary = List<MyHome>();
-  List<MyHome> sorted = List<MyHome>();
+  List<MyHome> summarys = List<MyHome>();
+  MyHome summary = MyHome();
   MyHomeResponse myHomeResponse = MyHomeResponse();
   TransactionResponse transactionResponse = TransactionResponse();
   MyTenantResponse myTenantResponse = MyTenantResponse();
-  var totalExpected = 0, totalPaid = 0, totalDue = 0;
+  int selected_index = 0;
   var apartmentId, companyId;
-  int month, sortMonth;
+  String month;
   var year;
   var currDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    summary = widget.passedList;
     apartmentId = widget.apartmentId;
-    //alter this to the lowest month in list
-    month = currDate.month;
-    year = currDate.year;
-    sortMonth = month;
+    month = widget.month;
+    year = widget.year;
     getPrefs();
-    sortSummary(summary, month);
-    fetchTransactions(apartmentId, month,year);
-    fetchSummary(apartmentId, month,year);
+    fetchDbHome();
+
+    fetchTransactions(apartmentId, month, year);
+    fetchSummary(apartmentId, month, year);
     fetchTenants();
-    fetchDbTransactions();
     fetchDbTenants();
   }
 
@@ -77,11 +74,18 @@ class _MyHomePageState extends State<Apartment> {
       length: 2,
       child: Scaffold(
           appBar: AppBar(
+            backgroundColor: LightColors.kDarkYellow,
             title: Text('Apartment'),
             bottom: TabBar(
               tabs: <Widget>[
-                Text('Summary'),
-                Text('Tenants'),
+                Tab(
+                  icon: Icon(Icons.house),
+                  text: 'Summary',
+                ),
+                Tab(
+                  icon: Icon(Icons.person),
+                  text: 'Tenants',
+                ),
               ],
             ),
           ),
@@ -100,34 +104,21 @@ class _MyHomePageState extends State<Apartment> {
                             IconButton(
                               icon: Icon(AppIcons.left_open_outline),
                               onPressed: () {
-                                if(sortMonth==1){
-                                  setState(() {
-                                  sortMonth = sortMonth - 1;
-                                });
-                                fetchMore(summary, sortMonth,year-1);
-                                sortSummary(summary, sortMonth);
-                                sortTransactions(transactions, sortMonth);
-                                }
-                                else{
-                                  setState(() {
-                                  sortMonth = sortMonth - 1;
-                                });
-                                fetchMore(summary, sortMonth,year);
-                                sortSummary(summary, sortMonth);
-                                sortTransactions(transactions, sortMonth);
-                                }
-                               
+                                sort(selected_index - 1);
                               },
                             ),
                             Container(
                               child: Column(
                                 children: <Widget>[
                                   Center(
-                                    child: Text(DateFormat.MMM().format(DateTime.parse(
-                                year.toString() +
-                                    '0' +
-                                    sortMonth.toString() +
-                                    '01'))+' '+year.toString()),
+                                    child: Text(
+                                      summary.month!=null ?
+                                     DateFormat.MMM().format(
+                                DateTime.parse(summary.month+summary.year+'01')
+                                )+' '+summary.year
+                                : DateFormat.MMM().format(
+                                DateTime.parse(month+year+'01'))+' '+year,
+                                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),),
                                   ),
                                   Center(
                                     child: Row(
@@ -135,7 +126,7 @@ class _MyHomePageState extends State<Apartment> {
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Text('Expected: '),
-                                        Text(totalExpected.toString()),
+                                        Text(summary.expected),
                                       ],
                                     ),
                                   ),
@@ -145,7 +136,7 @@ class _MyHomePageState extends State<Apartment> {
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Text('paid: '),
-                                        Text(totalPaid.toString())
+                                        Text(summary.paid)
                                       ],
                                     ),
                                   ),
@@ -155,7 +146,7 @@ class _MyHomePageState extends State<Apartment> {
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Text('due: '),
-                                        Text(totalDue.toString()),
+                                        Text(summary.due),
                                       ],
                                     ),
                                   ),
@@ -165,11 +156,7 @@ class _MyHomePageState extends State<Apartment> {
                             IconButton(
                               icon: Icon(AppIcons.right_open_outline),
                               onPressed: () {
-                                setState(() {
-                                  sortMonth = sortMonth + 1;
-                                });
-                                sortSummary(summary, sortMonth);
-                                sortTransactions(transactions, sortMonth);
+                                sort(selected_index + 1);
                               },
                             ),
                           ],
@@ -225,7 +212,9 @@ class _MyHomePageState extends State<Apartment> {
                                   .toList(),
                             ),
                           )
-                        : Text('Empty')
+                        : Center(child: Container(
+                          margin: EdgeInsets.all(40),
+                          child: Text('No data')))
                   ],
                 ),
               ),
@@ -244,18 +233,30 @@ class _MyHomePageState extends State<Apartment> {
                                     myTenant: tenantList.elementAt(index))));
                           },
                           child: Container(
-                            color: tenantList.elementAt(index).payed != '0'
-                                ? Colors.white
+                            decoration: BoxDecoration(border: Border.all(
+                              color: tenantList.elementAt(index).payed != '0'
+                                ? Colors.green
                                 : Colors.red,
+                            )),
                             child: ListTile(
+                              isThreeLine: true,
                               title: Text(tenantList.elementAt(index).name),
-                              subtitle: Text(tenantList.elementAt(index).email),
-                              trailing: Text(
-                                tenantList.elementAt(index).photo,
-                                style: TextStyle(color: Colors.green),
+                              subtitle: Text(tenantList.elementAt(index).email
+                              +'\n'+'unit: '+tenantList.elementAt(index).unit),
+                              trailing: CachedNetworkImage(
+                            fit: BoxFit.cover,
+                            imageUrl: constants.path+sharedPreferences.getCompanyId()
+                            +constants.folder+tenantList.elementAt(index).photo,
+                            placeholder: (context, url) => Container(
+                                alignment: Alignment(0.0, 2.0),
+                                child:
+                                    Center(child: CircularProgressIndicator())),
+                            errorWidget: (context, url, error) => Container(
+                                alignment: Alignment(0.0, 2.0),
+                                child: Center(child: Icon(Icons.error))),
+                    ),
                               ),
                             ),
-                          ),
                         );
                       })
                   : Center(child: Text('empty')),
@@ -273,17 +274,19 @@ class _MyHomePageState extends State<Apartment> {
     fetchDbTenants();
   }
 
-  Future<void> fetchTransactions(var apartmentId, var month,var year) async {
-    var result = await NetworkApi().fetchTransactions(apartmentId, month,year.toString());
+  Future<void> fetchTransactions(var apartmentId, var month, var year) async {
+    var result = await NetworkApi()
+        .fetchTransactions(apartmentId, month, year.toString());
     print(result);
     var Map = json.decode(result);
     transactionResponse = TransactionResponse.fromJson(Map);
     insertTransaction(transactionResponse.data.transactions);
-    fetchDbTransactions();
+    //fetchDbTransactions();
   }
 
-  Future<void> fetchSummary(var apartmentId, var month,var year) async {
-    var result = await NetworkApi().fetchApartmentSummary(apartmentId, month,year.toString());
+  Future<void> fetchSummary(var apartmentId, var month, var year) async {
+    var result = await NetworkApi()
+        .fetchApartmentSummary(apartmentId, month, year.toString());
     print(result);
     var Map = json.decode(result);
     myHomeResponse = MyHomeResponse.fromJson(Map);
@@ -291,77 +294,23 @@ class _MyHomePageState extends State<Apartment> {
     fetchDbHome();
   }
 
-  void populateSummary(List<MyHome> myHomeList) {
-    if (myHomeList != null) {
-      if (myHomeList.isNotEmpty) {
-        setState(() {
-          for (var i = 0; i < myHomeList.length; i++) {
-            summary.add(myHomeList.elementAt(i));
-          }
-        });
-      } else {
-        setState(() {
-          hasMore = false;
-        });
-      }
-    }
-  }
-
-  void transactionSummary(List<MyTransaction> transactionList) {
-    if (transactionList != null) {
-      if (transactionList.isNotEmpty) {
-        setState(() {
-          for (var i = 0; i < transactionList.length; i++) {
-            transactions.add(transactionList.elementAt(i));
-          }
-        });
-      }
-    }
-  }
-
-  void sortSummary(List<MyHome> values, var mnth) {
+  void sort(int index) {
     setState(() {
-      if (mnth <= month) {
-        sorted.clear();
-        sortMonth = mnth;
-        for (var i = 0; i < values.length; i++) {
-          if (values.elementAt(i).month == '0' + mnth.toString()) {
-            sorted.add(values.elementAt(i));
-            totalDue = int.parse(values.elementAt(i).due);
-            totalExpected = int.parse(values.elementAt(i).expected);
-            totalPaid = int.parse(values.elementAt(i).paid);
-          } else {
-            totalDue = 0;
-            totalExpected = 0;
-            totalPaid = 0;
-          }
-        }
+      if (index < summarys.length && index >= 0) {
+        selected_index = index;
+        summary = summarys.elementAt(index);
       }
     });
+    fetchDbTransactions(summary.month, summary.year);
   }
 
-  void sortTransactions(List<MyTransaction> values, var mnth) {
-    setState(() {
-      if (mnth <= month) {
-        sortedtransactions.clear();
-        sortMonth = mnth;
-        for (var i = 0; i < transactions.length; i++) {
-          if (values.elementAt(i).month == '0' + mnth.toString()) {
-            year = values.elementAt(i).year;
-            sortedtransactions.add(transactions.elementAt(i));
-          }
-        }
-      }
-    });
-  }
-
-  void fetchMore(List<MyHome> values, var month,var year) {
+  void fetchMore(List<MyHome> values, var month, var year) {
     if (hasMore) {
       for (int i = 0; i < values.length; i++) {
         if (values.elementAt(i).month == '0' + month.toString()) {
           if (i == values.length - 1) {
-            fetchSummary(apartmentId, month - 1,year);
-            fetchTransactions(companyId, month,year);
+            fetchSummary(apartmentId, month - 1, year);
+            fetchTransactions(companyId, month, year);
           }
         }
       }
@@ -391,7 +340,10 @@ class _MyHomePageState extends State<Apartment> {
 
   Future<void> fetchDbHome() async {
     var res = await dbHelper.fetchAllHome();
-    populateSummary(res);
+    setState(() {
+      summarys = res;
+    });
+    sort(selected_index);
   }
 
   void insertTransaction(List<MyTransaction> mytransactions) async {
@@ -412,9 +364,11 @@ class _MyHomePageState extends State<Apartment> {
     }
   }
 
-  Future<void> fetchDbTransactions() async {
-    var res = await dbHelper.fetchTransactions(apartmentId);
-    transactionSummary(res);
+  Future<void> fetchDbTransactions(var month, var year) async {
+    var res = await dbHelper.fetchTransactions(apartmentId, month, year);
+    setState(() {
+      transactions = res;
+    });
   }
 
   void insertTenant(List<MyTenant> mytenants) async {

@@ -88,7 +88,9 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      bottomNavigationBar: MyBottomAppBar(homePressed: () {
+      bottomNavigationBar: MyBottomAppBar(
+        selected: _selectedIndex,
+        homePressed: () {
         setState(() {
           _selectedIndex = 0;
         });

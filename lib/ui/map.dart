@@ -1,3 +1,4 @@
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:admin_keja/models/locations.dart' as locations;
@@ -38,7 +39,7 @@ class _MyAppState extends State<Gmap> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Google Office Locations'),
-          backgroundColor: Colors.green[700],
+          backgroundColor: LightColors.kDarkYellow,
         ),
         body: Container(
           height: 200,

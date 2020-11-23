@@ -4,6 +4,7 @@ import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/category.dart';
 import 'package:admin_keja/models/status.dart';
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/photoviewer.dart';
 import 'package:admin_keja/utility/connectioncallback.dart';
 import 'package:admin_keja/utility/uploadProgress.dart';
@@ -120,7 +121,7 @@ class _CreateApartmentState extends State<CreateApartment> {
       if (result != null) {
         List<File> templist = result.paths.map((path) => File(path)).toList();
         setState(() {
-          for (int i = 0; i < templist.length; i++) {
+          for (int i = 0; i < 16; i++) {
             image_uri.add(templist.elementAt(i));
             imagepaths.add(templist.elementAt(i).path);
             compressAndGetFile(templist.elementAt(i));
@@ -178,6 +179,7 @@ class _CreateApartmentState extends State<CreateApartment> {
     );
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: LightColors.kDarkYellow,
       appBar: AppBar(
         title: Text('createApartment'),
       ),
@@ -441,7 +443,7 @@ class _CreateApartmentState extends State<CreateApartment> {
               child: Text(toUpload.length.toString() + '/16'),
             ),
             Center(
-              child: Container(
+              child: toUpload.length<16 ?? Container(
                 margin: EdgeInsets.all(12),
                 height: MediaQuery.of(context).size.height / 8,
                 width: MediaQuery.of(context).size.width,
@@ -745,6 +747,7 @@ class _CreateApartmentState extends State<CreateApartment> {
 
   Container locationMap() {
     return Container(
+      padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
             border: Border.all(
                 style: BorderStyle.solid, width: 2, color: Colors.blueGrey),
@@ -780,7 +783,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                       onMapCreated: _onMapCreated,
                       initialCameraPosition: CameraPosition(
                         target: LatLng(latitude, longitude),
-                        zoom: 2,
+                        zoom: 12,
                       ),
                       markers: _markers.values.toSet(),
                     ),

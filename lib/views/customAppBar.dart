@@ -1,4 +1,5 @@
 import 'package:admin_keja/common/app_icons.dart';
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -28,17 +29,18 @@ class CustomBarWidget extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _CustomBarWidgetState extends State<CustomBarWidget> {
-  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 160.0,
+      height: 170.0,
         child: Stack(
           children: [
             Container(
-                  color: Colors.red,
-                  width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+          color: LightColors.kDarkYellow,
+          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15),bottomRight: Radius.circular(15))),
+              width: MediaQuery.of(context).size.width,
                   height: 100.0,
                   child: Center(
                     child: Text(
@@ -55,7 +57,7 @@ class _CustomBarWidgetState extends State<CustomBarWidget> {
                 padding: EdgeInsets.symmetric(horizontal: 20.0),
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                          color: Colors.white),
+                          color: LightColors.kLightYellow2),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -69,11 +71,12 @@ class _CustomBarWidgetState extends State<CustomBarWidget> {
                       child: Column(
                         children: <Widget>[
                           Center(
-                            child: Text(DateFormat.MMM().format(DateTime.parse(
-                                widget.year.toString() +
-                                    '0' +
-                                    widget.sortMonth.toString() +
-                                    '01'))+' '+widget.year.toString()),
+                            child: Text(
+                              DateFormat.MMM().format(
+                                DateTime.parse(widget.year+widget.sortMonth+'01')
+                                )+' '+widget.year,
+                                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+                              ),
                           ),
                           Center(
                             child: Row(

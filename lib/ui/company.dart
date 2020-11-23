@@ -2,9 +2,9 @@ import 'package:admin_keja/common/styles.dart';
 import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/company.dart';
 import 'package:admin_keja/models/status.dart';
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/apartdetails.dart';
 import 'package:admin_keja/ui/apartment.dart';
-import 'package:admin_keja/utility/utility.dart';
 import 'package:admin_keja/views/apartmentCard.dart';
 import 'package:admin_keja/views/richtext.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +37,9 @@ class _MyHomePageState extends State<Company> {
     status = widget.status;
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+      //backgroundColor: LightColors.kLightYellow,
         appBar: AppBar(
+          backgroundColor: LightColors.kDarkYellow,
           title: Text('My company'),
           automaticallyImplyLeading: false,
         ),

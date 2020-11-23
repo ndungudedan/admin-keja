@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:admin_keja/database/dboperations.dart';
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/utility/utility.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -47,7 +48,7 @@ class _MyHomePageState extends State<EditPhotoViewer> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.black,
+    backgroundColor: LightColors.kDarkYellow,
       appBar: AppBar(
         automaticallyImplyLeading: true,
         leading: IconButton(
@@ -100,7 +101,7 @@ class _MyHomePageState extends State<EditPhotoViewer> {
     return Container(
       decoration: BoxDecoration(
           border:
-              Border.all(style: BorderStyle.solid, width: 2, color: Colors.red),
+              Border.all(style: BorderStyle.solid, width: 2, color: LightColors.kLightYellow),
           color: Colors.transparent),
       child: TextFormField(
         controller: _tagController,

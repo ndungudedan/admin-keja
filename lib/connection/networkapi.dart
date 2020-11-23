@@ -12,6 +12,12 @@ class NetworkApi {
     return data;
   }
 
+    Future<dynamic> changeCredentials(var email, var pass,var userId) async {
+    Network network = Network(constants.baseurl);
+    var data = await network.call(changeCredentialsjson(email, pass,userId));
+    return data;
+  }
+
   Future<dynamic> fetchCompany(var userId) async {
     Network network = Network(constants.baseurl);
     var data = await network.call(companyjson(userId));
@@ -150,6 +156,15 @@ class NetworkApi {
       'functionality':'login',
       'email': email,
       'password': pass,
+    });
+    return json;
+  }
+    String changeCredentialsjson(var email, var pass,var userId) {
+    var json = jsonEncode(<String, String>{
+      'functionality':'updateCredentials',
+      'email': email,
+      'password': pass,
+      'userId': userId,
     });
     return json;
   }

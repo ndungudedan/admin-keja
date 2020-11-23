@@ -69,18 +69,23 @@ class ApartmentCard extends StatelessWidget {
               bottom: 0,
               left: 0,
               child: SizedBox(
-                height: 136,
+                height: 140,
                 width: size.width - 200,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                       Spacer(),
-                          Text(
-                            apartment.title,
-                            style: TextStyle(
-                                color: Styles.primaryFontColor,
-                                fontSize: Styles.h3,
-                                fontWeight: Styles.lightFont),
+                       //Spacer(),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+                            child: Text(
+                              apartment.title,
+                              softWrap: true,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: Styles.primaryFontColor,fontSize: 16.0,
+              fontWeight: FontWeight.w700,),
+                            ),
                           ),
                           RichTextArea(
                             title: '',

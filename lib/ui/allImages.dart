@@ -4,6 +4,7 @@ import 'package:admin_keja/database/dboperations.dart';
 import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/company.dart';
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/editPhotoViewer.dart';
 import 'package:admin_keja/utility/utility.dart';
 import 'package:file_picker/file_picker.dart';
@@ -43,6 +44,7 @@ class _MyHomePageState extends State<AllImages> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: LightColors.kDarkYellow,
           title: Text('Pictures'),
         ),
         body: Container(
@@ -59,6 +61,7 @@ class _MyHomePageState extends State<AllImages> {
                     child: GestureDetector(
                       onTap: () {},
                       child: Stack(
+                        fit: StackFit.expand,
                         children: <Widget>[
                           picList.elementAt(index) == null ||
                                   picList.elementAt(index).isEmpty

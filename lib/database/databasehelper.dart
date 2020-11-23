@@ -5,7 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
-  static final _databaseName = "cheki_keja.db";
+  static final _databaseName = "admin_keja.db";
   static final _databaseVersion = 1;
 
   static final imagestable = Constants.imagestable;
@@ -143,8 +143,6 @@ class DatabaseHelper {
           )
           ''');
     await db.execute('''
-<<<<<<< HEAD
-=======
           CREATE TABLE $homesummarytable (
             month TEXT NOT NULL,
             year TEXT NOT NULL,
@@ -154,7 +152,6 @@ class DatabaseHelper {
           )
           ''');
     await db.execute('''
->>>>>>> 5c6701b9a1d3c747abe0828cf7c36ded3d426857
           CREATE TABLE $transactionstable (
             id INTEGER PRIMARY KEY,
             online_id TEXT NOT NULL,

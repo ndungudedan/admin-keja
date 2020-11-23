@@ -52,6 +52,7 @@ dependencies:
   convex_bottom_bar: ^2.5.1+1
   commons: ^0.7.8+1
   progress_dialog:
+  fl_chart: ^0.12.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -95,6 +96,19 @@ flutter:
   - family: AppIcons
     fonts:
       - asset: assets/fonts/AppIcons.ttf
+  - family: Poppins
+    fonts:
+      - asset: assets/fonts/Poppins-Regular.ttf
+      - asset: assets/fonts/Poppins-Light.ttf
+        weight: 300
+      - asset: assets/fonts/Poppins-Medium.ttf
+        weight: 500
+      - asset: assets/fonts/Poppins-Regular.ttf
+        weight: 600
+      - asset: assets/fonts/Poppins-Bold.ttf
+        weight: 700
+      - asset: assets/fonts/Poppins-ExtraBold.ttf
+        weight: 800
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

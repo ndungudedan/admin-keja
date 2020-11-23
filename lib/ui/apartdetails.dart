@@ -6,6 +6,7 @@ import 'package:admin_keja/database/dboperations.dart';
 import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/features.dart';
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/allImages.dart';
 import 'package:admin_keja/ui/editApartment.dart';
 import 'package:admin_keja/ui/editPhotoViewer.dart';
@@ -66,6 +67,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
+        backgroundColor: LightColors.kDarkYellow,
         automaticallyImplyLeading: true,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
@@ -84,6 +86,8 @@ class _MyHomePageState extends State<ApartmentDetails> {
             height: 300,
             child: picList != null && picList.isNotEmpty
                 ? Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                     children: [
                       Expanded(
                         child: GridView.count(
@@ -99,6 +103,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                   child: GestureDetector(
                                     onTap: () {},
                                     child: Stack(
+                                      fit: StackFit.expand,
                                       children: <Widget>[
                                         picList.elementAt(index) == null ||
                                                 picList.elementAt(index).isEmpty
@@ -111,7 +116,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                             : Image.memory(
                                                 Utility.dataFromBase64String(
                                                     picList.elementAt(index)),
-                                                height: 150,
+                                                //height: 150,
                                                 fit: BoxFit.cover,
                                               ),
                                         Positioned(
@@ -144,8 +149,8 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                           ),
                                         ),
                                         Positioned(
-                                          top: 5,
-                                          right: 5,
+                                          top: 0,
+                                          right: 0,
                                           child: CircleAvatar(
                                             radius: 20,
                                             backgroundColor: Colors.white,
@@ -174,9 +179,12 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                           apartmentId: apartmentId,
                                         )));
                           },
-                          child: Text(
-                            'view all',
-                            style: TextStyle(color: Colors.blue),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'view all',
+                              style: TextStyle(color: Colors.blue,),
+                            ),
                           ))
                     ],
                   )
@@ -190,27 +198,11 @@ class _MyHomePageState extends State<ApartmentDetails> {
             //height: 200,
             child: Column(
               children: <Widget>[
-                Center(child: Text('Features')),
-                featurelist.isNotEmpty
-                    ? Center(
-                        child: Stack(
-                          children: [
-                            GridView.count(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              crossAxisCount: 2,
-                              childAspectRatio: 6.0,
-                              scrollDirection: Axis.vertical,
-                              children:
-                                  List.generate(featurelist.length, (index) {
-                                return featuresCard(
-                                    featurelist.elementAt(index));
-                              }),
-                            ),
-                            Positioned(
-                              bottom: 5,
-                              right: 5,
-                              child: CircleAvatar(
+                Center(child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(child: Text('Features')),
+                    CircleAvatar(
                                 radius: 20,
                                 backgroundColor: Colors.white,
                                 child: IconButton(
@@ -227,8 +219,21 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                   },
                                 ),
                               ),
-                            ),
-                          ],
+                  ],
+                )),
+                featurelist.isNotEmpty
+                    ? Center(
+                        child: GridView.count(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          crossAxisCount: 2,
+                          childAspectRatio: 6.0,
+                          scrollDirection: Axis.vertical,
+                          children:
+                              List.generate(featurelist.length, (index) {
+                            return featuresCard(
+                                featurelist.elementAt(index));
+                          }),
                         ),
                       )
                     : Container(
@@ -241,35 +246,14 @@ class _MyHomePageState extends State<ApartmentDetails> {
           ),
           Container(
                   padding: EdgeInsets.all(5),
-                  child: Stack(
-                    children: [
-                      Container(
-                        child: Column(
-                          children: <Widget>[
-                            Center(child: Text('More Details')),
-                            ListTile(
-                              title: Text('Phone'),
-                              leading: Icon(Icons.call),
-                              subtitle: Text(apartment.phone),
-                            ),
-                            ListTile(
-                              title: Text('Email'),
-                              leading: Icon(Icons.email),
-                              subtitle: Text(apartment.email),
-                            ),
-                            ListTile(
-                              title: Text('Address'),
-                              leading: Icon(Icons.account_box),
-                              subtitle:
-                                  Text(apartment.address + '\n' + apartment.location),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                              bottom: 5,
-                              right: 5,
-                              child: CircleAvatar(
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Center(child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(child: Text('More Details')),
+                            CircleAvatar(
                                 radius: 20,
                                 backgroundColor: Colors.white,
                                 child: IconButton(
@@ -286,9 +270,26 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                   },
                                 ),
                               ),
-                            ),
-                        
-                    ],
+                          ],
+                        )),
+                        ListTile(
+                          title: Text('Phone'),
+                          leading: Icon(Icons.call),
+                          subtitle: Text(apartment.phone),
+                        ),
+                        ListTile(
+                          title: Text('Email'),
+                          leading: Icon(Icons.email),
+                          subtitle: Text(apartment.email),
+                        ),
+                        ListTile(
+                          title: Text('Address'),
+                          leading: Icon(Icons.account_box),
+                          subtitle:
+                              Text(apartment.address + '\n' + apartment.location),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
           ConnectionCallback(
@@ -463,7 +464,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
             ),
           ),
           Positioned(
-            bottom: 5,
+            top: 0,
             right: 5,
             child: CircleAvatar(
               radius: 20,
@@ -675,7 +676,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
   void updateImage(var index) async {
     try {
       var tempImage = await FilePicker.platform.pickFiles(
-        type: FileType.image
+        type: FileType.custom,allowedExtensions: ['jpg', 'png', 'jpeg']
       );
       if (tempImage != null) {
         Navigator.of(context).push(MaterialPageRoute(

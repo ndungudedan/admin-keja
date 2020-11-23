@@ -2,6 +2,8 @@ import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/company.dart';
 import 'package:admin_keja/models/tenant.dart';
 import 'package:admin_keja/models/transaction.dart';
+import 'package:admin_keja/theme/colors/light_colors.dart';
+import 'package:admin_keja/ui/changeCredentials.dart';
 import 'package:admin_keja/ui/editCompany.dart';
 import 'package:admin_keja/utility/utility.dart';
 import 'package:flutter/material.dart';
@@ -17,82 +19,6 @@ class Settings extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<Settings> {
-  List<String> tableList = [
-    'Send to Mpesa',
-    'Deposit',
-    'Send Money',
-    'Loans',
-    'Savings',
-    'Utilities'
-  ];
-
-  List<String> icons = [
-    'assets/images/ic_account.png',
-    'assets/images/ic_fund_transfer.png',
-    'assets/images/ic_statement.png',
-    'assets/images/ic_loan.png',
-    'assets/images/ic_deposite.png',
-    'assets/images/ic_more.png'
-  ];
-  List<String> accounts = [
-    'Savings Account',
-    'Credit Account',
-    'Savings Account',
-    'Credit Account'
-  ];
-
-  List<Icon> hide = [
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-    Icon(
-      Icons.star,
-      color: Colors.amber,
-      size: 12,
-    ),
-  ];
   bool show;
   bool check = false;
   var apartmentId;
@@ -116,10 +42,14 @@ class _MyHomePageState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
+     // resizeToAvoidBottomInset: false,
+      //backgroundColor: LightColors.kLightYellow,
         body: CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
+          backgroundColor: LightColors.kDarkYellow,
             pinned: true,
             expandedHeight: 220.0,
             automaticallyImplyLeading: false,
@@ -211,12 +141,20 @@ class _MyHomePageState extends State<Settings> {
         SliverList(
           delegate: SliverChildListDelegate([
             ListTile(
+              onTap: () {
+                Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => ChangeCredentials()));
+              },
               leading: Icon(Icons.lock),
               title: Text('Change Credentials'),
             ),
             ListTile(
               leading: Icon(Icons.message),
               title: Text('Broadcast Messages'),
+            ),
+            ListTile(
+              leading: Icon(Icons.read_more),
+              title: Text('Terms & Conditions'),
             ),
             ListTile(
               leading: Icon(Icons.settings_power),

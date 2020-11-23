@@ -4,18 +4,14 @@ import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/category.dart';
-import 'package:admin_keja/ui/photoviewer.dart';
-import 'package:admin_keja/views/doneTextview.dart';
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/views/textfield.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:path/path.dart' as path;
 
 class EditApartment extends StatefulWidget {
   EditApartment({
@@ -36,6 +32,7 @@ class EditApartment extends StatefulWidget {
 class _CreateApartmentState extends State<EditApartment> {
   @override
   void initState() {
+    super.initState();
     location = false;
     step = widget.step;
     apartment = widget.apartment;
@@ -43,7 +40,7 @@ class _CreateApartmentState extends State<EditApartment> {
     getCategory();
     getApartmentLocation();
     initData(apartment);
-    super.initState();
+    
   }
 
   @override
@@ -115,6 +112,7 @@ class _CreateApartmentState extends State<EditApartment> {
       //key: _scaffoldKey,
       appBar: AppBar(
         title: Text(apartment.title),
+        backgroundColor: LightColors.kDarkYellow,
       ),
       body: Container(
         child: step == 0
@@ -302,79 +300,74 @@ class _CreateApartmentState extends State<EditApartment> {
     );
   }
 
-  Flexible step4() {
-    return Flexible(
-      child: Container(
-        height: double.maxFinite,
-        child: Column(
-          children: [
-            Flexible(
-              child: Container(
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.vertical,
-                    padding: const EdgeInsets.all(8),
-                    itemCount: features.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ListTile(
-                        title: Text(features.elementAt(index)),
-                        leading: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              String deletedItem = features.removeAt(index);
-                              Scaffold.of(context).showSnackBar(
-                                  deletesnack(deletedItem, index));
-                            });
-                          },
-                          icon: Icon(
-                            Icons.close,
-                            color: Colors.red,
-                          ),
-                        ),
-                      );
-                    }),
-              ),
-            ),
-            Align(
-              alignment: FractionalOffset.bottomCenter,
-              child: Container(
-                margin: EdgeInsets.all(20),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5 / 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextField(
-                  controller: _featController,
-                  onSubmitted: (value) {
-                    setState(() {
-                      features.add(_featController.text);
-                    });
-                  },
-                  keyboardType: TextInputType.text,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    icon: Icon(
-                      Icons.business_center,
-                      color: Colors.orangeAccent,
-                      size: 30,
+  Column step4() {
+    return Column(
+      children: [
+        Flexible(
+          child: Container(
+            child: ListView.builder(
+                shrinkWrap: true,
+                scrollDirection: Axis.vertical,
+                padding: const EdgeInsets.all(8),
+                itemCount: features.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    title: Text(features.elementAt(index)),
+                    leading: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          String deletedItem = features.removeAt(index);
+                          Scaffold.of(context).showSnackBar(
+                              deletesnack(deletedItem, index));
+                        });
+                      },
+                      icon: Icon(
+                        Icons.close,
+                        color: Colors.red,
+                      ),
                     ),
-                    hintText: 'Add Feature',
-                    hintStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+                  );
+                }),
+          ),
         ),
-      ),
+        Align(
+          alignment: FractionalOffset.bottomCenter,
+          child: Container(
+            margin: EdgeInsets.all(20),
+            padding: EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 5 / 4,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.amber.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: TextField(
+              controller: _featController,
+              onSubmitted: (value) {
+                setState(() {
+                  features.add(_featController.text);
+                });
+              },
+              keyboardType: TextInputType.text,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                icon: Icon(
+                  Icons.business_center,
+                  color: Colors.orangeAccent,
+                  size: 30,
+                ),
+                hintText: 'Add Feature',
+                hintStyle: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
