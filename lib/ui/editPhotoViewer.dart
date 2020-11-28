@@ -1,11 +1,16 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:admin_keja/connection/networkapi.dart';
+import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/database/dboperations.dart';
+import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
-import 'package:admin_keja/utility/utility.dart';
+import 'package:commons/commons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class EditPhotoViewer extends StatefulWidget {
   File pic;
@@ -32,6 +37,8 @@ class _MyHomePageState extends State<EditPhotoViewer> {
   final _tagController = TextEditingController();
   var picIndex = 0;
   var apartmentId;
+  double progress = 0.0;
+  ProgressDialog progressDialog;
 
   @override
   void initState() {
@@ -44,11 +51,33 @@ class _MyHomePageState extends State<EditPhotoViewer> {
     super.initState();
   }
 
+  onProgress(double progress) {
+    progressDialog.update(
+      progress: progress,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    progressDialog = ProgressDialog(context,
+        type: ProgressDialogType.Download, isDismissible: false);
+    progressDialog.style(
+      message: 'Uploading data',
+      borderRadius: 10.0,
+      backgroundColor: Colors.white,
+      progressWidget: CircularProgressIndicator(),
+      elevation: 10.0,
+      insetAnimCurve: Curves.easeInOut,
+      progress: progress,
+      maxProgress: 100.0,
+      progressTextStyle: TextStyle(
+          color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+      messageTextStyle: TextStyle(
+          color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600),
+    );
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-    backgroundColor: LightColors.kDarkYellow,
+      // resizeToAvoidBottomInset: false,
+      backgroundColor: LightColors.kDarkYellow,
       appBar: AppBar(
         automaticallyImplyLeading: true,
         leading: IconButton(
@@ -97,11 +126,32 @@ class _MyHomePageState extends State<EditPhotoViewer> {
     );
   }
 
+  Future<void> upload(var file) async {
+    await progressDialog.show();
+    var result = await NetworkApi()
+        .updateImage(file, tag, apartmentId, picIndex, onProgress);
+    print(result);
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      Status status = Status.fromJson(Map);
+      progressDialog.hide();
+      if (status.code == Constants.success) {
+        infoDialog(context, status.message, showNeutralButton: true);
+      } else {
+        errorDialog(context, status.message, showNeutralButton: true);
+      }
+    }else{
+      errorDialog(context, "Failed...Please try again later", showNeutralButton: true);
+    }
+  }
+
   Container displayTag() {
     return Container(
       decoration: BoxDecoration(
-          border:
-              Border.all(style: BorderStyle.solid, width: 2, color: LightColors.kLightYellow),
+          border: Border.all(
+              style: BorderStyle.solid,
+              width: 2,
+              color: LightColors.kLightYellow),
           color: Colors.transparent),
       child: TextFormField(
         controller: _tagController,
@@ -131,12 +181,9 @@ class _MyHomePageState extends State<EditPhotoViewer> {
       file.absolute.path,
       directory.path + '/' + path.basename(file.path),
       quality: 80,
-    );
-    //toUpload.add(result);
+    ).then((value) => {upload(value), print(value.lengthSync())});
     print('worked');
     print(file.lengthSync());
-    print(result.lengthSync());
-    return result;
   }
 
   void updateLocal() {

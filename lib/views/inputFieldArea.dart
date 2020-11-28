@@ -5,8 +5,10 @@ class InputFieldArea extends StatelessWidget {
   final String hint;
   final bool obscure;
   final IconData icon;
+    final FocusNode currentfocus;
+  final FocusNode nextfocus;
   final TextEditingController controller;
-  InputFieldArea({this.hint, this.obscure, this.icon,this.controller});
+  InputFieldArea({this.hint, this.obscure, this.icon,this.controller,this.currentfocus,this.nextfocus});
   @override
   Widget build(BuildContext context) {
     return (Container(
@@ -16,6 +18,10 @@ class InputFieldArea extends StatelessWidget {
       ),
       child: TextFormField(
         controller: controller,
+        focusNode: currentfocus,
+          onFieldSubmitted: (term) {
+            _fieldFocusChange(context, currentfocus, nextfocus);
+          },
         obscureText: obscure,
         style: TextStyle(fontSize: 16.0,
               fontWeight: FontWeight.w700,),
@@ -32,5 +38,12 @@ class InputFieldArea extends StatelessWidget {
         ),
       ),
     ));
+  }
+    _fieldFocusChange(
+      BuildContext context, FocusNode currentFocus, FocusNode nextFocus) {
+    if (currentFocus != null) {
+      currentFocus.unfocus();
+      FocusScope.of(context).requestFocus(nextFocus);
+    }
   }
 }

@@ -58,11 +58,12 @@ class _MyHomePageState extends State<Home> {
       summarys = widget.myHomeSummary;
       if(summarys!=null && summarys.isNotEmpty){
         summary = summarys.elementAt(selected_index);
+        sort(selected_index);
       }
     }
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor:LightColors.kLightYellow,
       appBar: CustomBarWidget(
         height: 150,
         sortMonth: summary.month ?? currDate.month.toString(),
@@ -78,7 +79,7 @@ class _MyHomePageState extends State<Home> {
           sort(selected_index - 1);
         },
       ),
-      body: sorted != null
+      body: sorted != null &&sorted.isNotEmpty
           ? SingleChildScrollView(
               physics: ScrollPhysics(),
               child: Column(
@@ -108,6 +109,7 @@ class _MyHomePageState extends State<Home> {
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => Apartment(
+              title: sorted.elementAt(index).title,
                   month: summary.month,
                   year: summary.year,
                   apartmentId: sorted.elementAt(index).apartment_id,
@@ -116,7 +118,7 @@ class _MyHomePageState extends State<Home> {
       child: Container(
 margin: EdgeInsets.symmetric(vertical: 15.0),         
 decoration: BoxDecoration(
-         // color: LightColors.kLightYellow,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(30.0)),
           child: Stack(
             children: <Widget>[

@@ -39,6 +39,7 @@ class AppIcons {
   AppIcons._();
 
   static const _kFontFam = 'AppIcons';
+  static const _hFontFam = 'HomeIcons';
   static const _kFontPkg = null;
 
   static const IconData right_circle = IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
@@ -53,4 +54,11 @@ class AppIcons {
   static const IconData left_dir = IconData(0xe809, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData keyboard_arrow_right = IconData(0xe80a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData keyboard_arrow_left = IconData(0xe80b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-}
+
+
+  static const IconData home = IconData(0xe800, fontFamily: _hFontFam, fontPackage: _kFontPkg);
+  static const IconData edit = IconData(0xe801, fontFamily: _hFontFam, fontPackage: _kFontPkg);
+  static const IconData edit_2 = IconData(0xe802, fontFamily: _hFontFam, fontPackage: _kFontPkg);
+  static const IconData article_alt = IconData(0xe803, fontFamily: _hFontFam, fontPackage: _kFontPkg);
+  static const IconData home_1 = IconData(0xf015, fontFamily: _hFontFam, fontPackage: _kFontPkg);
+  static const IconData edit_1 = IconData(0xf044, fontFamily: _hFontFam, fontPackage: _kFontPkg);}

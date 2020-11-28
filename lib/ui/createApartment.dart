@@ -179,8 +179,8 @@ class _CreateApartmentState extends State<CreateApartment> {
     );
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: LightColors.kDarkYellow,
       appBar: AppBar(
+        backgroundColor: LightColors.kDarkYellow,
         title: Text('createApartment'),
       ),
       body: Container(
@@ -443,20 +443,22 @@ class _CreateApartmentState extends State<CreateApartment> {
               child: Text(toUpload.length.toString() + '/16'),
             ),
             Center(
-              child: toUpload.length<16 ?? Container(
-                margin: EdgeInsets.all(12),
-                height: MediaQuery.of(context).size.height / 8,
-                width: MediaQuery.of(context).size.width,
-                color: Colors.amberAccent,
-                child: IconButton(
-                  icon: Icon(Icons.add_a_photo),
-                  onPressed: () {
-                    if (toUpload.length < 16) {
-                      pickMultipleImages();
-                    } else {}
-                  },
-                ),
-              ),
+              child: toUpload.length < 16
+                  ? Container(
+                      margin: EdgeInsets.all(12),
+                      height: MediaQuery.of(context).size.height / 10,
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.amberAccent,
+                      child: IconButton(
+                        icon: Icon(Icons.add_a_photo),
+                        onPressed: () {
+                          if (toUpload.length < 16) {
+                            pickMultipleImages();
+                          } else {}
+                        },
+                      ),
+                    )
+                  : SizedBox(),
             ),
             Container(
                 child: image_uri.isNotEmpty
@@ -747,7 +749,7 @@ class _CreateApartmentState extends State<CreateApartment> {
 
   Container locationMap() {
     return Container(
-      padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
             border: Border.all(
                 style: BorderStyle.solid, width: 2, color: Colors.blueGrey),
@@ -853,26 +855,34 @@ class _CreateApartmentState extends State<CreateApartment> {
     var result = await NetworkApi()
         .upload(toUpload, tags, features, details, onProgress);
     print(result);
-    var Map = json.decode(result);
-    setState(() {
-      status = Status.fromJson(Map);
-    });
     progressDialog.hide();
-    if (status.code == "1") {
-      infoDialog(context, status.message, showNeutralButton: true);
-    } else {
-      errorDialog(context, status.message, showNeutralButton: true);
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      setState(() {
+        status = Status.fromJson(Map);
+      });
+      if (status.code == "1") {
+        infoDialog(context, status.message, showNeutralButton: true);
+      } else {
+        errorDialog(context, status.message, showNeutralButton: true);
+      }
+    }else{
+      errorDialog(context, "Upload failed...", showNeutralButton: true);
     }
   }
 
   Future<void> getCategory() async {
     var result = await NetworkApi().fetchCategorys();
     print(result);
-    var Map = json.decode(result);
-    setState(() {
-      var response = CategoryResponse.fromJson(Map);
-      categories = response.data.categorys;
-    });
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      setState(() {
+        var response = CategoryResponse.fromJson(Map);
+        categories = response.data.categorys;
+      });
+    } else {
+      errorDialog(context, "Could not fetch Category", showNeutralButton: true);
+    }
   }
 
   Future<File> compressAndGetFile(File file) async {
@@ -880,7 +890,7 @@ class _CreateApartmentState extends State<CreateApartment> {
     var result = await FlutterImageCompress.compressAndGetFile(
       file.absolute.path,
       directory.path + '/' + path.basename(file.path),
-      quality: 80,
+      quality: 40,
     );
     toUpload.add(result);
     tags.add("Please add tag");

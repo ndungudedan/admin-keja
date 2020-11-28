@@ -89,35 +89,39 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: MyBottomAppBar(
-        selected: _selectedIndex,
-        homePressed: () {
-        setState(() {
-          _selectedIndex = 0;
-        });
-      }, companyPressed: () {
-        setState(() {
-          _selectedIndex = 1;
-        });
-      }, settingsPressed: () {
-        setState(() {
-          _selectedIndex = 2;
-        });
-      }),
+          selected: _selectedIndex,
+          homePressed: () {
+            setState(() {
+              _selectedIndex = 0;
+            });
+          },
+          companyPressed: () {
+            setState(() {
+              _selectedIndex = 1;
+            });
+          },
+          settingsPressed: () {
+            setState(() {
+              _selectedIndex = 2;
+            });
+          }),
     );
   }
 
   Future<void> fetchCompany() async {
     var result = await NetworkApi().fetchCompany(userid);
     print(result);
+    if(result!=Constants.fail){
     var Map = json.decode(result);
     setState(() {
       companyResponse = CompanyResponse.fromJson(Map);
       company = companyResponse.data;
       companyId = company.id;
+      saveCompany(company);
     });
-    saveCompany(company);
     fetchApartments(company.id);
     fetchHome(company.id);
+    }
   }
 
   void getPrefs() {
@@ -127,23 +131,26 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
   Future<void> fetchApartments(var companyId) async {
     var result = await NetworkApi().fetchApartments(companyId);
     print(result);
-    var Map = json.decode(result);
+    if(result!=Constants.fail){
+      var Map = json.decode(result);
     myApartmentResponse = MyApartmentResponse.fromJson(Map);
     _insertApartment(myApartmentResponse.data.apartments);
-    fetchDbApartments();
     setState(() {
       status = myApartmentResponse.status;
     });
+    }
   }
 
   Future<void> fetchHome(var companyId) async {
     var result =
         await NetworkApi().fetchHome(companyId, month, year.toString());
     print(result);
-    var Map = json.decode(result);
+    if(result!=Constants.fail){
+      var Map = json.decode(result);
     myHomeResponse = MyHomeResponse.fromJson(Map);
     insertHome(myHomeResponse.data.myhomes);
     insertHomeSummary(myHomeResponse.summary.values);
+    }
   }
 
   void saveCompany(MyCompany company) {
@@ -188,6 +195,7 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
               {await dbHelper.updateBanner(apartments.elementAt(i).id, value)});
       print('inserted row id: $id');
     }
+    fetchDbApartments();
   }
 
   void fetchDbApartments() async {
@@ -212,6 +220,7 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
       final id = await dbHelper.insertHome(myHome);
       print('inserted row id: $id');
     }
+    
   }
 
   void insertHomeSummary(List<MyHomeSummary> myhomesummary) async {
@@ -225,6 +234,7 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
       final id = await dbHelper.insertHomeSummary(myHome);
       print('inserted row id: $id');
     }
+    fetchDbHomeSummary();
   }
 
   Future<void> fetchDbHomeSummary() async {

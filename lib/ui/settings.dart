@@ -3,8 +3,13 @@ import 'package:admin_keja/models/company.dart';
 import 'package:admin_keja/models/tenant.dart';
 import 'package:admin_keja/models/transaction.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
+import 'package:admin_keja/ui/about.dart';
 import 'package:admin_keja/ui/changeCredentials.dart';
+import 'package:admin_keja/ui/contactus.dart';
 import 'package:admin_keja/ui/editCompany.dart';
+import 'package:admin_keja/ui/login.dart';
+import 'package:admin_keja/ui/map.dart';
+import 'package:admin_keja/ui/terms.dart';
 import 'package:admin_keja/utility/utility.dart';
 import 'package:flutter/material.dart';
 
@@ -42,14 +47,14 @@ class _MyHomePageState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
-    
+    getPrefs();
     return Scaffold(
-     // resizeToAvoidBottomInset: false,
-      //backgroundColor: LightColors.kLightYellow,
+        // resizeToAvoidBottomInset: false,
+        //backgroundColor: LightColors.kLightYellow,
         body: CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
-          backgroundColor: LightColors.kDarkYellow,
+            backgroundColor: LightColors.kDarkYellow,
             pinned: true,
             expandedHeight: 220.0,
             automaticallyImplyLeading: false,
@@ -73,10 +78,18 @@ class _MyHomePageState extends State<Settings> {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          Image.asset(
-                            'assets/images/login.jpeg',
-                            fit: BoxFit.fitWidth,
-                          ),
+                          company.logo == null
+                            ? Image.asset(
+                                'assets/images/pin7.jpg',
+                                fit: BoxFit.fitWidth,
+                              )
+                            : ColorFiltered(
+                              colorFilter: ColorFilter.mode(LightColors.kLavender, BlendMode.color),
+                                                          child: Image.memory(
+                                  Utility.dataFromBase64String(company.logo),
+                                  fit: BoxFit.fitWidth,
+                                ),
+                            ),
                           Positioned(
                             bottom: 50,
                             left: 0,
@@ -110,14 +123,15 @@ class _MyHomePageState extends State<Settings> {
                     background: Stack(
                       fit: StackFit.expand,
                       children: [
-                       company.logo ==null ?
-                Image.asset('assets/images/pin7.jpg',
-                  fit: BoxFit.fitWidth,
-                )
-                 : Image.memory(
-                    Utility.dataFromBase64String(company.logo),
-                    fit: BoxFit.fitWidth,
-                  ), 
+                        company.logo == null
+                            ? Image.asset(
+                                'assets/images/pin7.jpg',
+                                fit: BoxFit.fitWidth,
+                              )
+                            : Image.memory(
+                                Utility.dataFromBase64String(company.logo),
+                                fit: BoxFit.fitWidth,
+                              ),
                         Positioned(
                             bottom: 100,
                             left: 50,
@@ -142,8 +156,8 @@ class _MyHomePageState extends State<Settings> {
           delegate: SliverChildListDelegate([
             ListTile(
               onTap: () {
-                Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => ChangeCredentials()));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => ChangeCredentials()));
               },
               leading: Icon(Icons.lock),
               title: Text('Change Credentials'),
@@ -153,22 +167,55 @@ class _MyHomePageState extends State<Settings> {
               title: Text('Broadcast Messages'),
             ),
             ListTile(
-              leading: Icon(Icons.read_more),
-              title: Text('Terms & Conditions'),
+              leading: Icon(Icons.map_outlined),
+              title: Text('Map View'),
+              onTap: () {
+                Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => Gmap()));
+              },
             ),
             ListTile(
+              leading: Icon(Icons.contact_phone),
+              title: Text('Contact us'),
+              onTap: () {
+                Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => ContactUs()));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.read_more),
+              title: Text('Terms & Conditions'),
+              onTap: () {
+                Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => Terms()));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.chrome_reader_mode_rounded),
+              title: Text('About'),
+              onTap: () {
+                Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => About()));
+              },
+            ),
+            ListTile(
+              onTap: () {
+                Navigator.of(context).pushAndRemoveUntil(
+    MaterialPageRoute(builder: (BuildContext context) => LoginPage()),
+    ModalRoute.withName('/'),
+  );
+              },
               leading: Icon(Icons.settings_power),
               title: Text('Log Out'),
             ),
-          ]
-          ),
+          ]),
         )
       ],
     ));
   }
 
   void getPrefs() async {
-     company.id = sharedPreferences.getCompanyId();
+    company.id = sharedPreferences.getCompanyId();
     company.address = sharedPreferences.getCompanyAddress();
     // company.adminId = sharedPrefsManagement.();
     company.email = sharedPreferences.getCompanyEmail();

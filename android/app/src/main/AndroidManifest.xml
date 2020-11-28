@@ -8,7 +8,7 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="admin_keja"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
 
                 <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyBGBtSP_q6F5pUtLZAM3GQY7r-cFyG5NZo"/>
@@ -35,7 +35,7 @@
                  Flutter's first frame. -->
             <meta-data
               android:name="io.flutter.embedding.android.SplashScreenDrawable"
-              android:resource="@drawable/launch_background"
+              android:resource="@drawable/splash"
               />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

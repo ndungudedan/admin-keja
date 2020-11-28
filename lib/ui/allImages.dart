@@ -65,13 +65,7 @@ class _MyHomePageState extends State<AllImages> {
                         children: <Widget>[
                           picList.elementAt(index) == null ||
                                   picList.elementAt(index).isEmpty
-                              ? Container(
-                                  height: 150.0,
-                                  width: 150.0,
-                                  color: Colors.black87,
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ))
+                              ? Image.asset('assets/images/placeholder.png')
                               : Image.memory(
                                   Utility.dataFromBase64String(
                                       picList.elementAt(index)),

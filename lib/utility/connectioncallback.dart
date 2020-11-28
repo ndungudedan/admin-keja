@@ -1,3 +1,4 @@
+import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:connectivity_widget/connectivity_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -24,6 +25,11 @@ class _MyHomePageState extends State<ConnectionCallback> {
       onlineCallback: onlineCall,
       //offlineCallback: offlineCall,
       showOfflineBanner: true,
+      offlineBanner: Center(child: Container(
+          color: Colors.black87,
+          child: Text('no internet connection',
+          style: TextStyle(color: Colors.white),),
+        ),),
       builder: (context, isOnline) => Center(),
     );
   }

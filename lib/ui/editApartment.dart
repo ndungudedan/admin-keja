@@ -4,8 +4,10 @@ import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/category.dart';
+import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/views/textfield.dart';
+import 'package:commons/commons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
@@ -40,7 +42,6 @@ class _CreateApartmentState extends State<EditApartment> {
     getCategory();
     getApartmentLocation();
     initData(apartment);
-    
   }
 
   @override
@@ -109,10 +110,36 @@ class _CreateApartmentState extends State<EditApartment> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //key: _scaffoldKey,
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(apartment.title),
         backgroundColor: LightColors.kDarkYellow,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.save,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              if (step == 0) {
+                if (_step1Key.currentState.validate()) {
+                  submitStep1();
+                }
+              } else if (step == 1) {
+                if (_step2Key.currentState.validate()) {
+                  submitStep2();
+                }
+              } else if (step == 3) {
+                if (features.length >= 11) {
+                  submitStep4();
+                }else{
+                  _scaffoldKey.currentState
+                              .showSnackBar(snack('Not less than 11 features'));
+                }
+              }
+            },
+          ),
+        ],
       ),
       body: Container(
         child: step == 0
@@ -196,32 +223,6 @@ class _CreateApartmentState extends State<EditApartment> {
                 inputType: TextInputType.number,
                 controller: _spaceController,
               ),
-              Center(
-                child: RaisedButton(
-                  splashColor: Colors.amber,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(80.0),
-                    side: BorderSide(color: Colors.amberAccent),
-                  ),
-                  color: Colors.lightBlueAccent,
-                  highlightElevation: 10,
-                  elevation: 15,
-                  animationDuration: Duration(seconds: 2),
-                  focusElevation: 10,
-                  colorBrightness: Brightness.dark,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
-                    child: Text('Submit'),
-                  ),
-                  onPressed: () {
-                    if (_step1Key.currentState.validate()) {
-                      setState(() {
-                        step = 1;
-                      });
-                    }
-                  },
-                ),
-              )
             ],
           ),
         ),
@@ -267,32 +268,6 @@ class _CreateApartmentState extends State<EditApartment> {
                 controller: _locationController,
               ),
               locationMap(),
-              Center(
-                child: RaisedButton(
-                  splashColor: Colors.amber,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(80.0),
-                    side: BorderSide(color: Colors.amberAccent),
-                  ),
-                  color: Colors.lightBlueAccent,
-                  highlightElevation: 10,
-                  elevation: 15,
-                  animationDuration: Duration(seconds: 2),
-                  focusElevation: 10,
-                  colorBrightness: Brightness.dark,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
-                    child: Text('next'),
-                  ),
-                  onPressed: () {
-                    if (_step2Key.currentState.validate()) {
-                      setState(() {
-                        step = 2;
-                      });
-                    }
-                  },
-                ),
-              )
             ],
           ),
         ),
@@ -317,8 +292,8 @@ class _CreateApartmentState extends State<EditApartment> {
                       onPressed: () {
                         setState(() {
                           String deletedItem = features.removeAt(index);
-                          Scaffold.of(context).showSnackBar(
-                              deletesnack(deletedItem, index));
+                          Scaffold.of(context)
+                              .showSnackBar(deletesnack(deletedItem, index));
                         });
                       },
                       icon: Icon(
@@ -347,6 +322,7 @@ class _CreateApartmentState extends State<EditApartment> {
               onSubmitted: (value) {
                 setState(() {
                   features.add(_featController.text);
+                  _featController.text = '';
                 });
               },
               keyboardType: TextInputType.text,
@@ -385,7 +361,6 @@ class _CreateApartmentState extends State<EditApartment> {
   SnackBar snack(String message) {
     return SnackBar(
       content: Text(message),
-      duration: Duration(milliseconds: 500),
     );
   }
 
@@ -426,7 +401,7 @@ class _CreateApartmentState extends State<EditApartment> {
                       onMapCreated: _onMapCreated,
                       initialCameraPosition: CameraPosition(
                         target: LatLng(latitude, longitude),
-                        zoom: 2,
+                        zoom: 8,
                       ),
                       markers: _markers.values.toSet(),
                     ),
@@ -460,6 +435,17 @@ class _CreateApartmentState extends State<EditApartment> {
 
     var result = await NetworkApi().updateStep1(apartment.id, details);
     print(result);
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      Status status = Status.fromJson(Map);
+      if (status.code == Constants.success) {
+        infoDialog(context, status.message, showNeutralButton: true);
+      } else {
+        errorDialog(context, status.message, showNeutralButton: true);
+      }
+    } else {
+      errorDialog(context, "Upload failed...", showNeutralButton: true);
+    }
   }
 
   void submitStep2() async {
@@ -474,22 +460,48 @@ class _CreateApartmentState extends State<EditApartment> {
 
     var result = await NetworkApi().updateStep2(apartment.id, details);
     print(result);
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      Status status = Status.fromJson(Map);
+      if (status.code == Constants.success) {
+        infoDialog(context, status.message, showNeutralButton: true);
+      } else {
+        errorDialog(context, status.message, showNeutralButton: true);
+      }
+    } else {
+      errorDialog(context, "Upload failed...", showNeutralButton: true);
+    }
   }
 
   void submitStep4() async {
     var result = await NetworkApi()
         .updateFeatures(sharedPreferences.getCompanyId(), features);
     print(result);
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      Status status = Status.fromJson(Map);
+      if (status.code == Constants.success) {
+        infoDialog(context, status.message, showNeutralButton: true);
+      } else {
+        errorDialog(context, status.message, showNeutralButton: true);
+      }
+    } else {
+      errorDialog(context, "Upload failed...", showNeutralButton: true);
+    }
   }
 
   Future<void> getCategory() async {
     var result = await NetworkApi().fetchCategorys();
     print(result);
-    var Map = json.decode(result);
-    setState(() {
-      var response = CategoryResponse.fromJson(Map);
-      categories = response.data.categorys;
-    });
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      setState(() {
+        var response = CategoryResponse.fromJson(Map);
+        categories = response.data.categorys;
+      });
+    } else {
+      errorDialog(context, "Upload failed...", showNeutralButton: true);
+    }
   }
 
   void initData(MyApartment apartment) {

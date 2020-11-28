@@ -6,6 +6,7 @@ import 'package:admin_keja/database/dboperations.dart';
 import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/features.dart';
+import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/allImages.dart';
 import 'package:admin_keja/ui/editApartment.dart';
@@ -14,10 +15,12 @@ import 'package:admin_keja/ui/map.dart';
 import 'package:admin_keja/utility/connectioncallback.dart';
 import 'package:admin_keja/models/locations.dart' as locations;
 import 'package:admin_keja/utility/utility.dart';
+import 'package:commons/commons.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:getflutter/getflutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 class ApartmentDetails extends StatefulWidget {
   ApartmentDetails({Key key, @required this.apartment}) : super(key: key);
@@ -36,6 +39,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
   int step;
   String apartmentId, companyId;
   MyApartment apartment;
+  final _tagController = TextEditingController();
   Constants constants = Constants();
   final List<String> picList = [];
   final List<String> imageTags = [];
@@ -79,6 +83,9 @@ class _MyHomePageState extends State<ApartmentDetails> {
         //shrinkWrap: true,
         padding: const EdgeInsets.all(8),
         children: <Widget>[
+          ConnectionCallback(
+            onlineCall: () {},
+          ),
           Center(
             child: apartmentDetails(apartment),
           ),
@@ -86,8 +93,8 @@ class _MyHomePageState extends State<ApartmentDetails> {
             height: 300,
             child: picList != null && picList.isNotEmpty
                 ? Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Expanded(
                         child: GridView.count(
@@ -107,17 +114,12 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                       children: <Widget>[
                                         picList.elementAt(index) == null ||
                                                 picList.elementAt(index).isEmpty
-                                            ? Container(
-                                                color: Colors.black87,
-                                                child: Center(
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                ))
+                                            ? Image.asset('assets/images/placeholder.png')
                                             : Image.memory(
                                                 Utility.dataFromBase64String(
                                                     picList.elementAt(index)),
-                                                //height: 150,
-                                                fit: BoxFit.cover,
+                                                height: 140,
+                                                fit: BoxFit.fill,
                                               ),
                                         Positioned(
                                           bottom: 1.0,
@@ -139,21 +141,32 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                                 horizontal: 20.0),
                                             child: imageTags != null &&
                                                     imageTags.isNotEmpty
-                                                ? Text(
-                                                    imageTags.elementAt(index),
-                                                    style: TextStyle(
-                                                      color: Colors.white,
+                                                ? GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        _tagController.text =
+                                                            imageTags.elementAt(
+                                                                index);
+                                                      });
+                                                      _showDialog(index);
+                                                    },
+                                                    child: Text(
+                                                      imageTags
+                                                          .elementAt(index),
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                      ),
                                                     ),
                                                   )
                                                 : Text(''),
                                           ),
                                         ),
                                         Positioned(
-                                          top: 0,
-                                          right: 0,
+                                          bottom: 70,
+                                          left: 70,
                                           child: CircleAvatar(
                                             radius: 20,
-                                            backgroundColor: Colors.white,
+                                            backgroundColor: LightColors.kLavender,
                                             child: IconButton(
                                               icon: Icon(Icons.edit),
                                               color: Colors.blue,
@@ -183,7 +196,9 @@ class _MyHomePageState extends State<ApartmentDetails> {
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
                               'view all',
-                              style: TextStyle(color: Colors.blue,),
+                              style: TextStyle(
+                                color: Colors.blue,
+                              ),
                             ),
                           ))
                     ],
@@ -198,27 +213,27 @@ class _MyHomePageState extends State<ApartmentDetails> {
             //height: 200,
             child: Column(
               children: <Widget>[
-                Center(child: Row(
+                Center(
+                    child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(child: Text('Features')),
                     CircleAvatar(
-                                radius: 20,
-                                backgroundColor: Colors.white,
-                                child: IconButton(
-                                  icon: Icon(Icons.edit),
-                                  color: Colors.blue,
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .push(MaterialPageRoute(
-                                            builder: (context) => EditApartment(
-                                                  apartment: apartment,
-                                                  features: featurelist,
-                                                  step: 3,
-                                                )));
-                                  },
-                                ),
-                              ),
+                      radius: 20,
+                      backgroundColor: LightColors.kLavender,
+                      child: IconButton(
+                        icon: Icon(Icons.edit),
+                        color: Colors.blue,
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => EditApartment(
+                                    apartment: apartment,
+                                    features: featurelist,
+                                    step: 3,
+                                  )));
+                        },
+                      ),
+                    ),
                   ],
                 )),
                 featurelist.isNotEmpty
@@ -229,71 +244,67 @@ class _MyHomePageState extends State<ApartmentDetails> {
                           crossAxisCount: 2,
                           childAspectRatio: 6.0,
                           scrollDirection: Axis.vertical,
-                          children:
-                              List.generate(featurelist.length, (index) {
-                            return featuresCard(
-                                featurelist.elementAt(index));
+                          children: List.generate(featurelist.length, (index) {
+                            return featuresCard(featurelist.elementAt(index));
                           }),
                         ),
                       )
                     : Container(
                         child: Center(
-                          child: CircularProgressIndicator(),
+                          child: SizedBox(height: 20,width: 20,
+                            child: CircularProgressIndicator()),
                         ),
                       ),
               ],
             ),
           ),
           Container(
-                  padding: EdgeInsets.all(5),
-                  child: Container(
-                    child: Column(
-                      children: <Widget>[
-                        Center(child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(child: Text('More Details')),
-                            CircleAvatar(
-                                radius: 20,
-                                backgroundColor: Colors.white,
-                                child: IconButton(
-                                  icon: Icon(Icons.edit),
-                                  color: Colors.blue,
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .push(MaterialPageRoute(
-                                            builder: (context) => EditApartment(
-                                                  apartment: apartment,
-                                                  features: featurelist,
-                                                  step: 1,
-                                                )));
-                                  },
-                                ),
-                              ),
-                          ],
-                        )),
-                        ListTile(
-                          title: Text('Phone'),
-                          leading: Icon(Icons.call),
-                          subtitle: Text(apartment.phone),
+            padding: EdgeInsets.all(5),
+            child: Container(
+              child: Column(
+                children: <Widget>[
+                  Center(
+                      child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(child: Text('More Details')),
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: LightColors.kLavender,
+                        child: IconButton(
+                          icon: Icon(Icons.edit),
+                          color: Colors.blue,
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => EditApartment(
+                                      apartment: apartment,
+                                      features: featurelist,
+                                      step: 1,
+                                    )));
+                          },
                         ),
-                        ListTile(
-                          title: Text('Email'),
-                          leading: Icon(Icons.email),
-                          subtitle: Text(apartment.email),
-                        ),
-                        ListTile(
-                          title: Text('Address'),
-                          leading: Icon(Icons.account_box),
-                          subtitle:
-                              Text(apartment.address + '\n' + apartment.location),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  )),
+                  ListTile(
+                    title: Text('Phone'),
+                    leading: Icon(Icons.call),
+                    subtitle: Text(apartment.phone),
                   ),
-                ),
-          ConnectionCallback(
-            onlineCall: () {},
+                  ListTile(
+                    title: Text('Email'),
+                    leading: Icon(Icons.email),
+                    subtitle: Text(apartment.email),
+                  ),
+                  ListTile(
+                    title: Text('Address'),
+                    leading: Icon(Icons.account_box),
+                    subtitle:
+                        Text(apartment.address + '\n' + apartment.location),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -376,7 +387,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
         if (index < picList.length) {
           picList.removeAt(index);
           picList.insert(index, val);
-        } else if(picList.length<=6) {
+        } else if (picList.length <= 6) {
           picList.insert(index, val);
         }
       }
@@ -468,7 +479,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
             right: 5,
             child: CircleAvatar(
               radius: 20,
-              backgroundColor: Colors.white,
+              backgroundColor: LightColors.kLavender,
               child: IconButton(
                 icon: Icon(Icons.edit),
                 color: Colors.blue,
@@ -490,6 +501,50 @@ class _MyHomePageState extends State<ApartmentDetails> {
   void getPrefs() {
     userId = sharedPreferences.getUserId();
     companyId = sharedPreferences.getCompanyId();
+  }
+
+  _showDialog(var index) async {
+    await showDialog<String>(
+      context: context,
+      child: AlertDialog(
+        contentPadding: const EdgeInsets.all(8.0),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              child: TextField(
+                controller: _tagController,
+                autofocus: true,
+                decoration: InputDecoration(labelText: 'Tag'),
+              ),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          FlatButton(
+              child: const Text('CANCEL'),
+              onPressed: () {
+                Navigator.pop(context);
+              }),
+          FlatButton(
+              child: const Text('DONE'),
+              onPressed: () async {
+                var result = await NetworkApi()
+                    .updateTag(_tagController.text, apartmentId, index);
+                print(result);
+                var Map = json.decode(result);
+                Status status = Status.fromJson(Map);
+                Navigator.pop(context);
+                if (status.code == "1") {
+                  infoDialog(context, status.message, showNeutralButton: true);
+                } else {
+                  errorDialog(context, status.message, showNeutralButton: true);
+                }
+              })
+        ],
+      ),
+    );
   }
 
   void _insertImages(Images images) async {
@@ -676,8 +731,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
   void updateImage(var index) async {
     try {
       var tempImage = await FilePicker.platform.pickFiles(
-        type: FileType.custom,allowedExtensions: ['jpg', 'png', 'jpeg']
-      );
+          type: FileType.custom, allowedExtensions: ['jpg', 'png', 'jpeg']);
       if (tempImage != null) {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => EditPhotoViewer(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:admin_keja/constants/constant.dart';
+import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/utility/uploadProgress.dart';
 import 'package:async/async.dart';
 import 'package:dio/dio.dart';
@@ -26,6 +27,7 @@ class Network {
       return response.body;
     } else {
       print(response.statusCode);
+      return Constants.fail;
     }
   }
 
@@ -71,7 +73,88 @@ class Network {
       return response.data;
     } else {
       print(response.statusCode);
+      return Constants.fail;
     }
-    print(response);
+  }
+
+  Future updateApartment(File file, var tag, var apartmentId, var picIndex,
+      Function onProgress) async {
+    List<MultipartFile> imageList = new List<MultipartFile>();
+
+    var multipartFile = await MultipartFile.fromFile(
+      file.path,
+      filename: path.basename(file.path),
+    );
+    imageList.add(multipartFile);
+
+    FormData formData = FormData.fromMap({
+      'functionality': 'updateImage',
+      "tag": tag,
+      "apartmentId": apartmentId,
+      "companyId": sharedPreferences.getCompanyId(),
+      "images": imageList,
+      "index": picIndex.toString(),
+    });
+
+    Dio dio = new Dio();
+    var response = await dio.post(url, data: formData,
+        onSendProgress: (int sent, int total) {
+      double progress = (sent / total) * 100;
+      onProgress(progress);
+      print("progress:  $progress");
+    });
+    if (response.statusCode == 200) {
+      return response.data;
+    } else {
+      print(response.statusCode);
+      return Constants.fail;
+    }
+  }
+
+  Future updateFeatures(var features, var apartmentId) async {
+    FormData formData = FormData.fromMap({
+      'functionality': 'updateFeatures',
+      'apartmentId': apartmentId,
+      "features": features,
+    });
+
+    Dio dio = new Dio();
+    var response = await dio.post(url, data: formData);
+    if (response.statusCode == 200) {
+      return response.data;
+    } else {
+     print(response.statusCode);
+      return Constants.fail;
+    }
+  }
+
+  Future updateCompany(var file, var details) async {
+    List<MultipartFile> imageList = new List<MultipartFile>();
+
+    var multipartFile = await MultipartFile.fromFile(
+      file.path,
+      filename: path.basename(file.path),
+    );
+    imageList.add(multipartFile);
+
+    FormData formData = FormData.fromMap({
+      'functionality': 'updateCompany',
+      "title": details[UploadData.title],
+      "phone": details[UploadData.phone],
+      "email": details[UploadData.email],
+      "location": details[UploadData.location],
+      "address": details[UploadData.address],
+      "companyId": details[UploadData.companyId],
+      "images": imageList,
+    });
+
+    Dio dio = new Dio();
+    var response = await dio.post(url, data: formData);
+    if (response.statusCode == 200) {
+      return response.data;
+    } else {
+      print(response.statusCode);
+      return Constants.fail;
+    }
   }
 }

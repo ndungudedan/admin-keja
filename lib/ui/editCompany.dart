@@ -1,8 +1,20 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:admin_keja/connection/networkapi.dart';
+import 'package:admin_keja/constants/constant.dart';
+import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/company.dart';
+import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
+import 'package:admin_keja/utility/utility.dart';
+import 'package:admin_keja/views/submitButton.dart';
 import 'package:admin_keja/views/textfield.dart';
+import 'package:commons/commons.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
 class EditCompany extends StatefulWidget {
   EditCompany({Key key, this.title, this.company}) : super(key: key);
@@ -14,11 +26,6 @@ class EditCompany extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<EditCompany> {
-  var imageuri;
-  var imagepaths;
-  var radio;
-  var number, account;
-  var accountradio;
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
@@ -31,7 +38,9 @@ class _MyHomePageState extends State<EditCompany> {
   final FocusNode _phoneFocus = FocusNode();
   final FocusNode _locationFocus = FocusNode();
   MyCompany company = MyCompany();
-
+  Map<String, String> details = {};
+  bool loading = false;
+  File upload = null;
   @override
   void initState() {
     super.initState();
@@ -45,10 +54,10 @@ class _MyHomePageState extends State<EditCompany> {
   }
 
   void initText(MyCompany company) {
-    _titleController.text = company.name ??'';
-    _emailController.text = company.email??'';
-    _addressController.text = company.address??'';
-    _phoneController.text = company.phone??'';
+    _titleController.text = company.name ?? '';
+    _emailController.text = company.email ?? '';
+    _addressController.text = company.address ?? '';
+    _phoneController.text = company.phone ?? '';
   }
 
   @override
@@ -64,6 +73,33 @@ class _MyHomePageState extends State<EditCompany> {
               key: _formKey,
               child: Column(
                 children: <Widget>[
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                          backgroundColor: Colors.transparent,
+                          radius: 100,
+                          backgroundImage: upload != null
+                              ? FileImage(upload)
+                              : MemoryImage(
+                                  Utility.dataFromBase64String(company.logo),
+                                )),
+                      Positioned(
+                        bottom: 5,
+                        right: 5,
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundColor: LightColors.kLavender,
+                          child: IconButton(
+                            icon: Icon(Icons.edit),
+                            color: Colors.blue,
+                            onPressed: () {
+                              updateLogo();
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   TextFieldArea(
                     hint: 'Title',
                     currentfocus: _titleFocus,
@@ -99,30 +135,14 @@ class _MyHomePageState extends State<EditCompany> {
                     inputType: TextInputType.streetAddress,
                     controller: _locationController,
                   ),
-                  Center(
-                    child: RaisedButton(
-                      splashColor: Colors.amber,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(80.0),
-                        side: BorderSide(color: Colors.amberAccent),
-                      ),
-                      color: const Color.fromRGBO(247, 64, 106, 1.0),
-                      highlightElevation: 10,
-                      elevation: 15,
-                      animationDuration: Duration(seconds: 2),
-                      focusElevation: 10,
-                      colorBrightness: Brightness.dark,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
-                        child: Text('Submit'),
-                      ),
-                      onPressed: () {
+                  SubmitButton(
+                      press: () {
                         if (_formKey.currentState.validate()) {
                           submit();
                         }
                       },
-                    ),
-                  )
+                      text: 'Submit',
+                      loading: loading)
                 ],
               ),
             ),
@@ -130,5 +150,55 @@ class _MyHomePageState extends State<EditCompany> {
         ));
   }
 
-  void submit() {}
+  Future<void> submit() async {
+      details[UploadData.address] = _addressController.text;
+      details[UploadData.companyId] = sharedPreferences.getCompanyId();
+      details[UploadData.email] = _emailController.text;
+      details[UploadData.location] = _locationController.text;
+      details[UploadData.phone] = _phoneController.text;
+      details[UploadData.title] = _titleController.text;
+    var result = await NetworkApi()
+        .updateCompany(upload,details);
+    print(result);
+    if(result!=Constants.fail){
+    var Map = json.decode(result);
+    Status status = Status.fromJson(Map);
+    if (status.code == Constants.success) {
+      infoDialog(context, status.message, showNeutralButton: true);
+    } else {
+      errorDialog(context, status.message, showNeutralButton: true);
+    }
+    }else{
+      errorDialog(context, "Failed...Please try again later", showNeutralButton: true);
+    }
+  }
+  void updateLogo() async {
+    try {
+      var result = await FilePicker.platform
+          .pickFiles(type: FileType.image, allowMultiple: false);
+      if (result != null) {
+        List<File> templist = result.paths.map((path) => File(path)).toList();
+          compressAndGetFile(templist.elementAt(0));
+      }
+    } on TargetPlatform catch (e) {
+      print('Error while picking the file: ' + e.toString());
+    }
+  }
+
+  Future<File> compressAndGetFile(File file) async {
+    final directory = await getApplicationDocumentsDirectory();
+    var result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      directory.path + '/' + path.basename(file.path),
+      quality: 80,
+    );
+    setState(() {
+      upload = result;
+    });
+    
+    print('worked');
+    print(file.lengthSync());
+    print(result.lengthSync());
+    return result;
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:admin_keja/common/app_icons.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -17,15 +18,14 @@ class MyBottomAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomAppBar(
       color: LightColors.kDarkYellow,
-      // shape: shape,
       child: IconTheme(
         data: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
         child: Row(
-          //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             IconButton(
               icon:  Icon(
-                Icons.menu,
+                AppIcons.home,
                 color: selected==0 ? Colors.deepOrange :Colors.white,
                 size: 30,
               ),
@@ -33,10 +33,9 @@ class MyBottomAppBar extends StatelessWidget {
                 homePressed();
               },
             ),
-            //        if (centerLocations.contains(fabLocation)) const Spacer(),
             IconButton(
               icon:  Icon(
-                Icons.search,
+                AppIcons.edit,
                 color: selected==1 ? Colors.deepOrange :Colors.white,
                 size: 30,
               ),
@@ -46,7 +45,7 @@ class MyBottomAppBar extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(
-                Icons.favorite,
+                AppIcons.article_alt,
                 color: selected==2 ? Colors.deepOrange :Colors.white,
                 size: 30,
               ),

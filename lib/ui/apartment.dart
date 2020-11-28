@@ -9,6 +9,7 @@ import 'package:admin_keja/models/tenant.dart';
 import 'package:admin_keja/models/transaction.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/tenant.dart';
+import 'package:admin_keja/utility/connectioncallback.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -19,8 +20,10 @@ class Apartment extends StatefulWidget {
     this.apartmentId,
     this.month,
     this.year,
+    this.title,
   }) : super(key: key);
   String apartmentId;
+  String title;
   String month;
   String year;
 
@@ -32,7 +35,7 @@ class _MyHomePageState extends State<Apartment> {
   bool check = false;
   bool hasMore = true;
   final dbHelper = DbOperations.instance;
-  Constants constants=Constants();
+  Constants constants = Constants();
   MyTenant tenant = MyTenant();
   List<MyTenant> tenantList = List<MyTenant>();
   TransactionList transactionList = TransactionList();
@@ -45,8 +48,8 @@ class _MyHomePageState extends State<Apartment> {
   int selected_index = 0;
   var apartmentId, companyId;
   String month;
+  String title;
   var year;
-  var currDate = DateTime.now();
 
   @override
   void initState() {
@@ -54,9 +57,10 @@ class _MyHomePageState extends State<Apartment> {
     apartmentId = widget.apartmentId;
     month = widget.month;
     year = widget.year;
+    title = widget.title;
     getPrefs();
-    fetchDbHome();
-
+    fetchDbHome(month, year);
+    fetchDbTransactions(month, year);
     fetchTransactions(apartmentId, month, year);
     fetchSummary(apartmentId, month, year);
     fetchTenants();
@@ -75,7 +79,7 @@ class _MyHomePageState extends State<Apartment> {
       child: Scaffold(
           appBar: AppBar(
             backgroundColor: LightColors.kDarkYellow,
-            title: Text('Apartment'),
+            title: Text(title),
             bottom: TabBar(
               tabs: <Widget>[
                 Tab(
@@ -94,6 +98,9 @@ class _MyHomePageState extends State<Apartment> {
               Center(
                 child: ListView(
                   children: <Widget>[
+                    ConnectionCallback(
+                      onlineCall: () {},
+                    ),
                     Container(
                       margin: EdgeInsets.fromLTRB(30, 0, 30, 0),
                       child: Card(
@@ -112,13 +119,22 @@ class _MyHomePageState extends State<Apartment> {
                                 children: <Widget>[
                                   Center(
                                     child: Text(
-                                      summary.month!=null ?
-                                     DateFormat.MMM().format(
-                                DateTime.parse(summary.month+summary.year+'01')
-                                )+' '+summary.year
-                                : DateFormat.MMM().format(
-                                DateTime.parse(month+year+'01'))+' '+year,
-                                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),),
+                                      summary.month != null
+                                          ? DateFormat.MMM().format(
+                                                  DateTime.parse(summary.year +
+                                                      summary.month +
+                                                      '01')) +
+                                              ' ' +
+                                              widget.year
+                                          : DateFormat.MMM().format(
+                                                  DateTime.parse(
+                                                      year + month + '01')) +
+                                              ' ' +
+                                              year,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 15),
+                                    ),
                                   ),
                                   Center(
                                     child: Row(
@@ -126,7 +142,7 @@ class _MyHomePageState extends State<Apartment> {
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Text('Expected: '),
-                                        Text(summary.expected),
+                                        Text(summary.expected ?? ''),
                                       ],
                                     ),
                                   ),
@@ -136,7 +152,7 @@ class _MyHomePageState extends State<Apartment> {
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Text('paid: '),
-                                        Text(summary.paid)
+                                        Text(summary.paid ?? '')
                                       ],
                                     ),
                                   ),
@@ -146,7 +162,7 @@ class _MyHomePageState extends State<Apartment> {
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Text('due: '),
-                                        Text(summary.due),
+                                        Text(summary.due ?? ''),
                                       ],
                                     ),
                                   ),
@@ -164,57 +180,59 @@ class _MyHomePageState extends State<Apartment> {
                       ),
                     ),
                     transactions != null && transactions.isNotEmpty
-                        ? Container(
-                            child: DataTable(
-                              columnSpacing: 15.0,
-                              columns: [
-                                DataColumn(
-                                  label: Text('unit'),
-                                  numeric: false,
-                                ),
-                                DataColumn(
-                                  label: Text('Trasaction'),
-                                  numeric: false,
-                                ),
-                                DataColumn(
-                                  label: Text('Date paid'),
-                                  numeric: false,
-                                ),
-                                DataColumn(
-                                  label: Text('Type'),
-                                  numeric: false,
-                                ),
-                                DataColumn(
-                                  label: Text('Amount'),
-                                  numeric: false,
-                                ),
-                              ],
-                              rows: transactions
-                                  .map(
-                                    (transaction) => DataRow(cells: [
-                                      DataCell(
-                                        Text(transaction.id),
-                                      ),
-                                      DataCell(
-                                        Text(transaction.transaction_id),
-                                      ),
-                                      DataCell(
-                                        Text(transaction.time),
-                                      ),
-                                      DataCell(
-                                        Text(transaction.type),
-                                      ),
-                                      DataCell(
-                                        Text(transaction.amount),
-                                      ),
-                                    ]),
-                                  )
-                                  .toList(),
-                            ),
-                          )
-                        : Center(child: Container(
-                          margin: EdgeInsets.all(40),
-                          child: Text('No data')))
+                        ? SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                                                  child: DataTable(
+                            columnSpacing: 15.0,
+                            columns: [
+                              DataColumn(
+                                label: Text('unit'),
+                                numeric: false,
+                              ),
+                              DataColumn(
+                                label: Text('Trasaction'),
+                                numeric: false,
+                              ),
+                              DataColumn(
+                                label: Text('Date paid'),
+                                numeric: false,
+                              ),
+                              DataColumn(
+                                label: Text('Type'),
+                                numeric: false,
+                              ),
+                              DataColumn(
+                                label: Text('Amount'),
+                                numeric: false,
+                              ),
+                            ],
+                            rows: transactions
+                                .map(
+                                  (transaction) => DataRow(cells: [
+                                    DataCell(
+                                      Text(transaction.id),
+                                    ),
+                                    DataCell(
+                                      Text(transaction.transaction_id),
+                                    ),
+                                    DataCell(
+                                      Text(transaction.time),
+                                    ),
+                                    DataCell(
+                                      Text(transaction.type),
+                                    ),
+                                    DataCell(
+                                      Text(transaction.amount),
+                                    ),
+                                  ]),
+                                )
+                                .toList(),
+                          ),
+                        )
+                        : Center(
+                            child: Container(
+                                margin: EdgeInsets.all(40),
+                                child: Text('No data')))
                   ],
                 ),
               ),
@@ -233,30 +251,40 @@ class _MyHomePageState extends State<Apartment> {
                                     myTenant: tenantList.elementAt(index))));
                           },
                           child: Container(
-                            decoration: BoxDecoration(border: Border.all(
+                            decoration: BoxDecoration(
+                                border: Border.all(
                               color: tenantList.elementAt(index).payed != '0'
-                                ? Colors.green
-                                : Colors.red,
+                                  ? Colors.green
+                                  : Colors.red,
                             )),
                             child: ListTile(
                               isThreeLine: true,
                               title: Text(tenantList.elementAt(index).name),
-                              subtitle: Text(tenantList.elementAt(index).email
-                              +'\n'+'unit: '+tenantList.elementAt(index).unit),
-                              trailing: CachedNetworkImage(
-                            fit: BoxFit.cover,
-                            imageUrl: constants.path+sharedPreferences.getCompanyId()
-                            +constants.folder+tenantList.elementAt(index).photo,
-                            placeholder: (context, url) => Container(
-                                alignment: Alignment(0.0, 2.0),
-                                child:
-                                    Center(child: CircularProgressIndicator())),
-                            errorWidget: (context, url, error) => Container(
-                                alignment: Alignment(0.0, 2.0),
-                                child: Center(child: Icon(Icons.error))),
-                    ),
+                              subtitle: Text(tenantList.elementAt(index).email +
+                                  '\n' +
+                                  'unit: ' +
+                                  tenantList.elementAt(index).unit),
+                              trailing: ClipRRect(
+                                borderRadius: BorderRadius.circular(300),
+                                child: CachedNetworkImage(
+                                  fit: BoxFit.cover,
+                                  imageUrl: constants.path +
+                                      sharedPreferences.getCompanyId() +
+                                      constants.folder +
+                                      tenantList.elementAt(index).photo,
+                                  placeholder: (context, url) => Container(
+                                      alignment: Alignment(0.0, 2.0),
+                                      child: Center(
+                                          child: CircularProgressIndicator())),
+                                  errorWidget: (context, url, error) =>
+                                      Container(
+                                          alignment: Alignment(0.0, 2.0),
+                                          child:
+                                              Center(child: Icon(Icons.error))),
+                                ),
                               ),
                             ),
+                          ),
                         );
                       })
                   : Center(child: Text('empty')),
@@ -266,32 +294,38 @@ class _MyHomePageState extends State<Apartment> {
   }
 
   Future<void> fetchTenants() async {
-    var result = await NetworkApi().fetchTenants('3'); //update the parameter
+    var result = await NetworkApi().fetchTenants('13'); //update the parameter
     print(result);
-    var Map = json.decode(result);
-    myTenantResponse = MyTenantResponse.fromJson(Map);
-    insertTenant(myTenantResponse.data.tenants);
-    fetchDbTenants();
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      myTenantResponse = MyTenantResponse.fromJson(Map);
+      insertTenant(myTenantResponse.data.tenants);
+      fetchDbTenants();
+    }
   }
 
   Future<void> fetchTransactions(var apartmentId, var month, var year) async {
     var result = await NetworkApi()
         .fetchTransactions(apartmentId, month, year.toString());
     print(result);
-    var Map = json.decode(result);
-    transactionResponse = TransactionResponse.fromJson(Map);
-    insertTransaction(transactionResponse.data.transactions);
-    //fetchDbTransactions();
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      transactionResponse = TransactionResponse.fromJson(Map);
+      insertTransaction(transactionResponse.data.transactions);
+      fetchDbTransactions(month, year);
+    }
   }
 
   Future<void> fetchSummary(var apartmentId, var month, var year) async {
     var result = await NetworkApi()
         .fetchApartmentSummary(apartmentId, month, year.toString());
     print(result);
-    var Map = json.decode(result);
-    myHomeResponse = MyHomeResponse.fromJson(Map);
-    insertHome(myHomeResponse.data.myhomes);
-    fetchDbHome();
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      myHomeResponse = MyHomeResponse.fromJson(Map);
+      insertHome(myHomeResponse.data.myhomes);
+      fetchDbHome(month, year);
+    } else {}
   }
 
   void sort(int index) {
@@ -338,8 +372,8 @@ class _MyHomePageState extends State<Apartment> {
     }
   }
 
-  Future<void> fetchDbHome() async {
-    var res = await dbHelper.fetchAllHome();
+  Future<void> fetchDbHome(var month, var year) async {
+    var res = await dbHelper.fetchApartmentHome(apartmentId, month, year);
     setState(() {
       summarys = res;
     });

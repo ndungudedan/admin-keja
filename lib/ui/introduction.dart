@@ -1,4 +1,3 @@
-import 'package:admin_keja/ui/index.dart';
 import 'package:admin_keja/ui/login.dart';
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
@@ -40,26 +39,26 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
       key: introKey,
       pages: [
         PageViewModel(
-          title: "Your sacco at hand",
+          title: "Get your apartments ",
           body:
-              "Access all sacco services seamlessly from the palm of your hand.",
-          image: _buildImage('assets/images/login.jpeg'),
+              "Let us find tenants for you with from all over Kenya.",
+          image: _buildImage('assets/images/launcher.png'),
           decoration: pageDecoration,
         ),
 
         PageViewModel(
-          title: "Your sacco at hand",
+          title: "Enhance your house management",
           body:
-              "Access all sacco services seamlessly from the palm of your hand.",
-          image: _buildImage('assets/images/ic_launcher.png'),
+              "Get to see real time updates on rent payments adn arrears.",
+          image: _buildImage('assets/images/pin7.jpg'),
           decoration: pageDecoration,
         ),
     
         PageViewModel(
           title: "Get set, Ready!!! Launch",
           body:
-              "Access all sacco services seamlessly from the palm of your hand.",
-          image: _buildImage('assets/images/ic_launcher.png'),
+              "Lets get you rolling on this rollercoaster.",
+          image: _buildImage('assets/images/pin3.png'),
           decoration: pageDecoration,
         ),
       ],

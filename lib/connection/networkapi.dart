@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:admin_keja/constants/constant.dart';
+import 'package:admin_keja/management/management.dart';
 
 import 'network.dart';
 
@@ -9,6 +10,11 @@ class NetworkApi {
   Future<dynamic> login(var email, var pass) async {
     Network network = Network(constants.baseurl);
     var data = await network.call(loginjson(email, pass));
+    return data;
+  }
+    Future<dynamic> getApartmentLocations() async {
+    Network network = Network(constants.baseurl);
+    var data = await network.call(locationsjson());
     return data;
   }
 
@@ -58,6 +64,11 @@ class NetworkApi {
     var data = await network.call(addUnitjson(apartmentId,userId,unit));
     return data;
   }
+  Future<dynamic> fungaKeja(var apartmentId,var userId) async {
+    Network network = Network(constants.baseurl);
+    var data = await network.call(fungaKejajson(apartmentId,userId));
+    return data;
+  }
     Future<dynamic> getImages(var apartmentId) async {
     // 6
     Network network = Network(constants.baseurl);
@@ -85,6 +96,20 @@ class NetworkApi {
     var Data = await network.uploadApartment(images,tags,features,details,onProgress);
     return Data;
   }
+    Future<dynamic> updateImage(var file,var tag,var apartmentId,var picIndex,Function onProgress) async {
+    // 6
+    Network network = Network(constants.updateurl);
+    // 7
+    var Data = await network.updateApartment(file,tag,apartmentId,picIndex,onProgress);
+    return Data;
+  }
+      Future<dynamic> updateTag(var tag,var apartmentId,var picIndex) async {
+    // 6
+    Network network = Network(constants.updateurl);
+    // 7
+    var Data = await network.call(updateTagJson(tag,apartmentId,picIndex));
+    return Data;
+  }
     Future<dynamic> updateStep1(var apartmentId,var details) async {
     // 6
     Network network = Network(constants.updateurl);
@@ -103,7 +128,14 @@ class NetworkApi {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.call(updateFeaturesJson(apartmentId,features));
+    var Data = await network.updateFeatures(features,apartmentId);
+    return Data;
+  }
+  Future<dynamic> updateCompany(var upload,var details) async {
+    // 6
+    Network network = Network(constants.updateurl);
+    // 7
+    var Data = await network.updateCompany(upload,details);
     return Data;
   }
     Future<dynamic> fetchCategorys() async {
@@ -150,12 +182,28 @@ class NetworkApi {
     });
     return json;
   }
+    String fungaKejajson(var apartmentId, var userId) {
+    var json = jsonEncode(<String, String>{
+      'functionality':'fungaKeja',
+      'apartmentId': apartmentId,
+      'tenantId': userId,
+      'present': '0',
+    });
+    return json;
+  }
 
   String loginjson(var email, var pass) {
     var json = jsonEncode(<String, String>{
       'functionality':'login',
       'email': email,
       'password': pass,
+    });
+    return json;
+  }
+    String locationsjson() {
+    var json = jsonEncode(<String, String>{
+      'functionality':'getLocations',
+      'companyId': sharedPreferences.getCompanyId(),
     });
     return json;
   }
@@ -239,6 +287,16 @@ class NetworkApi {
     });
     return json;
   }
+    String updateTagJson(var tag,var apartmentId,var picIndex) {
+    var json = jsonEncode(<String, String>{
+      'functionality':'updateTag',
+      'apartmentId': apartmentId,
+      'tag': tag,
+      "index": picIndex.toString(),
+    });
+    return json;
+  }
+  
     String updateStep2Json(var apartmentId,var details) {
     var json = jsonEncode(<String, String>{
       'functionality':'updateStep2',
@@ -248,14 +306,6 @@ class NetworkApi {
       'phone': details[UploadData.apartmentPhone],
       'email': details[UploadData.email],
       'location': details[UploadData.location],
-    });
-    return json;
-  }
-      String updateFeaturesJson(var apartmentId,var features) {
-    var json = jsonEncode(<String, String>{
-      'functionality':'updateFeatures',
-      'apartmentId': apartmentId,
-      "features": features,
     });
     return json;
   }

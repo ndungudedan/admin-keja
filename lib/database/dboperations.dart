@@ -214,10 +214,22 @@ class DbOperations {
     });
     return myhomes;
   }
+    Future<List<MyHome>> fetchApartmentHome(var id,var month,var year) async {
+    Database _db = await instance.dbHelper.database;
+    List<Map> results = await _db.rawQuery(
+        'SELECT * FROM $paymenthistorytable WHERE apartment_id = ?', [id]);
+        
+    List<MyHome> myhomes = new List();
+    results.forEach((result) {
+      MyHome myHome = MyHome.fromMap(result);
+      myhomes.add(myHome);
+    });
+    return myhomes;
+  }
     Future<List<MyHome>> fetchHome(var month,var year) async {
     Database _db = await instance.dbHelper.database;
     List<Map> results = await _db.rawQuery(
-        'SELECT * FROM $paymenthistorytable WHERE month = ? AND year = ?', [month,year]);
+        'SELECT * FROM $paymenthistorytable WHERE month = ? AND year = ? ORDER BY month DESC, year DESC', [month,year]);
     List<MyHome> myhomes = new List();
     results.forEach((result) {
       MyHome myHome = MyHome.fromMap(result);
