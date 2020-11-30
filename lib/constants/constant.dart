@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-/*   final String baseurl = 'http://192.168.43.247/chekiKeja/adminKeja.php/';
+   final String baseurl = 'http://192.168.43.247/chekiKeja/adminKeja.php/';
   final String uploadurl = 'http://192.168.43.247/chekiKeja/tengenezaKeja.php/';
   final String updateurl = 'http://192.168.43.247/chekiKeja/updateKeja.php/';
   final String termsurl = 'http://192.168.43.247/chekiKeja/uploads/terms.rtf';
   final String abouturl = 'http://192.168.43.247/chekiKeja/uploads/about.rtf';
-  final String path = 'http://192.168.43.247/chekiKeja/uploads/'; */
-
+  final String path = 'http://192.168.43.247/chekiKeja/uploads/'; 
+/* 
   final String baseurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/adminKeja.php/';
   final String uploadurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/tengenezaKeja.php/';
   final String updateurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/updateKeja.php/';
   final String termsurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/uploads/terms.rtf';
   final String abouturl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/uploads/about.rtf';
-  final String path = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/uploads/';
+  final String path = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/uploads/'; */
   
   final String folder = '/images/';
 

@@ -37,7 +37,7 @@ class _MyHomePageState extends State<PhotoViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+     // resizeToAvoidBottomInset: false,
       backgroundColor: LightColors.kLightYellow,
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -45,7 +45,7 @@ class _MyHomePageState extends State<PhotoViewer> {
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context, tempList),
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: LightColors.kDarkYellow,
         actions: [
           IconButton(
             icon: Icon(
@@ -58,78 +58,76 @@ class _MyHomePageState extends State<PhotoViewer> {
           ),
         ],
       ),
-      body: Container(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: picList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Image.file(
-                          picList.elementAt(picIndex),
-                          fit: BoxFit.fitHeight,
-                        ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                scrollDirection: Axis.horizontal,
+                itemCount: picList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Image.file(
+                        picList.elementAt(picIndex),
+                        fit: BoxFit.fill,
                       ),
-                    );
-                  }),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      height: 150,
-                      width: 150,
-                      child: ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.all(8),
-                          itemCount: picList.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return GestureDetector(
-                              child: Container(
-                                padding: EdgeInsets.all(2),
-                                alignment: Alignment.center,
-                                child: Image.file(picList.elementAt(index)),
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  picIndex = index;
-                                  if (tagList != null &&
-                                      tagList.elementAt(picIndex) != null) {
-                                    _tagController.text =
-                                        tagList.elementAt(picIndex);
-                                  }
-                                });
-                              },
-                            );
-                          }),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                      child: displayTag(),
-                    ),
-                  ],
-                ),
+                  );
+                }),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 150,
+                    width: MediaQuery.of(context).size.width,
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.all(8),
+                        itemCount: picList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return GestureDetector(
+                            child: Container(
+                              padding: EdgeInsets.all(2),
+                              alignment: Alignment.center,
+                              child: Image.file(picList.elementAt(index)),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                picIndex = index;
+                                if (tagList != null &&
+                                    tagList.elementAt(picIndex) != null) {
+                                  _tagController.text =
+                                      tagList.elementAt(picIndex);
+                                }
+                              });
+                            },
+                          );
+                        }),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    child: displayTag(),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

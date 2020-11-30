@@ -77,7 +77,7 @@ class Network {
     }
   }
 
-  Future updateApartment(File file, var tag, var apartmentId, var picIndex,
+  Future updateApartment(File file, var tag, var apartmentId, var picId,
       Function onProgress) async {
     List<MultipartFile> imageList = new List<MultipartFile>();
 
@@ -93,7 +93,7 @@ class Network {
       "apartmentId": apartmentId,
       "companyId": sharedPreferences.getCompanyId(),
       "images": imageList,
-      "index": picIndex.toString(),
+      "imageId": picId,
     });
 
     Dio dio = new Dio();
@@ -115,7 +115,7 @@ class Network {
     FormData formData = FormData.fromMap({
       'functionality': 'updateFeatures',
       'apartmentId': apartmentId,
-      "features": features,
+      "features": jsonEncode(features),
     });
 
     Dio dio = new Dio();

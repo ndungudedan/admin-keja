@@ -116,15 +116,19 @@ class _CreateApartmentState extends State<CreateApartment> {
 
   void pickMultipleImages() async {
     try {
-      var result = await FilePicker.platform
-          .pickFiles(type: FileType.image, allowMultiple: true);
+      var result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['jpg', 'png', 'jpeg'],
+          allowMultiple: true);
       if (result != null) {
         List<File> templist = result.paths.map((path) => File(path)).toList();
         setState(() {
-          for (int i = 0; i < 16; i++) {
-            image_uri.add(templist.elementAt(i));
-            imagepaths.add(templist.elementAt(i).path);
-            compressAndGetFile(templist.elementAt(i));
+          for (int i = 0; i < templist.length; i++) {
+            if (i <= 16) {
+              image_uri.add(templist.elementAt(i));
+              imagepaths.add(templist.elementAt(i).path);
+              compressAndGetFile(templist.elementAt(i));
+            }
           }
         });
       }
@@ -331,7 +335,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                       borderRadius: BorderRadius.circular(80.0),
                       side: BorderSide(color: Colors.amberAccent),
                     ),
-                    color: Colors.lightBlueAccent,
+                    color: const Color.fromRGBO(247, 64, 106, 1.0),
                     highlightElevation: 10,
                     elevation: 15,
                     animationDuration: Duration(seconds: 2),
@@ -398,31 +402,34 @@ class _CreateApartmentState extends State<CreateApartment> {
                   controller: _locationController,
                 ),
                 locationMap(),
-                Center(
-                  child: RaisedButton(
-                    splashColor: Colors.amber,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(80.0),
-                      side: BorderSide(color: Colors.amberAccent),
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Center(
+                    child: RaisedButton(
+                      splashColor: Colors.amber,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(80.0),
+                        side: BorderSide(color: Colors.amberAccent),
+                      ),
+                      color: const Color.fromRGBO(247, 64, 106, 1.0),
+                      highlightElevation: 10,
+                      elevation: 15,
+                      animationDuration: Duration(seconds: 2),
+                      focusElevation: 10,
+                      colorBrightness: Brightness.dark,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
+                        child: Text('next'),
+                      ),
+                      onPressed: () {
+                        if (_step2Key.currentState.validate()) {
+                          setState(() {
+                            step = 2;
+                            validatestep2 = true;
+                          });
+                        }
+                      },
                     ),
-                    color: Colors.lightBlueAccent,
-                    highlightElevation: 10,
-                    elevation: 15,
-                    animationDuration: Duration(seconds: 2),
-                    focusElevation: 10,
-                    colorBrightness: Brightness.dark,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
-                      child: Text('next'),
-                    ),
-                    onPressed: () {
-                      if (_step2Key.currentState.validate()) {
-                        setState(() {
-                          step = 2;
-                          validatestep2 = true;
-                        });
-                      }
-                    },
                   ),
                 )
               ],
@@ -866,7 +873,7 @@ class _CreateApartmentState extends State<CreateApartment> {
       } else {
         errorDialog(context, status.message, showNeutralButton: true);
       }
-    }else{
+    } else {
       errorDialog(context, "Upload failed...", showNeutralButton: true);
     }
   }
@@ -892,8 +899,10 @@ class _CreateApartmentState extends State<CreateApartment> {
       directory.path + '/' + path.basename(file.path),
       quality: 40,
     );
-    toUpload.add(result);
-    tags.add("Please add tag");
+    setState(() {
+      toUpload.add(result);
+      tags.add("Please add tag");
+    });
     print('worked');
     print(file.lengthSync());
     print(result.lengthSync());

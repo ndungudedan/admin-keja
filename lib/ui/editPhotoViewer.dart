@@ -15,13 +15,13 @@ import 'package:progress_dialog/progress_dialog.dart';
 class EditPhotoViewer extends StatefulWidget {
   File pic;
   String tag;
-  var index;
+  var picId;
   var apartmentId;
   EditPhotoViewer(
       {Key key,
       @required this.pic,
       @required this.tag,
-      @required this.index,
+      @required this.picId,
       @required this.apartmentId})
       : super(key: key);
 
@@ -33,9 +33,8 @@ class _MyHomePageState extends State<EditPhotoViewer> {
   final dbHelper = DbOperations.instance;
   File pic;
   String tag;
-  //List<String> tempList = [];
   final _tagController = TextEditingController();
-  var picIndex = 0;
+  String picId = '0';
   var apartmentId;
   double progress = 0.0;
   ProgressDialog progressDialog;
@@ -44,8 +43,8 @@ class _MyHomePageState extends State<EditPhotoViewer> {
   void initState() {
     pic = widget.pic;
     tag = widget.tag;
-    //tempList = widget.tagList;
-    picIndex = widget.index;
+    _tagController.text = widget.tag;
+    picId = widget.picId;
     apartmentId = widget.apartmentId;
 
     super.initState();
@@ -129,7 +128,7 @@ class _MyHomePageState extends State<EditPhotoViewer> {
   Future<void> upload(var file) async {
     await progressDialog.show();
     var result = await NetworkApi()
-        .updateImage(file, tag, apartmentId, picIndex, onProgress);
+        .updateImage(file, tag, apartmentId, picId, onProgress);
     print(result);
     if (result != Constants.fail) {
       var Map = json.decode(result);
@@ -140,8 +139,9 @@ class _MyHomePageState extends State<EditPhotoViewer> {
       } else {
         errorDialog(context, status.message, showNeutralButton: true);
       }
-    }else{
-      errorDialog(context, "Failed...Please try again later", showNeutralButton: true);
+    } else {
+      errorDialog(context, "Failed...Please try again later",
+          showNeutralButton: true);
     }
   }
 
@@ -180,14 +180,13 @@ class _MyHomePageState extends State<EditPhotoViewer> {
     var result = await FlutterImageCompress.compressAndGetFile(
       file.absolute.path,
       directory.path + '/' + path.basename(file.path),
-      quality: 80,
+      quality: 40,
     ).then((value) => {upload(value), print(value.lengthSync())});
     print('worked');
     print(file.lengthSync());
   }
 
   void updateLocal() {
-    dbHelper.updateTag(
-        'tag' + picIndex.toString(), apartmentId, _tagController.text);
+    //dbHelper.updateTag(apartmentId, _tagController.text);
   }
 }

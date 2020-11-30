@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:admin_keja/connection/networkapi.dart';
 import 'package:admin_keja/constants/constant.dart';
+import 'package:admin_keja/database/dboperations.dart';
 import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/category.dart';
+import 'package:admin_keja/models/features.dart';
 import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/views/textfield.dart';
@@ -25,7 +27,7 @@ class EditApartment extends StatefulWidget {
   }) : super(key: key);
   final String title;
   final MyApartment apartment;
-  final List<String> features;
+  final List<Features> features;
   final int step;
   @override
   _CreateApartmentState createState() => _CreateApartmentState();
@@ -49,6 +51,7 @@ class _CreateApartmentState extends State<EditApartment> {
     super.dispose();
   }
 
+  final dbHelper = DbOperations.instance;
   MyApartment apartment = MyApartment();
   List<File> image_uri = [];
   List<File> toUpload = [];
@@ -56,6 +59,7 @@ class _CreateApartmentState extends State<EditApartment> {
   var promoimage_uri, promoimage_path;
   File videofile;
   String _imagefilePath;
+  String featId;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   final _depositController = TextEditingController();
   final _addressController = TextEditingController();
@@ -79,7 +83,7 @@ class _CreateApartmentState extends State<EditApartment> {
   Map<String, String> details = {};
   var step = 0;
   List<String> tags = [];
-  List<String> features = [];
+  List<Features> features = [];
   double latitude;
   double longitude;
   bool location;
@@ -115,6 +119,14 @@ class _CreateApartmentState extends State<EditApartment> {
         title: Text(apartment.title),
         backgroundColor: LightColors.kDarkYellow,
         actions: [
+         step==3 ? IconButton(
+              icon: Icon(
+                Icons.add_box_outlined,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                _showDialog();
+              }):SizedBox(),
           IconButton(
             icon: Icon(
               Icons.save,
@@ -132,9 +144,9 @@ class _CreateApartmentState extends State<EditApartment> {
               } else if (step == 3) {
                 if (features.length >= 11) {
                   submitStep4();
-                }else{
+                } else {
                   _scaffoldKey.currentState
-                              .showSnackBar(snack('Not less than 11 features'));
+                      .showSnackBar(snack('Not less than 11 features'));
                 }
               }
             },
@@ -287,14 +299,25 @@ class _CreateApartmentState extends State<EditApartment> {
                 itemCount: features.length,
                 itemBuilder: (BuildContext context, int index) {
                   return ListTile(
-                    title: Text(features.elementAt(index)),
+                    onTap: () {
+                      setState(() {
+                        _featController.text = features.elementAt(index).feat;
+                        featId = features.elementAt(index).id;
+                      });
+                    },
+                    title: Text(features.elementAt(index).feat),
                     leading: IconButton(
                       onPressed: () {
-                        setState(() {
-                          String deletedItem = features.removeAt(index);
+                        infoDialog(context, "Please confirm feature deletion.",
+                            positiveAction: () {
                           Scaffold.of(context)
-                              .showSnackBar(deletesnack(deletedItem, index));
-                        });
+                              .showSnackBar(snack('Request sent....'));
+                          deleteFeature(index, features.elementAt(index).id);
+                        },
+                            positiveText: 'Yes',
+                            negativeAction: () {},
+                            negativeText: 'No',
+                            showNeutralButton: false);
                       },
                       icon: Icon(
                         Icons.close,
@@ -321,7 +344,8 @@ class _CreateApartmentState extends State<EditApartment> {
               controller: _featController,
               onSubmitted: (value) {
                 setState(() {
-                  features.add(_featController.text);
+                  features.elementAt(int.parse(featId)).feat =
+                      _featController.text;
                   _featController.text = '';
                 });
               },
@@ -335,7 +359,7 @@ class _CreateApartmentState extends State<EditApartment> {
                   color: Colors.orangeAccent,
                   size: 30,
                 ),
-                hintText: 'Add Feature',
+                hintText: 'Edit Feature',
                 hintStyle: TextStyle(
                   color: Colors.white,
                 ),
@@ -353,7 +377,7 @@ class _CreateApartmentState extends State<EditApartment> {
       action: SnackBarAction(
           label: "UNDO",
           onPressed: () => setState(
-                () => features.insert(index, deletedItem),
+                () => features.elementAt(index).feat = deletedItem,
               )),
     );
   }
@@ -408,6 +432,41 @@ class _CreateApartmentState extends State<EditApartment> {
                   ),
                 ],
               ));
+  }
+
+  _showDialog() async {
+    await showDialog<String>(
+      context: context,
+      child: AlertDialog(
+        contentPadding: const EdgeInsets.all(8.0),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              child: TextField(
+                controller: _featController,
+                autofocus: true,
+                decoration: InputDecoration(labelText: 'Add feature'),
+              ),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          FlatButton(
+              child: const Text('CANCEL'),
+              onPressed: () {
+                Navigator.pop(context);
+              }),
+          FlatButton(
+              child: const Text('DONE'),
+              onPressed: () {
+                insertFeature();
+                Navigator.pop(context);
+              })
+        ],
+      ),
+    );
   }
 
   Future<Position> locateApartment() async {
@@ -474,8 +533,7 @@ class _CreateApartmentState extends State<EditApartment> {
   }
 
   void submitStep4() async {
-    var result = await NetworkApi()
-        .updateFeatures(sharedPreferences.getCompanyId(), features);
+    var result = await NetworkApi().updateFeatures(apartment.id, features);
     print(result);
     if (result != Constants.fail) {
       var Map = json.decode(result);
@@ -486,7 +544,47 @@ class _CreateApartmentState extends State<EditApartment> {
         errorDialog(context, status.message, showNeutralButton: true);
       }
     } else {
-      errorDialog(context, "Upload failed...", showNeutralButton: true);
+      errorDialog(context, "Operation failed...", showNeutralButton: true);
+    }
+  }
+
+  void deleteFeature(int index, var id) async {
+    var result = await NetworkApi().deleteFeature(id);
+    print(result);
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      Status status = Status.fromJson(Map);
+      if (status.code == Constants.success) {
+        setState(() {
+          String deletedItem = features.removeAt(index).feat;
+        });
+        successDialog(context, status.message, showNeutralButton: true);
+        dbHelper.deleteFeature(int.tryParse(features.removeAt(index).id));
+      } else {
+        errorDialog(context, status.message, showNeutralButton: true);
+      }
+    } else {
+      errorDialog(context, "Operation failed...", showNeutralButton: true);
+    }
+  }
+
+  void insertFeature() async {
+    var result =
+        await NetworkApi().insertFeature(apartment.id, _featController.text);
+    print(result);
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      Status status = Status.fromJson(Map);
+      setState(() {
+        _featController.text = '';
+      });
+      if (status.code == Constants.success) {
+        successDialog(context, status.message, showNeutralButton: true);
+      } else {
+        errorDialog(context, status.message, showNeutralButton: true);
+      }
+    } else {
+      errorDialog(context, "Operation failed...", showNeutralButton: true);
     }
   }
 

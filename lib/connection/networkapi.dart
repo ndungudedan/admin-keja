@@ -96,18 +96,18 @@ class NetworkApi {
     var Data = await network.uploadApartment(images,tags,features,details,onProgress);
     return Data;
   }
-    Future<dynamic> updateImage(var file,var tag,var apartmentId,var picIndex,Function onProgress) async {
+    Future<dynamic> updateImage(var file,var tag,var apartmentId,var picId,Function onProgress) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.updateApartment(file,tag,apartmentId,picIndex,onProgress);
+    var Data = await network.updateApartment(file,tag,apartmentId,picId,onProgress);
     return Data;
   }
-      Future<dynamic> updateTag(var tag,var apartmentId,var picIndex) async {
+      Future<dynamic> updateTag(var tag,var apartmentId,var picId) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.call(updateTagJson(tag,apartmentId,picIndex));
+    var Data = await network.call(updateTagJson(tag,apartmentId,picId));
     return Data;
   }
     Future<dynamic> updateStep1(var apartmentId,var details) async {
@@ -129,6 +129,20 @@ class NetworkApi {
     Network network = Network(constants.updateurl);
     // 7
     var Data = await network.updateFeatures(features,apartmentId);
+    return Data;
+  }
+      Future<dynamic> deleteFeature(var featureId) async {
+    // 6
+    Network network = Network(constants.updateurl);
+    // 7
+    var Data = await network.call(deleteFeatureJson(featureId));
+    return Data;
+  }
+  Future<dynamic> insertFeature(var apartmentId,var feature) async {
+    // 6
+    Network network = Network(constants.updateurl);
+    // 7
+    var Data = await network.call(insertFeatureJson(apartmentId,feature));
     return Data;
   }
   Future<dynamic> updateCompany(var upload,var details) async {
@@ -287,16 +301,31 @@ class NetworkApi {
     });
     return json;
   }
-    String updateTagJson(var tag,var apartmentId,var picIndex) {
+    String updateTagJson(var tag,var apartmentId,var picId) {
     var json = jsonEncode(<String, String>{
       'functionality':'updateTag',
       'apartmentId': apartmentId,
       'tag': tag,
-      "index": picIndex.toString(),
+      "imageId": picId,
     });
     return json;
   }
   
+      String deleteFeatureJson(var featureId) {
+    var json = jsonEncode(<String, String>{
+      'functionality':'deleteFeature',
+      'featureId': featureId,
+    });
+    return json;
+  }
+        String insertFeatureJson(var apartmentId,var feature) {
+    var json = jsonEncode(<String, String>{
+      'functionality':'insertFeature',
+      'apartmentId': apartmentId,
+      'feature': feature,
+    });
+    return json;
+  }
     String updateStep2Json(var apartmentId,var details) {
     var json = jsonEncode(<String, String>{
       'functionality':'updateStep2',

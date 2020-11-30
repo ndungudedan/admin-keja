@@ -69,22 +69,7 @@ class DatabaseHelper {
             id INTEGER PRIMARY KEY,
             online_id TEXT NOT NULL,
             apartment_id TEXT NOT NULL,
-            image0 TEXT,
-            image1 TEXT,
-            image2 TEXT,
-            image3 TEXT,
-            image4 TEXT,
-            image5 TEXT,
-            image6 TEXT,
-            image7 TEXT,
-            image8 TEXT,
-            image9 TEXT,
-            image10 TEXT,
-            image11 TEXT,
-            image12 TEXT,
-            image13 TEXT,
-            image14 TEXT,
-            image15 TEXT
+            image TEXT
           )
           ''');
     await db.execute('''
@@ -92,22 +77,8 @@ class DatabaseHelper {
             id INTEGER PRIMARY KEY,
             online_id TEXT NOT NULL,
             apartment_id TEXT NOT NULL,
-            tag0 TEXT NOT NULL,
-            tag1 TEXT NOT NULL,
-            tag2 TEXT NOT NULL,
-            tag3 TEXT NOT NULL,
-            tag4 TEXT NOT NULL,
-            tag5 TEXT NOT NULL,
-            tag6 TEXT,
-            tag7 TEXT,
-            tag8 TEXT,
-            tag9 TEXT,
-            tag10 TEXT,
-            tag11 TEXT,
-            tag12 TEXT,
-            tag13 TEXT,
-            tag14 TEXT,
-            tag15 TEXT
+            image_id TEXT NOT NULL,
+            tag TEXT NOT NULL
           )
           ''');
     await db.execute('''
@@ -115,17 +86,7 @@ class DatabaseHelper {
             id INTEGER PRIMARY KEY,
             online_id TEXT NOT NULL,
             apartment_id TEXT NOT NULL,
-            feat0 TEXT NOT NULL,
-            feat1 TEXT NOT NULL,
-            feat2 TEXT NOT NULL,
-            feat3 TEXT NOT NULL,
-            feat4 TEXT NOT NULL,
-            feat5 TEXT NOT NULL,
-            feat6 TEXT NOT NULL,
-            feat7 TEXT NOT NULL,
-            feat8 TEXT NOT NULL,
-            feat9 TEXT NOT NULL,
-            feat10 TEXT NOT NULL
+            feat TEXT NOT NULL
           )
           ''');
     await db.execute('''

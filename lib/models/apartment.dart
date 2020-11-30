@@ -171,42 +171,12 @@ class MyApartmentResponse {
 class Images {
   String id;
   String apartment_id;
-  String image0;
-  String image1;
-  String image2;
-  String image3;
-  String image4;
-  String image5;
-  String image6;
-  String image7;
-  String image8;
-  String image9;
-  String image10;
-  String image11;
-  String image12;
-  String image13;
-  String image14;
-  String image15;
+  String image;
 
   Images({
-    this.image0,
-    this.image1,
+    this.image,
     this.id,
     this.apartment_id,
-    this.image2,
-    this.image3,
-    this.image4,
-    this.image5,
-    this.image6,
-    this.image7,
-    this.image8,
-    this.image9,
-    this.image10,
-    this.image11,
-    this.image12,
-    this.image13,
-    this.image14,
-    this.image15,
   });
 
   factory Images.fromJson(Map<String, dynamic> json) => _$ImagesFromJson(json);
@@ -217,44 +187,14 @@ class Images {
     "id",
     "online_id",
     "apartment_id",
-    "image0",
-    "image1",
-    "image2",
-    "image3",
-    "image4",
-    "image5",
-    "image6",
-    "image7",
-    "image8",
-    "image9",
-    "image10",
-    "image11",
-    "image12",
-    "image13",
-    "image14",
-    "image15"
+    "image"
   ];
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       "online_id": id,
       "apartment_id": apartment_id,
-      "image0": image0,
-      "image1": image1,
-      "image2": image2,
-      "image3": image3,
-      "image4": image4,
-      "image5": image5,
-      "image6": image6,
-      "image7": image7,
-      "image8": image8,
-      "image9": image9,
-      "image10": image10,
-      "image11": image11,
-      "image12": image12,
-      "image13": image13,
-      "image14": image14,
-      "image15": image15,
+      "image": image,
     };
 
     if (id != null) {
@@ -269,67 +209,35 @@ class Images {
     //images.id = map["id"].toString();
     images.id = map["online_id"];
     images.apartment_id = map["apartment_id"];
-    images.image0 = map["image0"];
-    images.image1 = map["image1"];
-    images.image2 = map["image2"];
-    images.image3 = map["image3"];
-    images.image4 = map["image4"];
-    images.image5 = map["image5"];
-    images.image6 = map["image6"];
-    images.image7 = map["image7"];
-    images.image8 = map["image8"];
-    images.image9 = map["image9"];
-    images.image10 = map["image10"];
-    images.image11 = map["image11"];
-    images.image12 = map["image12"];
-    images.image13 = map["image13"];
-    images.image14 = map["image14"];
-    images.image15 = map["image15"];
-
+    images.image = map["image"];
     return images;
   }
 }
+@JsonSerializable()
+class ImageList {
+  List<Images> data;
+  ImageList({this.data});
 
+  factory ImageList.fromJson(List<dynamic> json) {
+    return ImageList(
+        data: json
+            .map((e) => Images.fromJson(e as Map<String, dynamic>))
+            .toList());
+  }
+}
 @JsonSerializable()
 class Tags {
   String id;
   String apartment_id;
-  String tag0;
-  String tag1;
-  String tag2;
-  String tag3;
-  String tag4;
-  String tag5;
-  String tag6;
-  String tag7;
-  String tag8;
-  String tag9;
-  String tag10;
-  String tag11;
-  String tag12;
-  String tag13;
-  String tag14;
-  String tag15;
+  String image_id;
+  String tag;
 
   Tags(
       {this.id,
       this.apartment_id,
-      this.tag0,
-      this.tag1,
-      this.tag2,
-      this.tag3,
-      this.tag4,
-      this.tag5,
-      this.tag6,
-      this.tag7,
-      this.tag8,
-      this.tag9,
-      this.tag10,
-      this.tag11,
-      this.tag12,
-      this.tag13,
-      this.tag14,
-      this.tag15});
+      this.tag,
+      this.image_id
+      });
 
   factory Tags.fromJson(Map<String, dynamic> json) => _$TagsFromJson(json);
 
@@ -339,44 +247,16 @@ class Tags {
     "id",
     "online_id",
     "apartment_id",
-    "tag0",
-    "tag1",
-    "tag2",
-    "tag3",
-    "tag4",
-    "tag5",
-    "tag6",
-    "tag7",
-    "tag8",
-    "tag9",
-    "tag10",
-    "tag11",
-    "tag12",
-    "tag13",
-    "tag14",
-    "tag15"
+    "image_id",
+    "tag0"
   ];
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       "online_id": id,
       "apartment_id": apartment_id,
-      "tag0": tag0,
-      "tag1": tag1,
-      "tag2": tag2,
-      "tag3": tag3,
-      "tag4": tag4,
-      "tag5": tag5,
-      "tag6": tag6,
-      "tag7": tag7,
-      "tag8": tag8,
-      "tag9": tag9,
-      "tag10": tag10,
-      "tag11": tag11,
-      "tag12": tag12,
-      "tag13": tag13,
-      "tag14": tag14,
-      "tag15": tag15,
+      "image_id": image_id,
+      "tag": tag,
     };
 
     if (id != null) {
@@ -391,23 +271,51 @@ class Tags {
     //images.id = map["id"].toString();
     tags.id = map["online_id"];
     tags.apartment_id = map["apartment_id"];
-    tags.tag0 = map["tag0"];
-    tags.tag1 = map["tag1"];
-    tags.tag2 = map["tag2"];
-    tags.tag3 = map["tag3"];
-    tags.tag4 = map["tag4"];
-    tags.tag5 = map["tag5"];
-    tags.tag6 = map["tag6"];
-    tags.tag7 = map["tag7"];
-    tags.tag8 = map["tag8"];
-    tags.tag9 = map["tag9"];
-    tags.tag10 = map["tag10"];
-    tags.tag11 = map["tag11"];
-    tags.tag12 = map["tag12"];
-    tags.tag13 = map["tag13"];
-    tags.tag14 = map["tag14"];
-    tags.tag15 = map["tag15"];
+    tags.tag = map["tag"];
+    tags.image_id = map["image_id"];
 
     return tags;
   }
+}
+@JsonSerializable()
+class TagList {
+  List<Tags> data;
+  TagList({this.data});
+
+  factory TagList.fromJson(List<dynamic> json) {
+    return TagList(
+        data: json
+            .map((e) => Tags.fromJson(e as Map<String, dynamic>))
+            .toList());
+  }
+}
+@JsonSerializable()
+class TagsResponse {
+  TagList data;
+  Status status;
+
+  TagsResponse({
+    this.status,
+    this.data,
+  });
+
+  factory TagsResponse.fromJson(Map<String, dynamic> json) =>
+      _$TagsResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TagsResponseToJson(this);
+}
+@JsonSerializable()
+class ImagesResponse {
+  ImageList data;
+  Status status;
+
+  ImagesResponse({
+    this.status,
+    this.data,
+  });
+
+  factory ImagesResponse.fromJson(Map<String, dynamic> json) =>
+      _$ImagesResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ImagesResponseToJson(this);
 }

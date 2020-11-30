@@ -21,8 +21,8 @@ class AllImages extends StatefulWidget {
 
 class _MyHomePageState extends State<AllImages> {
   final dbHelper = DbOperations.instance;
-  final List<String> picList = [];
-  final List<String> imageTags = [];
+  List<Images> picList = [];
+  List<Tags> imageTags = [];
   var apartmentId, userId, companyId;
   Constants constants = Constants();
 
@@ -64,11 +64,11 @@ class _MyHomePageState extends State<AllImages> {
                         fit: StackFit.expand,
                         children: <Widget>[
                           picList.elementAt(index) == null ||
-                                  picList.elementAt(index).isEmpty
+                                  picList.elementAt(index).image.isEmpty
                               ? Image.asset('assets/images/placeholder.png')
                               : Image.memory(
                                   Utility.dataFromBase64String(
-                                      picList.elementAt(index)),
+                                      picList.elementAt(index).image),
                                   height: 150.0,
                                   width: 150.0,
                                   fit: BoxFit.cover,
@@ -92,7 +92,7 @@ class _MyHomePageState extends State<AllImages> {
                                   vertical: 10.0, horizontal: 20.0),
                               child: imageTags != null && imageTags.isNotEmpty
                                   ? Text(
-                                      imageTags.elementAt(index),
+                                      getTag(index),
                                       style: TextStyle(
                                         color: Colors.white,
                                       ),
@@ -101,11 +101,12 @@ class _MyHomePageState extends State<AllImages> {
                             ),
                           ),
                           Positioned(
-                            top: 5,
-                            right: 5,
+                            bottom: 130,
+                            left: 130,
                             child: CircleAvatar(
                               radius: 20,
-                              backgroundColor: Colors.white,
+                                            backgroundColor:
+                                                LightColors.kLavender,
                               child: IconButton(
                                 icon: Icon(Icons.edit),
                                 color: Colors.blue,
@@ -131,15 +132,14 @@ class _MyHomePageState extends State<AllImages> {
 
   void updateImage(var index) async {
     try {
-      var tempImage = await FilePicker.platform.pickFiles(
-        type: FileType.image
-      );
+      var tempImage = await FilePicker.platform.pickFiles(type: FileType.custom, 
+      allowedExtensions: ['jpg', 'png', 'jpeg']);
       if (tempImage != null) {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => EditPhotoViewer(
                   pic: File(tempImage.files.single.path),
-                  tag: imageTags.elementAt(index),
-                  index: index,
+                  tag: getTag(index),
+                  picId: picList.elementAt(index).id,
                   apartmentId: apartmentId,
                 )));
       }
@@ -148,31 +148,19 @@ class _MyHomePageState extends State<AllImages> {
     }
   }
 
-  void populateImageList(var index, var val) {
+  void populateImageList(var val) {
     setState(() {
-      picList.insert(index, val);
+      picList = val;
     });
   }
 
-  void populateTagList(Tags tags) {
-    setState(() {
-      imageTags.add(tags.tag0);
-      imageTags.add(tags.tag1);
-      imageTags.add(tags.tag2);
-      imageTags.add(tags.tag3);
-      imageTags.add(tags.tag4);
-      imageTags.add(tags.tag5);
-      imageTags.add(tags.tag6);
-      imageTags.add(tags.tag7);
-      imageTags.add(tags.tag8);
-      imageTags.add(tags.tag9);
-      imageTags.add(tags.tag10);
-      imageTags.add(tags.tag11);
-      imageTags.add(tags.tag12);
-      imageTags.add(tags.tag13);
-      imageTags.add(tags.tag14);
-      imageTags.add(tags.tag15);
-    });
+  void populateTagList(var tags) {
+    if (tags != null) {
+      imageTags.clear();
+      setState(() {
+        imageTags = tags;
+      });
+    }
   }
 
   Future<void> fetchDbTags() async {
@@ -183,52 +171,18 @@ class _MyHomePageState extends State<AllImages> {
 
   Future<void> fetchDbImages() async {
     await dbHelper
-        .fetchSingleImage('image0', apartmentId)
-        .then((value) => {populateImageList(0, value)});
-    await dbHelper
-        .fetchSingleImage('image1', apartmentId)
-        .then((value) => {populateImageList(1, value)});
-    await dbHelper
-        .fetchSingleImage('image2', apartmentId)
-        .then((value) => {populateImageList(2, value)});
-    await dbHelper
-        .fetchSingleImage('image3', apartmentId)
-        .then((value) => {populateImageList(3, value)});
-    await dbHelper
-        .fetchSingleImage('image4', apartmentId)
-        .then((value) => {populateImageList(4, value)});
-    await dbHelper
-        .fetchSingleImage('image5', apartmentId)
-        .then((value) => {populateImageList(5, value)});
-    await dbHelper
-        .fetchSingleImage('image6', apartmentId)
-        .then((value) => {populateImageList(6, value)});
-    await dbHelper
-        .fetchSingleImage('image7', apartmentId)
-        .then((value) => {populateImageList(7, value)});
-    await dbHelper
-        .fetchSingleImage('image8', apartmentId)
-        .then((value) => {populateImageList(8, value)});
-    await dbHelper
-        .fetchSingleImage('image9', apartmentId)
-        .then((value) => {populateImageList(9, value)});
-    await dbHelper
-        .fetchSingleImage('image10', apartmentId)
-        .then((value) => {populateImageList(10, value)});
-    await dbHelper
-        .fetchSingleImage('image11', apartmentId)
-        .then((value) => {populateImageList(11, value)});
-    await dbHelper
-        .fetchSingleImage('image12', apartmentId)
-        .then((value) => {populateImageList(12, value)});
-    await dbHelper
-        .fetchSingleImage('image13', apartmentId)
-        .then((value) => {populateImageList(13, value)});
-    await dbHelper
-        .fetchSingleImage('image14', apartmentId)
-        .then((value) => {populateImageList(14, value)});
-    await dbHelper
-        .fetchSingleImage('image15', apartmentId)
-        .then((value) => {populateImageList(15, value)});
+        .fetchImages(apartmentId)
+        .then((value) => {populateImageList(value)});
+  }
+
+  String getTag(int imageIndex) {
+    var tag;
+    imageTags.forEach((element) {
+      if (element.image_id == picList.elementAt(imageIndex).id) {
+        tag = element.tag;
+      }
+    });
+    return tag;
+    
   }
 }

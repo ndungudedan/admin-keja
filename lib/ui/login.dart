@@ -32,6 +32,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final FocusNode _passwordFocus = FocusNode();
   final form = GlobalKey<FormState>();
   bool loading = false;
+  bool online = false;
 
   Future<Null> _playAnimation() async {
     try {
@@ -80,15 +81,21 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             fit: StackFit.expand,
             children: [
               Positioned(
-                top: 0,
-                right: 0,
-                left: 0,
-                child: SafeArea(
-                                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: ConnectionCallback(),
-                  ),
-                )),
+                  top: 0,
+                  right: 0,
+                  left: 0,
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: ConnectionCallback(
+                        onlineCall: () {
+                          setState(() {
+                            online = true;
+                          });
+                        },
+                      ),
+                    ),
+                  )),
               Positioned(
                 bottom: 80,
                 top: 80,
@@ -102,7 +109,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         key: form,
                         child: ListView(
                           children: <Widget>[
-                            Image.asset('assets/images/logo_trans.png',height: 150,),
+                            Image.asset(
+                              'assets/images/logo_trans.png',
+                              height: 150,
+                            ),
                             InputFieldArea(
                               controller: _emailController,
                               currentfocus: _emailFocus,
@@ -119,12 +129,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               icon: Icons.lock_outline,
                             ),
                             SubmitButton(
-                      text: 'Sign In',
-                      loading: loading,
-                      press: () {
-                        login();
-                      },
-                    ),
+                              text: 'Sign In',
+                              loading: loading,
+                              press: () {
+                                login();
+                              },
+                            ),
                           ],
                         )),
                   ),
@@ -139,7 +149,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     setState(() {
       loading = true;
     });
-    if (sharedPreferences.checkEmail()) {
+    if (sharedPreferences.checkEmail()&&!online) {
       localSignIn();
     } else {
       var result = await NetworkApi()
@@ -176,11 +186,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   localSignIn() {
-    if (sharedPreferences.getEmail() == _emailController.text.trim()
-    &&sharedPreferences.getPassword() == _passwordController.text) {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => Index()));
-      
+    if (sharedPreferences.getEmail() == _emailController.text.trim() &&
+        sharedPreferences.getPassword() == _passwordController.text) {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => Index()));
     } else {
       _scaffoldKey.currentState.showSnackBar(snack("Invalid credentials"));
       setState(() {

@@ -41,9 +41,9 @@ class _MyHomePageState extends State<ApartmentDetails> {
   MyApartment apartment;
   final _tagController = TextEditingController();
   Constants constants = Constants();
-  final List<String> picList = [];
-  final List<String> imageTags = [];
-  final List<String> featurelist = [];
+  List<Images> picList = [];
+  List<Tags> imageTags = [];
+  List<Features> featurelist = [];
   final Map<String, Marker> _markers = {};
   var features;
 
@@ -90,17 +90,17 @@ class _MyHomePageState extends State<ApartmentDetails> {
             child: apartmentDetails(apartment),
           ),
           Container(
-            height: 300,
+            height: 350,
             child: picList != null && picList.isNotEmpty
                 ? Column(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Expanded(
                         child: GridView.count(
-                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
                             padding: const EdgeInsets.all(8),
                             crossAxisCount: 3,
+                            childAspectRatio: 0.7,
                             children: List.generate(picList.length, (index) {
                               return Container(
                                 margin: EdgeInsets.all(5.0),
@@ -112,13 +112,19 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                     child: Stack(
                                       fit: StackFit.expand,
                                       children: <Widget>[
-                                        picList.elementAt(index) == null ||
-                                                picList.elementAt(index).isEmpty
-                                            ? Image.asset('assets/images/placeholder.png')
+                                        picList.elementAt(index).image ==
+                                                    null ||
+                                                picList
+                                                    .elementAt(index)
+                                                    .image
+                                                    .isEmpty
+                                            ? Image.asset(
+                                                'assets/images/placeholder.png')
                                             : Image.memory(
                                                 Utility.dataFromBase64String(
-                                                    picList.elementAt(index)),
-                                                height: 140,
+                                                    picList
+                                                        .elementAt(index)
+                                                        .image),
                                                 fit: BoxFit.fill,
                                               ),
                                         Positioned(
@@ -145,14 +151,12 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                                     onTap: () {
                                                       setState(() {
                                                         _tagController.text =
-                                                            imageTags.elementAt(
-                                                                index);
+                                                            getTag(index);
                                                       });
                                                       _showDialog(index);
                                                     },
                                                     child: Text(
-                                                      imageTags
-                                                          .elementAt(index),
+                                                      getTag(index),
                                                       style: TextStyle(
                                                         color: Colors.white,
                                                       ),
@@ -162,11 +166,12 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                           ),
                                         ),
                                         Positioned(
-                                          bottom: 70,
+                                          bottom: 120,
                                           left: 70,
                                           child: CircleAvatar(
                                             radius: 20,
-                                            backgroundColor: LightColors.kLavender,
+                                            backgroundColor:
+                                                LightColors.kLavender,
                                             child: IconButton(
                                               icon: Icon(Icons.edit),
                                               color: Colors.blue,
@@ -245,14 +250,17 @@ class _MyHomePageState extends State<ApartmentDetails> {
                           childAspectRatio: 6.0,
                           scrollDirection: Axis.vertical,
                           children: List.generate(featurelist.length, (index) {
-                            return featuresCard(featurelist.elementAt(index));
+                            return featuresCard(
+                                featurelist.elementAt(index).feat);
                           }),
                         ),
                       )
                     : Container(
                         child: Center(
-                          child: SizedBox(height: 20,width: 20,
-                            child: CircularProgressIndicator()),
+                          child: SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator()),
                         ),
                       ),
               ],
@@ -315,70 +323,49 @@ class _MyHomePageState extends State<ApartmentDetails> {
     var result = await NetworkApi().getImages(apartmentId);
     print(result);
     var Map = json.decode(result);
-    _insertImages(Images.fromJson(Map));
+    _insertImages(ImagesResponse.fromJson(Map).data.data)
+        .then((value) => {fetchDbImages()});
   }
 
   void fetchTags() async {
     var result = await NetworkApi().getTags(apartmentId);
     print(result);
     var Map = json.decode(result);
-    _insertTags(Tags.fromJson(Map));
+    _insertTags(TagsResponse.fromJson(Map).data.data);
   }
 
   void fetchFeatures() async {
     var result = await NetworkApi().getFeatures(apartmentId);
     print(result);
     var Map = json.decode(result);
-    _insertFeatures(Features.fromJson(Map));
+    _insertFeatures(FeaturesResponse.fromJson(Map).data.data);
   }
 
-  void populateTagList(Tags tags) {
-    setState(() {
-      imageTags.add(tags.tag0);
-      imageTags.add(tags.tag1);
-      imageTags.add(tags.tag2);
-      imageTags.add(tags.tag3);
-      imageTags.add(tags.tag4);
-      imageTags.add(tags.tag5);
-      imageTags.add(tags.tag6);
-      imageTags.add(tags.tag7);
-      imageTags.add(tags.tag8);
-      imageTags.add(tags.tag9);
-      imageTags.add(tags.tag10);
-      imageTags.add(tags.tag11);
-      imageTags.add(tags.tag12);
-      imageTags.add(tags.tag13);
-      imageTags.add(tags.tag14);
-      imageTags.add(tags.tag15);
-    });
-  }
-
-  void updateTagList(Tags tags) {
-    setState(() {
+  void populateTagList(var tags) {
+    if (mounted && tags != null) {
       imageTags.clear();
-      imageTags.add(tags.tag0);
-      imageTags.add(tags.tag1);
-      imageTags.add(tags.tag2);
-      imageTags.add(tags.tag3);
-      imageTags.add(tags.tag4);
-      imageTags.add(tags.tag5);
-      imageTags.add(tags.tag6);
-      imageTags.add(tags.tag7);
-      imageTags.add(tags.tag8);
-      imageTags.add(tags.tag9);
-      imageTags.add(tags.tag10);
-      imageTags.add(tags.tag11);
-      imageTags.add(tags.tag12);
-      imageTags.add(tags.tag13);
-      imageTags.add(tags.tag14);
-      imageTags.add(tags.tag15);
-    });
+      setState(() {
+        imageTags = tags;
+      });
+    }
   }
 
-  void populateImageList(var index, var val) {
-    setState(() {
-      picList.insert(index, val);
+  void populateImageList(var val) {
+    if (mounted) {
+      setState(() {
+        picList = val;
+      });
+    }
+  }
+
+  String getTag(int imageIndex) {
+    var tag = '';
+    imageTags.forEach((element) {
+      if (element.image_id == picList.elementAt(imageIndex).id) {
+        tag = element.tag;
+      }
     });
+    return tag;
   }
 
   void updateImageList(var index, var val) {
@@ -394,21 +381,11 @@ class _MyHomePageState extends State<ApartmentDetails> {
     });
   }
 
-  void populateFeaturesList(Features features) {
-    if (features != null) {
+  void populateFeaturesList(var features) {
+    if (mounted && features != null) {
       featurelist.clear();
       setState(() {
-        featurelist.add(features.feat0);
-        featurelist.add(features.feat1);
-        featurelist.add(features.feat2);
-        featurelist.add(features.feat3);
-        featurelist.add(features.feat4);
-        featurelist.add(features.feat5);
-        featurelist.add(features.feat6);
-        featurelist.add(features.feat7);
-        featurelist.add(features.feat8);
-        featurelist.add(features.feat9);
-        featurelist.add(features.feat10);
+        featurelist = features;
       });
     }
   }
@@ -530,13 +507,13 @@ class _MyHomePageState extends State<ApartmentDetails> {
           FlatButton(
               child: const Text('DONE'),
               onPressed: () async {
-                var result = await NetworkApi()
-                    .updateTag(_tagController.text, apartmentId, index);
+                var result = await NetworkApi().updateTag(_tagController.text,
+                    apartmentId, picList.elementAt(index).id);
                 print(result);
                 var Map = json.decode(result);
                 Status status = Status.fromJson(Map);
                 Navigator.pop(context);
-                if (status.code == "1") {
+                if (status.code == Constants.success) {
                   infoDialog(context, status.message, showNeutralButton: true);
                 } else {
                   errorDialog(context, status.message, showNeutralButton: true);
@@ -547,167 +524,44 @@ class _MyHomePageState extends State<ApartmentDetails> {
     );
   }
 
-  void _insertImages(Images images) async {
-    Images image = Images();
-    image.id = images.id;
-    image.apartment_id = images.apartment_id;
-
-    final id = await dbHelper.insertImages(image);
-    print('inserted row id: $id');
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image0)
-        .then((value) async => {
-              await dbHelper
-                  .updateImage('image0', images.apartment_id, value)
-                  .then((value) async => {
-                        await dbHelper
-                            .fetchSingleImage('image0', apartmentId)
-                            .then((value) => {updateImageList(0, value)})
-                      }),
-            });
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image1)
-        .then((value) async => {
-              await dbHelper
-                  .updateImage('image1', images.apartment_id, value)
-                  .then((value) async => {
-                        await dbHelper
-                            .fetchSingleImage('image1', apartmentId)
-                            .then((value) => {updateImageList(1, value)})
-                      }),
-            });
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image2)
-        .then((value) async => {
-              await dbHelper
-                  .updateImage('image2', images.apartment_id, value)
-                  .then((value) async => {
-                        await dbHelper
-                            .fetchSingleImage('image2', apartmentId)
-                            .then((value) => {updateImageList(2, value)})
-                      }),
-            });
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image3)
-        .then((value) async => {
-              await dbHelper
-                  .updateImage('image3', images.apartment_id, value)
-                  .then((value) async => {
-                        await dbHelper
-                            .fetchSingleImage('image3', apartmentId)
-                            .then((value) => {updateImageList(3, value)})
-                      }),
-            });
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image4)
-        .then((value) async => {
-              await dbHelper
-                  .updateImage('image4', images.apartment_id, value)
-                  .then((value) async => {
-                        await dbHelper
-                            .fetchSingleImage('image4', apartmentId)
-                            .then((value) => {updateImageList(4, value)})
-                      }),
-            });
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image5)
-        .then((value) async => {
-              await dbHelper
-                  .updateImage('image5', images.apartment_id, value)
-                  .then((value) async => {
-                        await dbHelper
-                            .fetchSingleImage('image5', apartmentId)
-                            .then((value) => {updateImageList(5, value)})
-                      }),
-            });
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image6)
-        .then((value) async =>
-            {await dbHelper.updateImage('image6', images.apartment_id, value)});
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image7)
-        .then((value) async =>
-            {await dbHelper.updateImage('image7', images.apartment_id, value)});
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image8)
-        .then((value) async =>
-            {await dbHelper.updateImage('image8', images.apartment_id, value)});
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image9)
-        .then((value) async =>
-            {await dbHelper.updateImage('image9', images.apartment_id, value)});
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image10)
-        .then((value) async => {
-              await dbHelper.updateImage('image10', images.apartment_id, value)
-            });
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image11)
-        .then((value) async => {
-              await dbHelper.updateImage('image11', images.apartment_id, value)
-            });
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image12)
-        .then((value) async => {
-              await dbHelper.updateImage('image12', images.apartment_id, value)
-            });
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image13)
-        .then((value) async => {
-              await dbHelper.updateImage('image13', images.apartment_id, value)
-            });
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image14)
-        .then((value) async => {
-              await dbHelper.updateImage('image14', images.apartment_id, value)
-            });
-
-    Utility.base64String(
-            constants.path + companyId + constants.folder + images.image15)
-        .then((value) async => {
-              await dbHelper.updateImage('image15', images.apartment_id, value),
-            });
+  Future<void> _insertImages(List<Images> images) async {
+    if (images != null) {
+      Images image = Images();
+      var res = await Future.wait(images.map((element) async {
+        Utility.base64String(
+                constants.path + companyId + constants.folder + element.image)
+            .then((value) async => {
+                  image.id = element.id,
+                  image.image = value,
+                  image.apartment_id = element.apartment_id,
+                  await dbHelper
+                      .insertImages(image)
+                      .then((value) => {fetchDbImages()}),
+                });
+      }));
+      if (res != null) {
+        fetchDbImages();
+      }
+    }
   }
 
   Future<void> fetchDbImages() async {
     await dbHelper
-        .fetchSingleImage('image0', apartmentId)
-        .then((value) => {populateImageList(0, value)});
-    await dbHelper
-        .fetchSingleImage('image1', apartmentId)
-        .then((value) => {populateImageList(1, value)});
-    await dbHelper
-        .fetchSingleImage('image2', apartmentId)
-        .then((value) => {populateImageList(2, value)});
-    await dbHelper
-        .fetchSingleImage('image3', apartmentId)
-        .then((value) => {populateImageList(3, value)});
-    await dbHelper
-        .fetchSingleImage('image4', apartmentId)
-        .then((value) => {populateImageList(4, value)});
-    await dbHelper
-        .fetchSingleImage('image5', apartmentId)
-        .then((value) => {populateImageList(5, value)});
+        .fetchDetailsImages(apartmentId)
+        .then((value) => {populateImageList(value)});
   }
 
-  void _insertTags(Tags tags) async {
-    final id =
-        await dbHelper.insertTags(tags).then((value) => {updateTagList(value)});
-    print('inserted row id: $id');
+  void _insertTags(List<Tags> tags) async {
+    for (int i = 0; i < tags.length; i++) {
+      Tags tag = Tags();
+      tag.id = tags.elementAt(i).id;
+      tag.tag = tags.elementAt(i).tag;
+      tag.image_id = tags.elementAt(i).image_id;
+      tag.apartment_id = tags.elementAt(i).apartment_id;
+      final id = await dbHelper.insertTags(tag);
+      print('inserted row id: $id');
+    }
+    fetchDbTags();
   }
 
   Future<void> fetchDbTags() async {
@@ -716,9 +570,15 @@ class _MyHomePageState extends State<ApartmentDetails> {
         });
   }
 
-  void _insertFeatures(Features features) async {
-    final id = await dbHelper.insertFeatures(features);
-    print('inserted row id: $id');
+  void _insertFeatures(List<Features> features) async {
+    for (int i = 0; i < features.length; i++) {
+      Features feat = Features();
+      feat.id = features.elementAt(i).id;
+      feat.feat = features.elementAt(i).feat;
+      feat.apartment_id = features.elementAt(i).apartment_id;
+      final id = await dbHelper.insertFeatures(feat);
+      print('inserted row id: $id');
+    }
     fetchDbFeatures();
   }
 
@@ -736,8 +596,8 @@ class _MyHomePageState extends State<ApartmentDetails> {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => EditPhotoViewer(
                   pic: File(tempImage.files.single.path),
-                  tag: imageTags.elementAt(index),
-                  index: index,
+                  tag: getTag(index),
+                  picId: picList.elementAt(index).id,
                   apartmentId: apartmentId,
                 )));
       }

@@ -59,7 +59,8 @@ class DbOperations {
     return await db.rawUpdate(
         'UPDATE $apartmenttable SET banner = ? WHERE online_id = ?', [val, id]);
   }
-    Future<String> fetchBanner(var id) async {
+
+  Future<String> fetchBanner(var id) async {
     Database _db = await instance.dbHelper.database;
     var count = Sqflite.firstIntValue(await _db.rawQuery(
         "SELECT COUNT(*) FROM $apartmenttable WHERE online_id = ?", ['$id']));
@@ -87,42 +88,56 @@ class DbOperations {
       await _db.insert("$imagestable", images.toMap());
     } else {
       await _db.update(imagestable, images.toMap(),
-          where: 'id = ?', whereArgs: [images.id]);
+          where: 'online_id = ?', whereArgs: [images.id]);
     }
     return images;
   }
 
-  Future<Images> fetchImages(var id) async {
+  Future<List<Images>> fetchImages(var id) async {
     Database _db = await instance.dbHelper.database;
     List<Map> results = await _db
         .rawQuery('SELECT * FROM $imagestable WHERE apartment_id = ?', ['$id']);
 
-    Images image;
+    List<Images> images = List();
     results.forEach((result) {
-      image = Images.fromMap(result);
+      Images image = Images.fromMap(result);
+      images.add(image);
     });
 
-    return image;
+    return images;
   }
 
-  Future<String> fetchSingleImage(var col, var id) async {
+  Future<List<Images>> fetchDetailsImages(var id) async {
+    Database _db = await instance.dbHelper.database;
+    List<Map> results = await _db.rawQuery(
+        'SELECT * FROM $imagestable WHERE apartment_id = ? LIMIT 6', ['$id']);
+
+    List<Images> images = List();
+    results.forEach((result) {
+      Images image = Images.fromMap(result);
+      images.add(image);
+    });
+
+    return images;
+  }
+
+/*   Future<String> fetchSingleImage(var id) async {
     Database _db = await instance.dbHelper.database;
     var count = Sqflite.firstIntValue(await _db.rawQuery(
-        "SELECT COUNT(*) FROM $imagestable WHERE apartment_id = ?", ['$id']));
+        "SELECT COUNT(*) FROM $imagestable WHERE online_id = ?", ['$id']));
     if (count == 0) {
       return "";
     } else {
       var results = await _db.rawQuery(
-          'SELECT $col FROM $imagestable WHERE apartment_id = ?', ['$id']);
-      var val = results.first;
-      var res = val[col] as String;
+          'SELECT image FROM $imagestable WHERE online_id = ?', ['$id']);
+      var res = results.first;
       if (res == null || res.isEmpty) {
         return "";
       } else {
-        return res;
+        return res.;
       }
     }
-  }
+  } */
 
   Future<int> updateImage(var col, var id, var val) async {
     Database db = await instance.dbHelper.database;
@@ -139,23 +154,25 @@ class DbOperations {
       await _db.insert("$tagstable", tags.toMap());
     } else {
       await _db.update(tagstable, tags.toMap(),
-          where: 'id = ?', whereArgs: [tags.id]);
+          where: 'online_id = ?', whereArgs: [tags.id]);
     }
     return tags;
   }
 
-  Future<Tags> fetchTags(var id) async {
+  Future<List<Tags>> fetchTags(var id) async {
     Database _db = await instance.dbHelper.database;
     List<Map> results = await _db
         .rawQuery('SELECT * FROM $tagstable WHERE apartment_id = ?', ['$id']);
-    Tags tags;
+    List<Tags> tags = List();
     results.forEach((result) {
-      tags = Tags.fromMap(result);
+      Tags tag = Tags.fromMap(result);
+      tags.add(tag);
     });
+
     return tags;
   }
 
-    Future<int> updateTag(var col, var id, var val) async {
+  Future<int> updateTag(var col, var id, var val) async {
     Database db = await instance.dbHelper.database;
     return await db.rawUpdate(
         'UPDATE $tagstable SET $col = ? WHERE apartment_id = ?', [val, id]);
@@ -171,24 +188,29 @@ class DbOperations {
       await _db.insert("$featurestable", features.toMap());
     } else {
       await _db.update(featurestable, features.toMap(),
-          where: 'id = ?', whereArgs: [features.id]);
+          where: 'online_id = ?', whereArgs: [features.id]);
     }
     return features;
   }
 
-  Future<Features> fetchFeatures(var id) async {
+  Future<List<Features>> fetchFeatures(var id) async {
     Database _db = await instance.dbHelper.database;
     List<Map> results = await _db.rawQuery(
         'SELECT * FROM $featurestable WHERE apartment_id = ?', ['$id']);
-    Features features;
+    List<Features> features = List();
     results.forEach((result) {
-      features = Features.fromMap(result);
+      Features feature = Features.fromMap(result);
+      features.add(feature);
     });
     return features;
   }
+Future<int> deleteFeature(int id) async {
+    Database db = await instance.dbHelper.database;
+    return await db.delete(featurestable, where: 'online_id = ?', whereArgs: [id]);
+  }
 
 //Home
-    Future<MyHome> insertHome(MyHome myhome) async {
+  Future<MyHome> insertHome(MyHome myhome) async {
     Database _db = await instance.dbHelper.database;
     var count = Sqflite.firstIntValue(await _db.rawQuery(
         "SELECT COUNT(*) FROM $paymenthistorytable WHERE online_id = ?",
@@ -197,7 +219,7 @@ class DbOperations {
       await _db.insert("$paymenthistorytable", myhome.toMap());
     } else {
       await _db.update(paymenthistorytable, myhome.toMap(),
-          where: 'id = ?', whereArgs: [myhome.id]);
+          where: 'online_id = ?', whereArgs: [myhome.id]);
     }
     return myhome;
   }
@@ -206,7 +228,7 @@ class DbOperations {
     Database _db = await instance.dbHelper.database;
     List<Map> results = await _db.query("$paymenthistorytable",
         columns: MyHome.columns, orderBy: "id DESC");
-        
+
     List<MyHome> myhomes = new List();
     results.forEach((result) {
       MyHome myHome = MyHome.fromMap(result);
@@ -214,11 +236,12 @@ class DbOperations {
     });
     return myhomes;
   }
-    Future<List<MyHome>> fetchApartmentHome(var id,var month,var year) async {
+
+  Future<List<MyHome>> fetchApartmentHome(var id, var month, var year) async {
     Database _db = await instance.dbHelper.database;
     List<Map> results = await _db.rawQuery(
         'SELECT * FROM $paymenthistorytable WHERE apartment_id = ?', [id]);
-        
+
     List<MyHome> myhomes = new List();
     results.forEach((result) {
       MyHome myHome = MyHome.fromMap(result);
@@ -226,10 +249,12 @@ class DbOperations {
     });
     return myhomes;
   }
-    Future<List<MyHome>> fetchHome(var month,var year) async {
+
+  Future<List<MyHome>> fetchHome(var month, var year) async {
     Database _db = await instance.dbHelper.database;
     List<Map> results = await _db.rawQuery(
-        'SELECT * FROM $paymenthistorytable WHERE month = ? AND year = ? ORDER BY month DESC, year DESC', [month,year]);
+        'SELECT * FROM $paymenthistorytable WHERE month = ? AND year = ? ORDER BY month DESC, year DESC',
+        [month, year]);
     List<MyHome> myhomes = new List();
     results.forEach((result) {
       MyHome myHome = MyHome.fromMap(result);
@@ -237,17 +262,19 @@ class DbOperations {
     });
     return myhomes;
   }
+
 //Home Summary
-      Future<MyHomeSummary> insertHomeSummary(MyHomeSummary myhomesummary) async {
+  Future<MyHomeSummary> insertHomeSummary(MyHomeSummary myhomesummary) async {
     Database _db = await instance.dbHelper.database;
     var count = Sqflite.firstIntValue(await _db.rawQuery(
         "SELECT COUNT(*) FROM $homesummarytable WHERE month = ? AND year = ?",
-        [myhomesummary.month,myhomesummary.year]));
+        [myhomesummary.month, myhomesummary.year]));
     if (count == 0) {
       await _db.insert("$homesummarytable", myhomesummary.toMap());
     } else {
       await _db.update(homesummarytable, myhomesummary.toMap(),
-          where: 'month = ? AND year = ?', whereArgs: [myhomesummary.month,myhomesummary.year]);
+          where: 'month = ? AND year = ?',
+          whereArgs: [myhomesummary.month, myhomesummary.year]);
     }
     return myhomesummary;
   }
@@ -265,7 +292,7 @@ class DbOperations {
   }
 
 //Transactions
-      Future<MyTransaction> insertTransaction(MyTransaction transaction) async {
+  Future<MyTransaction> insertTransaction(MyTransaction transaction) async {
     Database _db = await instance.dbHelper.database;
     var count = Sqflite.firstIntValue(await _db.rawQuery(
         "SELECT COUNT(*) FROM $transactionstable WHERE online_id = ?",
@@ -274,15 +301,17 @@ class DbOperations {
       await _db.insert("$transactionstable", transaction.toMap());
     } else {
       await _db.update(transactionstable, transaction.toMap(),
-          where: 'id = ?', whereArgs: [transaction.id]);
+          where: 'online_id = ?', whereArgs: [transaction.id]);
     }
     return transaction;
   }
 
-  Future<List<MyTransaction>> fetchTransactions(var aId,var month,var year) async {
+  Future<List<MyTransaction>> fetchTransactions(
+      var aId, var month, var year) async {
     Database _db = await instance.dbHelper.database;
-    List<Map> results = await _db
-        .rawQuery('SELECT * FROM $transactionstable WHERE apartment_id = ? AND month = ? AND year = ? ', [aId,month,year]);
+    List<Map> results = await _db.rawQuery(
+        'SELECT * FROM $transactionstable WHERE apartment_id = ? AND month = ? AND year = ? ',
+        [aId, month, year]);
     List<MyTransaction> myTransactions = new List();
     results.forEach((result) {
       MyTransaction myTrans = MyTransaction.fromMap(result);
@@ -292,16 +321,15 @@ class DbOperations {
   }
 
 //Tenants
-      Future<MyTenant> insertTenant(MyTenant tenant) async {
+  Future<MyTenant> insertTenant(MyTenant tenant) async {
     Database _db = await instance.dbHelper.database;
     var count = Sqflite.firstIntValue(await _db.rawQuery(
-        "SELECT COUNT(*) FROM $tenanttable WHERE online_id = ?",
-        [tenant.id]));
+        "SELECT COUNT(*) FROM $tenanttable WHERE online_id = ?", [tenant.id]));
     if (count == 0) {
       await _db.insert("$tenanttable", tenant.toMap());
     } else {
       await _db.update(tenanttable, tenant.toMap(),
-          where: 'id = ?', whereArgs: [tenant.id]);
+          where: 'online_id = ?', whereArgs: [tenant.id]);
     }
     return tenant;
   }
@@ -318,10 +346,11 @@ class DbOperations {
     return myTenants;
   }
 
-    Future<List<MyTransaction>> fetchTenantTransactions(var tId,var aId) async {
+  Future<List<MyTransaction>> fetchTenantTransactions(var tId, var aId) async {
     Database _db = await instance.dbHelper.database;
-    List<Map> results = await _db
-        .rawQuery('SELECT * FROM $transactionstable WHERE apartment_id = ? AND user_id= ?', [aId,tId]);
+    List<Map> results = await _db.rawQuery(
+        'SELECT * FROM $transactionstable WHERE apartment_id = ? AND user_id= ?',
+        [aId, tId]);
     List<MyTransaction> myTransactions = new List();
     results.forEach((result) {
       MyTransaction myTrans = MyTransaction.fromMap(result);
