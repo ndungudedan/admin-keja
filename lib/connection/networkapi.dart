@@ -89,11 +89,11 @@ class NetworkApi {
     return Data;
   }
 
-  Future<dynamic> upload(var images,var tags,var features,var details,Function onProgress) async {
+  Future<dynamic> upload(var images,var banner,var tags,var features,var details,Function onProgress) async {
     // 6
     Network network = Network(constants.uploadurl);
     // 7
-    var Data = await network.uploadApartment(images,tags,features,details,onProgress);
+    var Data = await network.uploadApartment(images,banner,tags,features,details,onProgress);
     return Data;
   }
     Future<dynamic> updateImage(var file,var tag,var apartmentId,var picId,Function onProgress) async {
@@ -103,11 +103,25 @@ class NetworkApi {
     var Data = await network.updateApartment(file,tag,apartmentId,picId,onProgress);
     return Data;
   }
+  Future<dynamic> updateBannerImage(var file,var tag,var apartmentId,Function onProgress) async {
+    // 6
+    Network network = Network(constants.updateurl);
+    // 7
+    var Data = await network.updateBannerApartment(file,tag,apartmentId,onProgress);
+    return Data;
+  }
       Future<dynamic> updateTag(var tag,var apartmentId,var picId) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
     var Data = await network.call(updateTagJson(tag,apartmentId,picId));
+    return Data;
+  }
+   Future<dynamic> updateBannerTag(var tag,var apartmentId) async {
+    // 6
+    Network network = Network(constants.updateurl);
+    // 7
+    var Data = await network.call(updateBannerTagJson(tag,apartmentId));
     return Data;
   }
     Future<dynamic> updateStep1(var apartmentId,var details) async {
@@ -307,6 +321,14 @@ class NetworkApi {
       'apartmentId': apartmentId,
       'tag': tag,
       "imageId": picId,
+    });
+    return json;
+  }
+  String updateBannerTagJson(var tag,var apartmentId) {
+    var json = jsonEncode(<String, String>{
+      'functionality':'updateBannerTag',
+      'apartmentId': apartmentId,
+      'tag': tag,
     });
     return json;
   }

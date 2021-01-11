@@ -24,14 +24,12 @@ dependencies:
   flutter:
     sdk: flutter
 
-  google_maps_flutter: ^0.5.27+3
   http: ^0.12.0+1
   json_serializable: ^3.3.0
   cached_network_image: ^2.2.0+1
   getflutter: ^1.0.11
   video_player:
   carousel_slider: ^2.0.0
-  geolocator: ^4.0.3
   path_provider:
   path:
   file_picker:
@@ -53,6 +51,8 @@ dependencies:
   commons: ^0.7.8+1
   progress_dialog:
   fl_chart: ^0.12.0
+  google_maps_place_picker: ^1.0.1
+
 
 
   # The following adds the Cupertino Icons font to your application.

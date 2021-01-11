@@ -37,7 +37,7 @@ class _MyHomePageState extends State<PhotoViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     // resizeToAvoidBottomInset: false,
+      // resizeToAvoidBottomInset: false,
       backgroundColor: LightColors.kLightYellow,
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -146,6 +146,7 @@ class _MyHomePageState extends State<PhotoViewer> {
             tagList.insert(picIndex, _tagController.text);
             _tagController.text = '';
           });
+          Navigator.pop(context,tagList);
         },
         style: const TextStyle(
           color: Colors.black,

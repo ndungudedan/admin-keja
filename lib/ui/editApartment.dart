@@ -42,7 +42,6 @@ class _CreateApartmentState extends State<EditApartment> {
     apartment = widget.apartment;
     features = widget.features;
     getCategory();
-    getApartmentLocation();
     initData(apartment);
   }
 
@@ -119,14 +118,16 @@ class _CreateApartmentState extends State<EditApartment> {
         title: Text(apartment.title),
         backgroundColor: LightColors.kDarkYellow,
         actions: [
-         step==3 ? IconButton(
-              icon: Icon(
-                Icons.add_box_outlined,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                _showDialog();
-              }):SizedBox(),
+          step == 3
+              ? IconButton(
+                  icon: Icon(
+                    Icons.add_box_outlined,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    _showDialog();
+                  })
+              : SizedBox(),
           IconButton(
             icon: Icon(
               Icons.save,
@@ -390,48 +391,11 @@ class _CreateApartmentState extends State<EditApartment> {
 
   Container locationMap() {
     return Container(
-        decoration: BoxDecoration(
-            border: Border.all(
-                style: BorderStyle.solid, width: 2, color: Colors.blueGrey),
-            color: Colors.transparent),
-        child: location == false
-            ? Column(
-                children: <Widget>[
-                  Container(
-                    height: 200,
-                    child: Center(
-                      child: isloading
-                          ? CircularProgressIndicator()
-                          : IconButton(
-                              icon: Icon(Icons.location_on),
-                              onPressed: () {
-                                setState(() {
-                                  isloading = true;
-                                });
-                                getApartmentLocation();
-                              },
-                            ),
-                    ),
-                  ),
-                  Text(
-                      'Add location..You should be at location of site for correct coordinates')
-                ],
-              )
-            : Column(
-                children: <Widget>[
-                  Container(
-                    height: 200,
-                    child: GoogleMap(
-                      onMapCreated: _onMapCreated,
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(latitude, longitude),
-                        zoom: 8,
-                      ),
-                      markers: _markers.values.toSet(),
-                    ),
-                  ),
-                ],
-              ));
+      decoration: BoxDecoration(
+          border: Border.all(
+              style: BorderStyle.solid, width: 2, color: Colors.blueGrey),
+          color: Colors.transparent),
+    );
   }
 
   _showDialog() async {
@@ -467,20 +431,6 @@ class _CreateApartmentState extends State<EditApartment> {
         ],
       ),
     );
-  }
-
-  Future<Position> locateApartment() async {
-    return geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-  }
-
-  void getApartmentLocation() async {
-    currentLocation = await locateApartment();
-    setState(() {
-      latitude = currentLocation.latitude;
-      longitude = currentLocation.longitude;
-      location = true;
-    });
   }
 
   void submitStep1() async {

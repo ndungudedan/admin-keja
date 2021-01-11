@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-   final String baseurl = 'http://192.168.43.247/chekiKeja/adminKeja.php/';
-  final String uploadurl = 'http://192.168.43.247/chekiKeja/tengenezaKeja.php/';
-  final String updateurl = 'http://192.168.43.247/chekiKeja/updateKeja.php/';
-  final String termsurl = 'http://192.168.43.247/chekiKeja/uploads/terms.rtf';
-  final String abouturl = 'http://192.168.43.247/chekiKeja/uploads/about.rtf';
-  final String path = 'http://192.168.43.247/chekiKeja/uploads/'; 
-/* 
-  final String baseurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/adminKeja.php/';
+  static final googleApiKey = 'AIzaSyBGBtSP_q6F5pUtLZAM3GQY7r-cFyG5NZo';
+  final String baseurl = 'http://192.168.43.188/chekiKeja/adminKeja.php/';
+  final String uploadurl = 'http://192.168.43.188/chekiKeja/tengenezaKeja.php/';
+  final String updateurl = 'http://192.168.43.188/chekiKeja/updateKeja.php/';
+  final String termsurl = 'http://192.168.43.188/chekiKeja/uploads/terms.rtf';
+  final String abouturl = 'http://192.168.43.188/chekiKeja/uploads/about.rtf';
+  final String path = 'http://192.168.43.188/chekiKeja/uploads/';
+
+/*    final String baseurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/adminKeja.php/';
   final String uploadurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/tengenezaKeja.php/';
   final String updateurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/updateKeja.php/';
   final String termsurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/uploads/terms.rtf';
   final String abouturl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/uploads/about.rtf';
-  final String path = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/uploads/'; */
-  
+  final String path = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/uploads/';  */
+
   final String folder = '/images/';
 
   final String firstlogin = 'firstlogin';
@@ -79,6 +80,8 @@ class UploadData {
   static final phone = 'phone';
   static final title = 'title';
   static final companyId = 'companyId';
+  static final banner = 'banner';
+  static final bannertag = 'bannertag';
 }
 
 // list of colors that we use in our app

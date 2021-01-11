@@ -46,6 +46,7 @@ class DatabaseHelper {
             online_id TEXT NOT NULL,
             owner_id TEXT NOT NULL,
             banner TEXT,
+            bannertag TEXT,
             category TEXT NOT NULL,
             title TEXT NOT NULL,
             description TEXT,

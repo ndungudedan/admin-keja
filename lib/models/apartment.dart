@@ -23,34 +23,36 @@ class MyApartment {
   String likes;
   String comments;
   String banner;
+  String bannertag;
   String video;
   String rating;
   String liked;
 
-  MyApartment(
-      {this.id,
-      this.owner_id,
-      this.owner_name,
-      this.owner_logo,
-      this.category,
-      this.email,
-      this.address,
-      this.title,
-      this.phone,
-      this.price,
-      this.deposit,
-      this.description,
-      this.space,
-      this.latitude,
-      this.longitude,
-      this.likes,
-      this.comments,
-      this.video,
-      this.rating,
-      this.liked,
-      this.location,
-      this.banner,
-});
+  MyApartment({
+    this.id,
+    this.owner_id,
+    this.owner_name,
+    this.owner_logo,
+    this.category,
+    this.email,
+    this.address,
+    this.title,
+    this.phone,
+    this.price,
+    this.deposit,
+    this.description,
+    this.space,
+    this.latitude,
+    this.longitude,
+    this.likes,
+    this.comments,
+    this.video,
+    this.rating,
+    this.liked,
+    this.location,
+    this.banner,
+    this.bannertag,
+  });
 
   factory MyApartment.fromJson(Map<String, dynamic> json) =>
       _$MyApartmentFromJson(json);
@@ -62,6 +64,7 @@ class MyApartment {
     "online_id",
     "owner_id",
     "banner",
+    "bannertag",
     "category",
     "title",
     "description",
@@ -85,6 +88,7 @@ class MyApartment {
       "online_id": id,
       "owner_id": owner_id,
       "banner": banner,
+      "bannertag": bannertag,
       "category": category,
       "title": title,
       "description": description,
@@ -116,6 +120,7 @@ class MyApartment {
     myApartment.id = map["online_id"];
     myApartment.owner_id = map["owner_id"];
     myApartment.banner = map["banner"];
+    myApartment.bannertag = map["bannertag"];
     myApartment.category = map["category"];
     myApartment.title = map["title"];
     myApartment.description = map["description"];
@@ -183,12 +188,7 @@ class Images {
 
   Map<String, dynamic> toJson() => _$ImagesToJson(this);
 
-  static final columns = [
-    "id",
-    "online_id",
-    "apartment_id",
-    "image"
-  ];
+  static final columns = ["id", "online_id", "apartment_id", "image"];
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
@@ -213,6 +213,7 @@ class Images {
     return images;
   }
 }
+
 @JsonSerializable()
 class ImageList {
   List<Images> data;
@@ -225,6 +226,7 @@ class ImageList {
             .toList());
   }
 }
+
 @JsonSerializable()
 class Tags {
   String id;
@@ -232,12 +234,7 @@ class Tags {
   String image_id;
   String tag;
 
-  Tags(
-      {this.id,
-      this.apartment_id,
-      this.tag,
-      this.image_id
-      });
+  Tags({this.id, this.apartment_id, this.tag, this.image_id});
 
   factory Tags.fromJson(Map<String, dynamic> json) => _$TagsFromJson(json);
 
@@ -277,6 +274,7 @@ class Tags {
     return tags;
   }
 }
+
 @JsonSerializable()
 class TagList {
   List<Tags> data;
@@ -284,11 +282,11 @@ class TagList {
 
   factory TagList.fromJson(List<dynamic> json) {
     return TagList(
-        data: json
-            .map((e) => Tags.fromJson(e as Map<String, dynamic>))
-            .toList());
+        data:
+            json.map((e) => Tags.fromJson(e as Map<String, dynamic>)).toList());
   }
 }
+
 @JsonSerializable()
 class TagsResponse {
   TagList data;
@@ -304,6 +302,7 @@ class TagsResponse {
 
   Map<String, dynamic> toJson() => _$TagsResponseToJson(this);
 }
+
 @JsonSerializable()
 class ImagesResponse {
   ImageList data;

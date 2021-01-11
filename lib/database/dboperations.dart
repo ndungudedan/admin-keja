@@ -60,7 +60,7 @@ class DbOperations {
         'UPDATE $apartmenttable SET banner = ? WHERE online_id = ?', [val, id]);
   }
 
-  Future<String> fetchBanner(var id) async {
+   Future<String> fetchBanner(var id) async {
     Database _db = await instance.dbHelper.database;
     var count = Sqflite.firstIntValue(await _db.rawQuery(
         "SELECT COUNT(*) FROM $apartmenttable WHERE online_id = ?", ['$id']));
@@ -77,7 +77,7 @@ class DbOperations {
         return res;
       }
     }
-  }
+  } 
 
   //Images
   Future<Images> insertImages(Images images) async {

@@ -186,6 +186,7 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
       myApartment.likes = apartments.elementAt(i).likes;
       myApartment.comments = apartments.elementAt(i).comments;
       myApartment.rating = apartments.elementAt(i).rating;
+      myApartment.bannertag = apartments.elementAt(i).bannertag;
       final id = await dbHelper.insertApartment(myApartment);
       Utility.base64String(constants.path +
               companyId +

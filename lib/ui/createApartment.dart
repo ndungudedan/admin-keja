@@ -6,8 +6,6 @@ import 'package:admin_keja/models/category.dart';
 import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/photoviewer.dart';
-import 'package:admin_keja/utility/connectioncallback.dart';
-import 'package:admin_keja/utility/uploadProgress.dart';
 import 'package:admin_keja/views/doneTextview.dart';
 import 'package:admin_keja/views/textfield.dart';
 import 'package:commons/commons.dart';
@@ -15,6 +13,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
@@ -33,21 +32,15 @@ class CreateApartment extends StatefulWidget {
 }
 
 class _CreateApartmentState extends State<CreateApartment> {
-  VideoPlayerController _controller;
-  Future<void> _initializeVideoPlayerFuture;
-
   @override
   void initState() {
     location = false;
     getCategory();
-    getApartmentLocation();
     super.initState();
   }
 
   @override
   void dispose() {
-    //_controller.dispose();
-
     super.dispose();
   }
 
@@ -67,6 +60,7 @@ class _CreateApartmentState extends State<CreateApartment> {
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _spaceController = TextEditingController();
+  final _bannertagController = TextEditingController();
   final _descriptionController = TextEditingController();
   final FocusNode _titleFocus = FocusNode();
   final FocusNode _addressFocus = FocusNode();
@@ -77,6 +71,8 @@ class _CreateApartmentState extends State<CreateApartment> {
   final FocusNode _phoneFocus = FocusNode();
   final FocusNode _spaceFocus = FocusNode();
   final FocusNode _descriptionFocus = FocusNode();
+  File banner;
+  String bannertag = '';
   String apartmentName = '';
   List<String> downloadurl = [];
   Map<String, String> details = {};
@@ -137,21 +133,28 @@ class _CreateApartmentState extends State<CreateApartment> {
     }
   }
 
-  void getVideoFilePath() async {
+  void pickBanner() async {
     try {
-      var file = await FilePicker.platform.pickFiles(type: FileType.video);
-      if (file == null) {
-        return;
-      }
-      setState(() {
-        videofile = File(file.files.single.path);
-        if (videofile != null) {
-          _controller = VideoPlayerController.file(videofile);
+      var result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['jpg', 'png', 'jpeg'],
+          allowMultiple: false);
+      if (result != null) {
+        File temp = File(result.files.single.path);
 
-          _initializeVideoPlayerFuture = _controller.initialize();
-          _controller.setLooping(true);
-        }
-      });
+        final directory = await getApplicationDocumentsDirectory();
+        var res = await FlutterImageCompress.compressAndGetFile(
+          temp.absolute.path,
+          directory.path + '/' + path.basename(temp.path),
+          quality: 40,
+        );
+        setState(() {
+          banner = res;
+        });
+        print('worked');
+        print(temp.lengthSync());
+        print(res.lengthSync());
+      }
     } on TargetPlatform catch (e) {
       print('Error while picking the file: ' + e.toString());
     }
@@ -203,7 +206,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                       });
                     };
                   },
-                  totalSteps: 5,
+                  totalSteps: 7,
                   currentStep: step,
                   size: 36,
                   selectedColor: Colors.amber,
@@ -237,14 +240,18 @@ class _CreateApartmentState extends State<CreateApartment> {
                   : step == 1
                       ? step2()
                       : step == 2
-                          ? step3()
+                          ? locationMap()
                           : step == 3
-                              ? step4()
+                              ? step6()
                               : step == 4
-                                  ? step5()
-                                  : SizedBox(
-                                      child: Text('data'),
-                                    ),
+                                  ? step3()
+                                  : step == 5
+                                      ? step4()
+                                      : step == 6
+                                          ? step5()
+                                          : SizedBox(
+                                              child: Text('data'),
+                                            ),
             ),
           ],
         ),
@@ -401,7 +408,6 @@ class _CreateApartmentState extends State<CreateApartment> {
                   inputType: TextInputType.streetAddress,
                   controller: _locationController,
                 ),
-                locationMap(),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Center(
@@ -548,6 +554,66 @@ class _CreateApartmentState extends State<CreateApartment> {
                           child: Text('Please pick some images'),
                         ),
                       )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Container step6() {
+    return Container(
+      child: Expanded(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Center(
+              child: Text('Please pick a banner'),
+            ),
+            Center(
+                child: Container(
+              margin: EdgeInsets.all(12),
+              height: MediaQuery.of(context).size.height / 10,
+              width: MediaQuery.of(context).size.width,
+              color: Colors.blueAccent,
+              child: IconButton(
+                icon: Icon(Icons.add_a_photo),
+                onPressed: () {
+                  pickBanner();
+                },
+              ),
+            )),
+            banner != null
+                ? Container(
+                    child: Container(
+                    margin: EdgeInsets.all(8),
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: <Widget>[
+                        Image.file(
+                          banner,
+                          fit: BoxFit.fill,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: TextFormField(
+                            controller: _bannertagController,
+                            onFieldSubmitted: (value) {
+                              setState(() {
+                                bannertag = _bannertagController.text;
+                              });
+                            },
+                            decoration: InputDecoration(
+                                border: const OutlineInputBorder(),
+                                hintText: 'Say something nice',
+                                labelText: 'tag',
+                                helperText: 'keep it short'),
+                            maxLines: 3,
+                          ),
+                        )
+                      ],
+                    ),
+                  ))
+                : SizedBox(),
           ],
         ),
       ),
@@ -702,10 +768,26 @@ class _CreateApartmentState extends State<CreateApartment> {
                 ),
                 highlightColor: Colors.green,
                 onPressed: () {
-                  if (validatestep1 && validatestep2) {
+                  submit();
+                  /*  if (validatestep1 && validatestep2) {
                     if (toUpload.length != 16) {
                       _scaffoldKey.currentState
                           .showSnackBar(snack('Please add more Images'));
+                      return;
+                    }
+                    if (banner == null) {
+                      _scaffoldKey.currentState
+                          .showSnackBar(snack('Please add a banner'));
+                      return;
+                    }
+                    if (latitude == null && latitude == null) {
+                      _scaffoldKey.currentState
+                          .showSnackBar(snack('Please pick a location'));
+                      return;
+                    }
+                    if (_bannertagController.text.isEmpty) {
+                      _scaffoldKey.currentState
+                          .showSnackBar(snack('Banner tag cannot be empty'));
                       return;
                     }
                     if (tags.length != 16) {
@@ -722,7 +804,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                   } else {
                     _scaffoldKey.currentState
                         .showSnackBar(snack('Please fill all details'));
-                  }
+                  } */
                 },
                 child: Text(
                   'Finish',
@@ -750,55 +832,33 @@ class _CreateApartmentState extends State<CreateApartment> {
   SnackBar snack(String message) {
     return SnackBar(
       content: Text(message),
-      duration: Duration(milliseconds: 500),
+      duration: Duration(milliseconds: 1500),
     );
   }
 
-  Container locationMap() {
-    return Container(
-        padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-            border: Border.all(
-                style: BorderStyle.solid, width: 2, color: Colors.blueGrey),
-            color: Colors.transparent),
-        child: location == false
-            ? Column(
-                children: <Widget>[
-                  Container(
-                    height: 200,
-                    child: Center(
-                      child: isloading
-                          ? CircularProgressIndicator()
-                          : IconButton(
-                              icon: Icon(Icons.location_on),
-                              onPressed: () {
-                                setState(() {
-                                  isloading = true;
-                                });
-                                getApartmentLocation();
-                              },
-                            ),
-                    ),
-                  ),
-                  Text(
-                      'Add location..You should be at location of site for correct coordinates')
-                ],
-              )
-            : Column(
-                children: <Widget>[
-                  Container(
-                    height: 200,
-                    child: GoogleMap(
-                      onMapCreated: _onMapCreated,
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(latitude, longitude),
-                        zoom: 12,
-                      ),
-                      markers: _markers.values.toSet(),
-                    ),
-                  ),
-                ],
-              ));
+  Expanded locationMap() {
+    return Expanded(
+      child: Container(
+          height: MediaQuery.of(context).size.height - 200,
+          decoration: BoxDecoration(
+              border: Border.all(
+                  style: BorderStyle.solid, width: 2, color: Colors.blueGrey),
+              color: Colors.transparent),
+          child: PlacePicker(
+            apiKey: Constants.googleApiKey, // Put YOUR OWN KEY here.
+            onPlacePicked: (result) {
+              print(result.geometry.location.lat);
+              setState(() {
+                latitude = result.geometry.location.lat;
+                longitude = result.geometry.location.lng;
+              });
+            },
+            automaticallyImplyAppBarLeading: false,
+            initialPosition: LatLng(-1.1567844, 36.913108),
+            useCurrentLocation: true,
+            resizeToAvoidBottomInset: true,
+          )),
+    );
   }
 
   void addtag(var index) async {
@@ -828,20 +888,6 @@ class _CreateApartmentState extends State<CreateApartment> {
     );
   }
 
-  Future<Position> locateApartment() async {
-    return geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-  }
-
-  void getApartmentLocation() async {
-    currentLocation = await locateApartment();
-    setState(() {
-      latitude = currentLocation.latitude;
-      longitude = currentLocation.longitude;
-      location = true;
-    });
-  }
-
   void submit() async {
     setState(() {
       details[UploadData.latitude] = latitude.toString();
@@ -857,10 +903,11 @@ class _CreateApartmentState extends State<CreateApartment> {
       details[UploadData.email] = _emailController.text;
       details[UploadData.location] = _locationController.text;
       details[UploadData.units] = _spaceController.text;
+      details[UploadData.bannertag] = _bannertagController.text;
     });
     await progressDialog.show();
     var result = await NetworkApi()
-        .upload(toUpload, tags, features, details, onProgress);
+        .upload(toUpload, banner, tags, features, details, onProgress);
     print(result);
     progressDialog.hide();
     if (result != Constants.fail) {

@@ -114,7 +114,7 @@ class _MyHomePageState extends State<EditPhotoViewer> {
               bottom: 0,
               child: Container(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                   child: displayTag(),
                 ),
               ),
@@ -127,8 +127,14 @@ class _MyHomePageState extends State<EditPhotoViewer> {
 
   Future<void> upload(var file) async {
     await progressDialog.show();
-    var result = await NetworkApi()
+    var result;
+    if(picId=='-1'){
+      result = await NetworkApi()
+        .updateBannerImage(file, tag, apartmentId, onProgress);
+    }else{
+   result = await NetworkApi()
         .updateImage(file, tag, apartmentId, picId, onProgress);
+    }
     print(result);
     if (result != Constants.fail) {
       var Map = json.decode(result);
@@ -152,7 +158,7 @@ class _MyHomePageState extends State<EditPhotoViewer> {
               style: BorderStyle.solid,
               width: 2,
               color: LightColors.kLightYellow),
-          color: Colors.transparent),
+          color: Colors.grey[400]),
       child: TextFormField(
         controller: _tagController,
         onFieldSubmitted: (term) {

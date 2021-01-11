@@ -89,12 +89,90 @@ class _MyHomePageState extends State<ApartmentDetails> {
           Center(
             child: apartmentDetails(apartment),
           ),
+          Center(child:Container(
+            height: 200,
+            child: Stack(
+                                        fit: StackFit.expand,
+                                        children: <Widget>[
+                                        apartment.banner==
+                                                      null ||
+                                                  apartment.banner
+                                                      .isEmpty
+                                              ? Image.asset(
+                                                  'assets/images/placeholder.png')
+                                              : Container(
+                                                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                                                child: Image.memory(
+                                                    Utility.dataFromBase64String(apartment.banner),
+                                                    fit: BoxFit.fill,
+                                                  ),
+                                              ),
+                                          Positioned(
+                                            bottom: 1.0,
+                                            left: 0.0,
+                                            right: 0.0,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Color.fromARGB(200, 0, 0, 0),
+                                                    Color.fromARGB(0, 0, 0, 0)
+                                                  ],
+                                                  begin: Alignment.bottomCenter,
+                                                  end: Alignment.topCenter,
+                                                ),
+                                              ),
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 10.0,
+                                                  horizontal: 20.0),
+                                              child: apartment.bannertag != null &&
+                                                      apartment.bannertag.isNotEmpty
+                                                  ? GestureDetector(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          _tagController.text =
+                                                              apartment.bannertag;
+                                                        });
+                                                        _showBannerDialog(apartment.bannertag);
+                                                      },
+                                                      child: Text(
+                                                        apartment.bannertag,
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : Text(''),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 0,
+                                            right: 0,
+                                            child: CircleAvatar(
+                                              radius: 20,
+                                              backgroundColor:
+                                                  LightColors.kLavender,
+                                              child: IconButton(
+                                                icon: Icon(Icons.edit),
+                                                color: Colors.blue,
+                                                onPressed: () {
+                                                  updateBannerImage();
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+          ),
+                                  ),
           Container(
             height: 350,
             child: picList != null && picList.isNotEmpty
                 ? Column(
                     mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
+                      Text('*Click on the tag to edit'),
                       Expanded(
                         child: GridView.count(
                             physics: NeverScrollableScrollPhysics(),
@@ -208,10 +286,12 @@ class _MyHomePageState extends State<ApartmentDetails> {
                           ))
                     ],
                   )
-                : Container(
-                    height: 150.0,
-                    width: 150.0,
-                    child: Center(child: Text('loading'))),
+                : Center(
+                  child: Container(
+                      height: 150.0,
+                      width: 150.0,
+                      child: Center(child: Text('loading'))),
+                ),
           ),
           Container(
             padding: EdgeInsets.all(5),
@@ -523,7 +603,49 @@ class _MyHomePageState extends State<ApartmentDetails> {
       ),
     );
   }
-
+  _showBannerDialog(var tag) async {
+    await showDialog<String>(
+      context: context,
+      child: AlertDialog(
+        contentPadding: const EdgeInsets.all(8.0),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              child: TextField(
+                controller: _tagController,
+                autofocus: true,
+                decoration: InputDecoration(labelText: 'Tag'),
+              ),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          FlatButton(
+              child: const Text('CANCEL'),
+              onPressed: () {
+                Navigator.pop(context);
+              }),
+          FlatButton(
+              child: const Text('DONE'),
+              onPressed: () async {
+                var result = await NetworkApi().updateBannerTag(_tagController.text,
+                    apartmentId);
+                print(result);
+                var Map = json.decode(result);
+                Status status = Status.fromJson(Map);
+                Navigator.pop(context);
+                if (status.code == Constants.success) {
+                  infoDialog(context, status.message, showNeutralButton: true);
+                } else {
+                  errorDialog(context, status.message, showNeutralButton: true);
+                }
+              })
+        ],
+      ),
+    );
+  }
   Future<void> _insertImages(List<Images> images) async {
     if (images != null) {
       Images image = Images();
@@ -598,6 +720,23 @@ class _MyHomePageState extends State<ApartmentDetails> {
                   pic: File(tempImage.files.single.path),
                   tag: getTag(index),
                   picId: picList.elementAt(index).id,
+                  apartmentId: apartmentId,
+                )));
+      }
+    } on TargetPlatform catch (e) {
+      print('Error while picking the file: ' + e.toString());
+    }
+  }
+    void updateBannerImage() async {
+    try {
+      var tempImage = await FilePicker.platform.pickFiles(
+          type: FileType.custom, allowedExtensions: ['jpg', 'png', 'jpeg']);
+      if (tempImage != null) {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => EditPhotoViewer(
+                  pic: File(tempImage.files.single.path),
+                  tag: apartment.bannertag,
+                  picId: '-1',
                   apartmentId: apartmentId,
                 )));
       }
