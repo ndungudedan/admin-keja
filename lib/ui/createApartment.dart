@@ -118,15 +118,11 @@ class _CreateApartmentState extends State<CreateApartment> {
           allowMultiple: true);
       if (result != null) {
         List<File> templist = result.paths.map((path) => File(path)).toList();
-        setState(() {
-          for (int i = 0; i < templist.length; i++) {
-            if (i <= 16) {
-              image_uri.add(templist.elementAt(i));
-              imagepaths.add(templist.elementAt(i).path);
-              compressAndGetFile(templist.elementAt(i));
-            }
+        for (int i = 0; i < templist.length; i++) {
+          if (i < 16 && toUpload.length < 16) {
+            compressAndGetFile(templist.elementAt(i));
           }
-        });
+        }
       }
     } on TargetPlatform catch (e) {
       print('Error while picking the file: ' + e.toString());
@@ -321,7 +317,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                   hint: 'Rent',
                   currentfocus: _rentFocus,
                   nextfocus: _depositFocus,
-                  inputType: TextInputType.emailAddress,
+                  inputType: TextInputType.number,
                   controller: _rentController,
                 ),
                 TextFieldArea(
@@ -475,28 +471,28 @@ class _CreateApartmentState extends State<CreateApartment> {
                       ),
                     )
                   : Center(
-                  child: RaisedButton(
-                    splashColor: Colors.amber,
-                    color: const Color.fromRGBO(247, 64, 106, 1.0),
-                    highlightElevation: 10,
-                    elevation: 15,
-                    animationDuration: Duration(seconds: 2),
-                    focusElevation: 10,
-                    colorBrightness: Brightness.dark,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
-                      child: Text('Next'),
+                      child: RaisedButton(
+                        splashColor: Colors.amber,
+                        color: const Color.fromRGBO(247, 64, 106, 1.0),
+                        highlightElevation: 10,
+                        elevation: 15,
+                        animationDuration: Duration(seconds: 2),
+                        focusElevation: 10,
+                        colorBrightness: Brightness.dark,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
+                          child: Text('Next'),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            step = 5;
+                          });
+                        },
+                      ),
                     ),
-                    onPressed: () {
-                        setState(() {
-                          step = 5;
-                        });
-                    },
-                  ),
-                ),
             ),
             Container(
-                child: image_uri.isNotEmpty
+                child: toUpload.isNotEmpty
                     ? GridView.count(
                         shrinkWrap: true,
                         primary: true,
@@ -512,7 +508,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                                 fit: StackFit.expand,
                                 children: <Widget>[
                                   Image.file(
-                                    image_uri.elementAt(index),
+                                    toUpload.elementAt(index),
                                     fit: BoxFit.fill,
                                   ),
                                   Positioned(
@@ -642,30 +638,30 @@ class _CreateApartmentState extends State<CreateApartment> {
                           ),
                         ),
                         Center(
-                  child: RaisedButton(
-                    splashColor: Colors.amber,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(80.0),
-                      side: BorderSide(color: Colors.amberAccent),
-                    ),
-                    color: const Color.fromRGBO(247, 64, 106, 1.0),
-                    highlightElevation: 10,
-                    elevation: 15,
-                    animationDuration: Duration(seconds: 2),
-                    focusElevation: 10,
-                    colorBrightness: Brightness.dark,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
-                      child: Text('Next'),
-                    ),
-                    onPressed: () {
-                        setState(() {
-                          step = 4;
-                        });
-                      
-                    },
-                  ),
-                )
+                          child: RaisedButton(
+                            splashColor: Colors.amber,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(80.0),
+                              side: BorderSide(color: Colors.amberAccent),
+                            ),
+                            color: const Color.fromRGBO(247, 64, 106, 1.0),
+                            highlightElevation: 10,
+                            elevation: 15,
+                            animationDuration: Duration(seconds: 2),
+                            focusElevation: 10,
+                            colorBrightness: Brightness.dark,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(90, 15, 90, 15),
+                              child: Text('Next'),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                step = 4;
+                              });
+                            },
+                          ),
+                        )
                       ],
                     ),
                   ))
@@ -712,67 +708,66 @@ class _CreateApartmentState extends State<CreateApartment> {
                     }),
               ),
             ),
-            Align(
-              alignment: FractionalOffset.bottomCenter,
-              child: Container(
-                margin: EdgeInsets.all(20),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5 / 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child:features.length < 11 ? TextField(
-                  controller: _featController,
-                  onSubmitted: (value) {
-                    setState(() {
-                      if (features.length < 11) {
-                        features.add(_featController.text);
-                        _featController.clear();
-                      }
-                    });
-                  },
-                  keyboardType: TextInputType.text,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    icon: Icon(
-                      Icons.business_center,
-                      color: Colors.orangeAccent,
-                      size: 30,
-                    ),
-                    hintText: 'Add Feature',
-                    hintStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                )
+            features.length < 11
+                ? Align(
+                    alignment: FractionalOffset.bottomCenter,
+                    child: Container(
+                        margin: EdgeInsets.all(20),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 5 / 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: TextField(
+                          controller: _featController,
+                          onSubmitted: (value) {
+                            setState(() {
+                              if (features.length < 11) {
+                                features.add(_featController.text);
+                                _featController.clear();
+                              }
+                            });
+                          },
+                          keyboardType: TextInputType.text,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            icon: Icon(
+                              Icons.business_center,
+                              color: Colors.orangeAccent,
+                              size: 30,
+                            ),
+                            hintText: 'Add Feature',
+                            hintStyle: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        )),
+                  )
                 : Center(
-                  child: RaisedButton(
-                    splashColor: Colors.amber,
-                    color: const Color.fromRGBO(247, 64, 106, 1.0),
-                    highlightElevation: 10,
-                    elevation: 15,
-                    animationDuration: Duration(seconds: 2),
-                    focusElevation: 10,
-                    colorBrightness: Brightness.dark,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
-                      child: Text('Next'),
-                    ),
-                    onPressed: () {
+                    child: RaisedButton(
+                      splashColor: Colors.amber,
+                      color: const Color.fromRGBO(247, 64, 106, 1.0),
+                      highlightElevation: 10,
+                      elevation: 15,
+                      animationDuration: Duration(seconds: 2),
+                      focusElevation: 10,
+                      colorBrightness: Brightness.dark,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
+                        child: Text('Next'),
+                      ),
+                      onPressed: () {
                         setState(() {
                           step = 6;
                         });
-                      
-                    },
-                  ),
-                )
-              ),
-            ),
+                      },
+                    ),
+                  )
           ],
         ),
       ),
@@ -846,7 +841,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                 highlightColor: Colors.green,
                 onPressed: () {
                   submit();
-                  /*  if (validatestep1 && validatestep2) {
+                  if (validatestep1 && validatestep2) {
                     if (toUpload.length != 16) {
                       _scaffoldKey.currentState
                           .showSnackBar(snack('Please add more Images'));
@@ -881,7 +876,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                   } else {
                     _scaffoldKey.currentState
                         .showSnackBar(snack('Please fill all details'));
-                  } */
+                  }
                 },
                 child: Text(
                   'Finish',
@@ -994,7 +989,10 @@ class _CreateApartmentState extends State<CreateApartment> {
         status = Status.fromJson(Map);
       });
       if (status.code == "1") {
-        infoDialog(context, status.message, showNeutralButton: true);
+        infoDialog(context, status.message, showNeutralButton: true,
+            neutralAction: () {
+          Navigator.pop(context);
+        });
       } else {
         errorDialog(context, status.message, showNeutralButton: true);
       }

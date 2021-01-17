@@ -27,12 +27,12 @@ class ContactUs extends StatelessWidget {
                   ListTile(
                     title: Text('Phone'),
                     leading: Icon(Icons.call),
-                    subtitle: Text('0700314700'),
+                    subtitle: Text('0774107071'),
                   ),
                   ListTile(
                     title: Text('Email'),
                     leading: Icon(Icons.email),
-                    subtitle: Text('adminkeja@gmail.com'),
+                    subtitle: Text('chekikeja@gmail.com'),
                   ),
                   ListTile(
                     title: Text('Address'),

@@ -11,6 +11,7 @@ import 'package:admin_keja/ui/login.dart';
 import 'package:admin_keja/ui/map.dart';
 import 'package:admin_keja/ui/terms.dart';
 import 'package:admin_keja/utility/utility.dart';
+import 'package:commons/commons.dart';
 import 'package:flutter/material.dart';
 
 class Settings extends StatefulWidget {
@@ -162,7 +163,9 @@ class _MyHomePageState extends State<Settings> {
               leading: Icon(Icons.lock),
               title: Text('Change Credentials'),
             ),
-            ListTile(
+            ListTile(onTap: () {
+              infoDialog(context, 'You dont have access to this page');
+            },
               leading: Icon(Icons.message),
               title: Text('Broadcast Messages'),
             ),

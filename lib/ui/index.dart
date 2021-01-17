@@ -13,6 +13,7 @@ import 'package:admin_keja/ui/settings.dart';
 import 'package:admin_keja/utility/floatingactionbutton.dart';
 import 'package:admin_keja/utility/utility.dart';
 import 'package:admin_keja/views/bottomBar.dart';
+import 'package:commons/commons.dart';
 import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'createApartment.dart';
@@ -29,7 +30,7 @@ class Index extends StatefulWidget {
 
 class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
   final dbHelper = DbOperations.instance;
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
   GlobalKey bottomNavigationKey = GlobalKey();
   MyCompany company = MyCompany();
   Constants constants = Constants();
@@ -60,7 +61,7 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
     getPrefs();
     fetchCompany();
     fetchDbApartments();
-    fetchDbHomeSummary();
+    //fetchDbHomeSummary();
   }
 
   @override
@@ -91,8 +92,9 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
       bottomNavigationBar: MyBottomAppBar(
           selected: _selectedIndex,
           homePressed: () {
+            infoDialog(context, 'You dont have access to this page');
             setState(() {
-              _selectedIndex = 0;
+              //_selectedIndex = 0;
             });
           },
           companyPressed: () {
@@ -111,16 +113,16 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
   Future<void> fetchCompany() async {
     var result = await NetworkApi().fetchCompany(userid);
     print(result);
-    if(result!=Constants.fail){
-    var Map = json.decode(result);
-    setState(() {
-      companyResponse = CompanyResponse.fromJson(Map);
-      company = companyResponse.data;
-      companyId = company.id;
-      saveCompany(company);
-    });
-    fetchApartments(company.id);
-    fetchHome(company.id);
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      setState(() {
+        companyResponse = CompanyResponse.fromJson(Map);
+        company = companyResponse.data;
+        companyId = company.id;
+        saveCompany(company);
+      });
+      fetchApartments(company.id);
+      fetchHome(company.id);
     }
   }
 
@@ -131,13 +133,13 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
   Future<void> fetchApartments(var companyId) async {
     var result = await NetworkApi().fetchApartments(companyId);
     print(result);
-    if(result!=Constants.fail){
+    if (result != Constants.fail) {
       var Map = json.decode(result);
-    myApartmentResponse = MyApartmentResponse.fromJson(Map);
-    _insertApartment(myApartmentResponse.data.apartments);
-    setState(() {
-      status = myApartmentResponse.status;
-    });
+      myApartmentResponse = MyApartmentResponse.fromJson(Map);
+      _insertApartment(myApartmentResponse.data.apartments);
+      setState(() {
+        status = myApartmentResponse.status;
+      });
     }
   }
 
@@ -145,11 +147,11 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
     var result =
         await NetworkApi().fetchHome(companyId, month, year.toString());
     print(result);
-    if(result!=Constants.fail){
+    if (result != Constants.fail) {
       var Map = json.decode(result);
-    myHomeResponse = MyHomeResponse.fromJson(Map);
-    insertHome(myHomeResponse.data.myhomes);
-    insertHomeSummary(myHomeResponse.summary.values);
+      myHomeResponse = MyHomeResponse.fromJson(Map);
+      insertHome(myHomeResponse.data.myhomes);
+      insertHomeSummary(myHomeResponse.summary.values);
     }
   }
 
@@ -221,7 +223,6 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
       final id = await dbHelper.insertHome(myHome);
       print('inserted row id: $id');
     }
-    
   }
 
   void insertHomeSummary(List<MyHomeSummary> myhomesummary) async {
