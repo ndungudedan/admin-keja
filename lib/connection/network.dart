@@ -161,7 +161,7 @@ class Network {
     }
   }
 
-  Future updateCompany(var file, var details) async {
+  Future updateCompany(var file, var details,Function onProgress) async {
     List<MultipartFile> imageList = new List<MultipartFile>();
 
     var multipartFile = await MultipartFile.fromFile(
@@ -182,7 +182,12 @@ class Network {
     });
 
     Dio dio = new Dio();
-    var response = await dio.post(url, data: formData);
+    var response = await dio.post(url, data: formData,
+    onSendProgress: (int sent, int total) {
+      double progress = (sent / total) * 100;
+      onProgress(progress);
+      print("progress:  $progress");
+    });
     if (response.statusCode == 200) {
       return response.data;
     } else {

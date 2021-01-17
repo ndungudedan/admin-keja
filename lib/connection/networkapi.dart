@@ -159,11 +159,11 @@ class NetworkApi {
     var Data = await network.call(insertFeatureJson(apartmentId,feature));
     return Data;
   }
-  Future<dynamic> updateCompany(var upload,var details) async {
+  Future<dynamic> updateCompany(var upload,var details,Function onProgress) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.updateCompany(upload,details);
+    var Data = await network.updateCompany(upload,details,onProgress);
     return Data;
   }
     Future<dynamic> fetchCategorys() async {

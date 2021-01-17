@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class EditCompany extends StatefulWidget {
   EditCompany({Key key, this.title, this.company}) : super(key: key);
@@ -39,6 +40,8 @@ class _MyHomePageState extends State<EditCompany> {
   final FocusNode _locationFocus = FocusNode();
   MyCompany company = MyCompany();
   Map<String, String> details = {};
+  ProgressDialog progressDialog;
+  double progress = 0.0;
   bool loading = false;
   File upload = null;
   @override
@@ -60,8 +63,30 @@ class _MyHomePageState extends State<EditCompany> {
     _phoneController.text = company.phone ?? '';
   }
 
+  onProgress(double progress) {
+    progressDialog.update(
+      progress: progress,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    progressDialog = ProgressDialog(context,
+        type: ProgressDialogType.Download, isDismissible: false);
+    progressDialog.style(
+      message: 'Uploading data',
+      borderRadius: 10.0,
+      backgroundColor: Colors.white,
+      progressWidget: CircularProgressIndicator(),
+      elevation: 10.0,
+      insetAnimCurve: Curves.easeInOut,
+      progress: progress,
+      maxProgress: 100.0,
+      progressTextStyle: TextStyle(
+          color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+      messageTextStyle: TextStyle(
+          color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600),
+    );
     return Scaffold(
         appBar: AppBar(
           title: Text('Edit Company Details'),
@@ -151,34 +176,37 @@ class _MyHomePageState extends State<EditCompany> {
   }
 
   Future<void> submit() async {
-      details[UploadData.address] = _addressController.text;
-      details[UploadData.companyId] = sharedPreferences.getCompanyId();
-      details[UploadData.email] = _emailController.text;
-      details[UploadData.location] = _locationController.text;
-      details[UploadData.phone] = _phoneController.text;
-      details[UploadData.title] = _titleController.text;
-    var result = await NetworkApi()
-        .updateCompany(upload,details);
+    progressDialog.show();
+    details[UploadData.address] = _addressController.text;
+    details[UploadData.companyId] = sharedPreferences.getCompanyId();
+    details[UploadData.email] = _emailController.text;
+    details[UploadData.location] = _locationController.text;
+    details[UploadData.phone] = _phoneController.text;
+    details[UploadData.title] = _titleController.text;
+    var result = await NetworkApi().updateCompany(upload, details,onProgress);
     print(result);
-    if(result!=Constants.fail){
-    var Map = json.decode(result);
-    Status status = Status.fromJson(Map);
-    if (status.code == Constants.success) {
-      infoDialog(context, status.message, showNeutralButton: true);
+    progressDialog.hide();
+    if (result != Constants.fail) {
+      var Map = json.decode(result);
+      Status status = Status.fromJson(Map);
+      if (status.code == Constants.success) {
+        infoDialog(context, status.message, showNeutralButton: true);
+      } else {
+        errorDialog(context, status.message, showNeutralButton: true);
+      }
     } else {
-      errorDialog(context, status.message, showNeutralButton: true);
-    }
-    }else{
-      errorDialog(context, "Failed...Please try again later", showNeutralButton: true);
+      errorDialog(context, "Failed...Please try again later",
+          showNeutralButton: true);
     }
   }
+
   void updateLogo() async {
     try {
       var result = await FilePicker.platform
           .pickFiles(type: FileType.image, allowMultiple: false);
       if (result != null) {
         List<File> templist = result.paths.map((path) => File(path)).toList();
-          compressAndGetFile(templist.elementAt(0));
+        compressAndGetFile(templist.elementAt(0));
       }
     } on TargetPlatform catch (e) {
       print('Error while picking the file: ' + e.toString());
@@ -195,7 +223,7 @@ class _MyHomePageState extends State<EditCompany> {
     setState(() {
       upload = result;
     });
-    
+
     print('worked');
     print(file.lengthSync());
     print(result.lengthSync());

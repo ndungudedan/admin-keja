@@ -141,19 +141,24 @@ class _CreateApartmentState extends State<CreateApartment> {
           allowMultiple: false);
       if (result != null) {
         File temp = File(result.files.single.path);
-
-        final directory = await getApplicationDocumentsDirectory();
-        var res = await FlutterImageCompress.compressAndGetFile(
-          temp.absolute.path,
-          directory.path + '/' + path.basename(temp.path),
-          quality: 40,
-        );
-        setState(() {
-          banner = res;
-        });
-        print('worked');
-        print(temp.lengthSync());
-        print(res.lengthSync());
+        var decodedImage = await decodeImageFromList(temp.readAsBytesSync());
+        print(decodedImage.width);
+        print(decodedImage.height);
+        if (decodedImage.width >= Constants.bannerWidth &&
+            decodedImage.height >= Constants.bannerHeight) {
+          final directory = await getApplicationDocumentsDirectory();
+          var res = await FlutterImageCompress.compressAndGetFile(
+            temp.absolute.path,
+            directory.path + '/' + path.basename(temp.path),
+            quality: 40,
+          );
+          setState(() {
+            banner = res;
+          });
+          print('worked');
+          print(temp.lengthSync());
+          print(res.lengthSync());
+        }
       }
     } on TargetPlatform catch (e) {
       print('Error while picking the file: ' + e.toString());
@@ -161,15 +166,13 @@ class _CreateApartmentState extends State<CreateApartment> {
   }
 
   onProgress(double progress) {
-    progressDialog.update(
-      progress: progress,
-    );
+    progressDialog.style(progress: progress);
   }
 
   @override
   Widget build(BuildContext context) {
     progressDialog = ProgressDialog(context,
-        type: ProgressDialogType.Download, isDismissible: false);
+        type: ProgressDialogType.Download, isDismissible: true);
     progressDialog.style(
       message: 'Uploading data',
       borderRadius: 10.0,
@@ -471,7 +474,26 @@ class _CreateApartmentState extends State<CreateApartment> {
                         },
                       ),
                     )
-                  : SizedBox(),
+                  : Center(
+                  child: RaisedButton(
+                    splashColor: Colors.amber,
+                    color: const Color.fromRGBO(247, 64, 106, 1.0),
+                    highlightElevation: 10,
+                    elevation: 15,
+                    animationDuration: Duration(seconds: 2),
+                    focusElevation: 10,
+                    colorBrightness: Brightness.dark,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
+                      child: Text('Next'),
+                    ),
+                    onPressed: () {
+                        setState(() {
+                          step = 5;
+                        });
+                    },
+                  ),
+                ),
             ),
             Container(
                 child: image_uri.isNotEmpty
@@ -570,6 +592,15 @@ class _CreateApartmentState extends State<CreateApartment> {
               child: Text('Please pick a banner'),
             ),
             Center(
+                child: Text(
+                    'Min height:' +
+                        Constants.bannerHeight.toString() +
+                        '\nMin width:' +
+                        Constants.bannerWidth.toString(),
+                    style: TextStyle(
+                      color: Colors.red,
+                    ))),
+            Center(
                 child: Container(
               margin: EdgeInsets.all(12),
               height: MediaQuery.of(context).size.height / 10,
@@ -609,7 +640,32 @@ class _CreateApartmentState extends State<CreateApartment> {
                                 helperText: 'keep it short'),
                             maxLines: 3,
                           ),
-                        )
+                        ),
+                        Center(
+                  child: RaisedButton(
+                    splashColor: Colors.amber,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(80.0),
+                      side: BorderSide(color: Colors.amberAccent),
+                    ),
+                    color: const Color.fromRGBO(247, 64, 106, 1.0),
+                    highlightElevation: 10,
+                    elevation: 15,
+                    animationDuration: Duration(seconds: 2),
+                    focusElevation: 10,
+                    colorBrightness: Brightness.dark,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
+                      child: Text('Next'),
+                    ),
+                    onPressed: () {
+                        setState(() {
+                          step = 4;
+                        });
+                      
+                    },
+                  ),
+                )
                       ],
                     ),
                   ))
@@ -668,7 +724,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                   color: Colors.amber.withOpacity(0.4),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: TextField(
+                child:features.length < 11 ? TextField(
                   controller: _featController,
                   onSubmitted: (value) {
                     setState(() {
@@ -693,7 +749,28 @@ class _CreateApartmentState extends State<CreateApartment> {
                       color: Colors.white,
                     ),
                   ),
-                ),
+                )
+                : Center(
+                  child: RaisedButton(
+                    splashColor: Colors.amber,
+                    color: const Color.fromRGBO(247, 64, 106, 1.0),
+                    highlightElevation: 10,
+                    elevation: 15,
+                    animationDuration: Duration(seconds: 2),
+                    focusElevation: 10,
+                    colorBrightness: Brightness.dark,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
+                      child: Text('Next'),
+                    ),
+                    onPressed: () {
+                        setState(() {
+                          step = 6;
+                        });
+                      
+                    },
+                  ),
+                )
               ),
             ),
           ],
@@ -849,6 +926,7 @@ class _CreateApartmentState extends State<CreateApartment> {
             onPlacePicked: (result) {
               print(result.geometry.location.lat);
               setState(() {
+                step = 3;
                 latitude = result.geometry.location.lat;
                 longitude = result.geometry.location.lng;
               });
@@ -905,7 +983,7 @@ class _CreateApartmentState extends State<CreateApartment> {
       details[UploadData.units] = _spaceController.text;
       details[UploadData.bannertag] = _bannertagController.text;
     });
-    await progressDialog.show();
+    progressDialog.show();
     var result = await NetworkApi()
         .upload(toUpload, banner, tags, features, details, onProgress);
     print(result);
