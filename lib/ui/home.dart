@@ -9,7 +9,6 @@ import 'package:admin_keja/ui/apartment.dart';
 import 'package:admin_keja/utility/utility.dart';
 import 'package:admin_keja/views/customAppBar.dart';
 import 'package:admin_keja/views/homeText.dart';
-import 'package:admin_keja/views/richtext.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 

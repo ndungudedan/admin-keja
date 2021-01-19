@@ -176,11 +176,15 @@ class MyApartmentResponse {
 class Images {
   String id;
   String apartment_id;
+  String tag;
+  String tag_id;
   String image;
 
   Images({
     this.image,
     this.id,
+    this.tag,
+    this.tag_id,
     this.apartment_id,
   });
 

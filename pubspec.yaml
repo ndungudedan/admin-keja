@@ -52,6 +52,9 @@ dependencies:
   progress_dialog:
   fl_chart: ^0.12.0
   google_maps_place_picker: ^1.0.1
+  moor: # use the latest version
+  sqlite3_flutter_libs: # Also use the latest version.
+  moor_db_viewer:
 
 
 
@@ -64,7 +67,8 @@ dev_dependencies:
     sdk: flutter
 
   pedantic: ^1.9.0
-  build_runner: ^1.10.0 
+  build_runner: ^1.10.0
+  moor_generator: # use the latest version
   flutter_launcher_icons: "^0.8.0"
 
 flutter_icons:

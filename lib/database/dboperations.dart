@@ -1,5 +1,6 @@
 import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/database/databasehelper.dart';
+import 'package:admin_keja/database/dbhelp.dart';
 import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/features.dart';
 import 'package:admin_keja/models/home.dart';
@@ -8,7 +9,7 @@ import 'package:admin_keja/models/transaction.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DbOperations {
-  final dbHelper = DatabaseHelper.instance;
+  final dbHelper = DatHelper.instance;
   static final imagestable = Constants.imagestable;
   static final tagstable = Constants.tagstable;
   static final featurestable = Constants.featurestable;

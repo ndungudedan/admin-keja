@@ -1,30 +1,28 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:admin_keja/blocs/featurebloc.dart';
+import 'package:admin_keja/blocs/imagebloc.dart';
 import 'package:admin_keja/connection/networkapi.dart';
 import 'package:admin_keja/constants/constant.dart';
+import 'package:admin_keja/database/dao.dart';
+import 'package:admin_keja/database/databasehelper.dart';
 import 'package:admin_keja/database/dboperations.dart';
 import 'package:admin_keja/management/management.dart';
-import 'package:admin_keja/models/apartment.dart';
-import 'package:admin_keja/models/features.dart';
 import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/allImages.dart';
 import 'package:admin_keja/ui/editApartment.dart';
 import 'package:admin_keja/ui/editPhotoViewer.dart';
-import 'package:admin_keja/ui/map.dart';
 import 'package:admin_keja/utility/connectioncallback.dart';
-import 'package:admin_keja/models/locations.dart' as locations;
-import 'package:admin_keja/utility/utility.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:commons/commons.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:getflutter/getflutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 class ApartmentDetails extends StatefulWidget {
   ApartmentDetails({Key key, @required this.apartment}) : super(key: key);
-  MyApartment apartment;
+  MyApartmentTableData apartment;
 
   final String title = 'apartmentDetails';
 
@@ -35,35 +33,33 @@ class ApartmentDetails extends StatefulWidget {
 class _MyHomePageState extends State<ApartmentDetails> {
   final dbHelper = DbOperations.instance;
   var scaffoldKey = GlobalKey<ScaffoldState>();
-  String userId;
+  var dao = DatabaseDao(databasehelper);
+  FeatureBloc featureBloc;
+  ImagesBloc imageBloc;
   int step;
-  String apartmentId, companyId;
-  MyApartment apartment;
+  String apartmentId;
+  MyApartmentTableData apartment;
   final _tagController = TextEditingController();
   Constants constants = Constants();
-  List<Images> picList = [];
-  List<Tags> imageTags = [];
-  List<Features> featurelist = [];
   final Map<String, Marker> _markers = {};
-  var features;
 
   @override
   void initState() {
     apartment = widget.apartment;
-    apartmentId = widget.apartment.id;
-    getPrefs();
-    fetchImages();
-    fetchFeatures();
-    fetchTags();
-    fetchDbTags();
-    fetchDbImages();
-    fetchDbFeatures();
+    apartmentId = widget.apartment.onlineid;
+    featureBloc = FeatureBloc();
+    imageBloc = ImagesBloc();
+    featureBloc.fetchFeatures(apartmentId);
+    imageBloc.fetchImages(apartmentId);
     super.initState();
+    
   }
 
   @override
   void dispose() {
     super.dispose();
+    featureBloc.dispose();
+    imageBloc.dispose();
   }
 
   @override
@@ -89,97 +85,99 @@ class _MyHomePageState extends State<ApartmentDetails> {
           Center(
             child: apartmentDetails(apartment),
           ),
-          Center(child:Container(
-            height: 200,
-            child: Stack(
-                                        fit: StackFit.expand,
-                                        children: <Widget>[
-                                        apartment.banner==
-                                                      null ||
-                                                  apartment.banner
-                                                      .isEmpty
-                                              ? Image.asset(
-                                                  'assets/images/placeholder.png')
-                                              : Container(
-                                                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                                                child: Image.memory(
-                                                    Utility.dataFromBase64String(apartment.banner),
-                                                    fit: BoxFit.fill,
-                                                  ),
-                                              ),
-                                          Positioned(
-                                            bottom: 1.0,
-                                            left: 0.0,
-                                            right: 0.0,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [
-                                                    Color.fromARGB(200, 0, 0, 0),
-                                                    Color.fromARGB(0, 0, 0, 0)
-                                                  ],
-                                                  begin: Alignment.bottomCenter,
-                                                  end: Alignment.topCenter,
-                                                ),
-                                              ),
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 10.0,
-                                                  horizontal: 20.0),
-                                              child: apartment.bannertag != null &&
-                                                      apartment.bannertag.isNotEmpty
-                                                  ? GestureDetector(
-                                                      onTap: () {
-                                                        setState(() {
-                                                          _tagController.text =
-                                                              apartment.bannertag;
-                                                        });
-                                                        _showBannerDialog(apartment.bannertag);
-                                                      },
-                                                      child: Text(
-                                                        apartment.bannertag,
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    )
-                                                  : Text(''),
-                                            ),
-                                          ),
-                                          Positioned(
-                                            top: 0,
-                                            right: 0,
-                                            child: CircleAvatar(
-                                              radius: 20,
-                                              backgroundColor:
-                                                  LightColors.kLavender,
-                                              child: IconButton(
-                                                icon: Icon(Icons.edit),
-                                                color: Colors.blue,
-                                                onPressed: () {
-                                                  updateBannerImage();
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+          Center(
+            child: Container(
+              height: 200,
+              child: Stack(
+                fit: StackFit.expand,
+                children: <Widget>[
+                  CachedNetworkImage(
+                    imageUrl: constants.path +
+                        sharedPreferences.getCompanyId() +
+                        constants.folder +
+                        apartment.banner,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                        alignment: Alignment(0.0, 2.0),
+                        child: Center(child: CircularProgressIndicator())),
+                    errorWidget: (context, url, error) => Container(
+                        alignment: Alignment(0.0, 2.0),
+                        child: Center(child: Icon(Icons.error))),
+                  ),
+                  Positioned(
+                    bottom: 1.0,
+                    left: 0.0,
+                    right: 0.0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color.fromARGB(200, 0, 0, 0),
+                            Color.fromARGB(0, 0, 0, 0)
+                          ],
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                        ),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 20.0),
+                      child: apartment.bannertag != null &&
+                              apartment.bannertag.isNotEmpty
+                          ? GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _tagController.text = apartment.bannertag;
+                                });
+                                _showBannerDialog(apartment.bannertag);
+                              },
+                              child: Text(
+                                apartment.bannertag,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          : Text(''),
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: LightColors.kLavender,
+                      child: IconButton(
+                        icon: Icon(Icons.edit),
+                        color: Colors.blue,
+                        onPressed: () {
+                          updateBannerImage();
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-                                  ),
           Container(
-            height: 350,
-            child: picList != null && picList.isNotEmpty
-                ? Column(
+            height: 380,
+            child: StreamBuilder(
+              stream: dao.watchImagesLimit(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data.isNotEmpty) {
+                  return Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text('*Click on the tag to edit'),
                       Expanded(
                         child: GridView.count(
-                            physics: NeverScrollableScrollPhysics(),
+                          physics: NeverScrollableScrollPhysics(),
                             padding: const EdgeInsets.all(8),
                             crossAxisCount: 3,
                             childAspectRatio: 0.7,
-                            children: List.generate(picList.length, (index) {
+                            children:
+                                List.generate(snapshot.data.length, (index) {
                               return Container(
                                 margin: EdgeInsets.all(5.0),
                                 child: ClipRRect(
@@ -190,58 +188,59 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                     child: Stack(
                                       fit: StackFit.expand,
                                       children: <Widget>[
-                                        picList.elementAt(index).image ==
-                                                    null ||
-                                                picList
-                                                    .elementAt(index)
-                                                    .image
-                                                    .isEmpty
-                                            ? Image.asset(
-                                                'assets/images/placeholder.png')
-                                            : Image.memory(
-                                                Utility.dataFromBase64String(
-                                                    picList
-                                                        .elementAt(index)
-                                                        .image),
-                                                fit: BoxFit.fill,
-                                              ),
+                                        CachedNetworkImage(
+                                          imageUrl: constants.path +
+                                              sharedPreferences.getCompanyId() +
+                                              constants.folder +
+                                              snapshot.data.elementAt(index).image,
+                                          fit: BoxFit.fill,
+                                          placeholder: (context, url) => Container(
+                                              alignment: Alignment(0.0, 2.0),
+                                              child: Center(
+                                                  child:
+                                                      CircularProgressIndicator())),
+                                          errorWidget: (context, url, error) =>
+                                              Container(
+                                                  alignment:
+                                                      Alignment(0.0, 2.0),
+                                                  child: Center(
+                                                      child:
+                                                          Icon(Icons.error))),
+                                        ),
                                         Positioned(
                                           bottom: 1.0,
                                           left: 0.0,
                                           right: 0.0,
                                           child: Container(
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Color.fromARGB(200, 0, 0, 0),
-                                                  Color.fromARGB(0, 0, 0, 0)
-                                                ],
-                                                begin: Alignment.bottomCenter,
-                                                end: Alignment.topCenter,
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Color.fromARGB(
+                                                        200, 0, 0, 0),
+                                                    Color.fromARGB(0, 0, 0, 0)
+                                                  ],
+                                                  begin: Alignment.bottomCenter,
+                                                  end: Alignment.topCenter,
+                                                ),
                                               ),
-                                            ),
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 10.0,
-                                                horizontal: 20.0),
-                                            child: imageTags != null &&
-                                                    imageTags.isNotEmpty
-                                                ? GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        _tagController.text =
-                                                            getTag(index);
-                                                      });
-                                                      _showDialog(index);
-                                                    },
-                                                    child: Text(
-                                                      getTag(index),
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  )
-                                                : Text(''),
-                                          ),
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 10.0,
+                                                  horizontal: 20.0),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    _tagController.text =
+                                                        snapshot.data.elementAt(index).tag;
+                                                  });
+                                                  _showDialog(snapshot.data.elementAt(index).onlineid);
+                                                },
+                                                child: Text(
+                                                  snapshot.data.elementAt(index).tag,
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              )),
                                         ),
                                         Positioned(
                                           bottom: 120,
@@ -254,7 +253,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                               icon: Icon(Icons.edit),
                                               color: Colors.blue,
                                               onPressed: () {
-                                                updateImage(index);
+                                                updateImage(snapshot.data.elementAt(index).image, snapshot.data.elementAt(index).onlineid, snapshot.data.elementAt(index).tag);
                                               },
                                             ),
                                           ),
@@ -285,65 +284,84 @@ class _MyHomePageState extends State<ApartmentDetails> {
                             ),
                           ))
                     ],
-                  )
-                : Center(
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('No data'),
+                  );
+                } else if (snapshot.data != null && snapshot.data.isEmpty) {
+                  return Center(
+                    child: Text(''),
+                  );
+                }
+                return Center(
+                    child: Center(
                   child: Container(
                       height: 150.0,
                       width: 150.0,
                       child: Center(child: Text('loading'))),
-                ),
+                ));
+              },
+            ),
           ),
           Container(
             padding: EdgeInsets.all(5),
             //height: 200,
-            child: Column(
-              children: <Widget>[
-                Center(
-                    child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(child: Text('Features')),
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: LightColors.kLavender,
-                      child: IconButton(
-                        icon: Icon(Icons.edit),
-                        color: Colors.blue,
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => EditApartment(
-                                    apartment: apartment,
-                                    features: featurelist,
-                                    step: 3,
-                                  )));
-                        },
+            child: StreamBuilder(
+              stream: dao.watchFeatures(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data.isNotEmpty) {
+                  return Column(
+                    children: [
+                      Center(
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(child: Text('Features')),
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: LightColors.kLavender,
+                            child: IconButton(
+                              icon: Icon(Icons.edit),
+                              color: Colors.blue,
+                              onPressed: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => EditApartment(
+                                          apartment: apartment,
+                                          features: snapshot.data,
+                                          step: 3,
+                                        )));
+                              },
+                            ),
+                          ),
+                        ],
+                      )),
+                      GridView.count(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        crossAxisCount: 2,
+                        childAspectRatio: 6.0,
+                        scrollDirection: Axis.vertical,
+                        children: List.generate(snapshot.data.length, (index) {
+                          return featuresCard(
+                              snapshot.data.elementAt(index).feat);
+                        }),
                       ),
-                    ),
-                  ],
-                )),
-                featurelist.isNotEmpty
-                    ? Center(
-                        child: GridView.count(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          crossAxisCount: 2,
-                          childAspectRatio: 6.0,
-                          scrollDirection: Axis.vertical,
-                          children: List.generate(featurelist.length, (index) {
-                            return featuresCard(
-                                featurelist.elementAt(index).feat);
-                          }),
-                        ),
-                      )
-                    : Container(
-                        child: Center(
-                          child: SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator()),
-                        ),
-                      ),
-              ],
+                    ],
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('No data'),
+                  );
+                } else if (snapshot.data != null && snapshot.data.isEmpty) {
+                  return Center(
+                    child: Text(''),
+                  );
+                }
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
             ),
           ),
           Container(
@@ -366,7 +384,6 @@ class _MyHomePageState extends State<ApartmentDetails> {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => EditApartment(
                                       apartment: apartment,
-                                      features: featurelist,
                                       step: 1,
                                     )));
                           },
@@ -382,7 +399,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
                   ListTile(
                     title: Text('Email'),
                     leading: Icon(Icons.email),
-                    subtitle: Text(apartment.email),
+                    subtitle: Text(apartment.emailaddress),
                   ),
                   ListTile(
                     title: Text('Address'),
@@ -397,77 +414,6 @@ class _MyHomePageState extends State<ApartmentDetails> {
         ],
       ),
     );
-  }
-
-  void fetchImages() async {
-    var result = await NetworkApi().getImages(apartmentId);
-    print(result);
-    var Map = json.decode(result);
-    _insertImages(ImagesResponse.fromJson(Map).data.data)
-        .then((value) => {fetchDbImages()});
-  }
-
-  void fetchTags() async {
-    var result = await NetworkApi().getTags(apartmentId);
-    print(result);
-    var Map = json.decode(result);
-    _insertTags(TagsResponse.fromJson(Map).data.data);
-  }
-
-  void fetchFeatures() async {
-    var result = await NetworkApi().getFeatures(apartmentId);
-    print(result);
-    var Map = json.decode(result);
-    _insertFeatures(FeaturesResponse.fromJson(Map).data.data);
-  }
-
-  void populateTagList(var tags) {
-    if (mounted && tags != null) {
-      imageTags.clear();
-      setState(() {
-        imageTags = tags;
-      });
-    }
-  }
-
-  void populateImageList(var val) {
-    if (mounted) {
-      setState(() {
-        picList = val;
-      });
-    }
-  }
-
-  String getTag(int imageIndex) {
-    var tag = '';
-    imageTags.forEach((element) {
-      if (element.image_id == picList.elementAt(imageIndex).id) {
-        tag = element.tag;
-      }
-    });
-    return tag;
-  }
-
-  void updateImageList(var index, var val) {
-    setState(() {
-      if (!picList.contains(val)) {
-        if (index < picList.length) {
-          picList.removeAt(index);
-          picList.insert(index, val);
-        } else if (picList.length <= 6) {
-          picList.insert(index, val);
-        }
-      }
-    });
-  }
-
-  void populateFeaturesList(var features) {
-    if (mounted && features != null) {
-      featurelist.clear();
-      setState(() {
-        featurelist = features;
-      });
-    }
   }
 
   SnackBar snack(String message) {
@@ -499,7 +445,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
     );
   }
 
-  Container apartmentDetails(MyApartment apartment) {
+  Container apartmentDetails(var apartment) {
     return Container(
       child: Stack(
         children: [
@@ -555,12 +501,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
     );
   }
 
-  void getPrefs() {
-    userId = sharedPreferences.getUserId();
-    companyId = sharedPreferences.getCompanyId();
-  }
-
-  _showDialog(var index) async {
+  _showDialog(var picId) async {
     await showDialog<String>(
       context: context,
       child: AlertDialog(
@@ -588,7 +529,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
               child: const Text('DONE'),
               onPressed: () async {
                 var result = await NetworkApi().updateTag(_tagController.text,
-                    apartmentId, picList.elementAt(index).id);
+                    apartmentId, picId);
                 print(result);
                 var Map = json.decode(result);
                 Status status = Status.fromJson(Map);
@@ -603,6 +544,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
       ),
     );
   }
+
   _showBannerDialog(var tag) async {
     await showDialog<String>(
       context: context,
@@ -630,8 +572,8 @@ class _MyHomePageState extends State<ApartmentDetails> {
           FlatButton(
               child: const Text('DONE'),
               onPressed: () async {
-                var result = await NetworkApi().updateBannerTag(_tagController.text,
-                    apartmentId);
+                var result = await NetworkApi()
+                    .updateBannerTag(_tagController.text, apartmentId);
                 print(result);
                 var Map = json.decode(result);
                 Status status = Status.fromJson(Map);
@@ -646,71 +588,8 @@ class _MyHomePageState extends State<ApartmentDetails> {
       ),
     );
   }
-  Future<void> _insertImages(List<Images> images) async {
-    if (images != null) {
-      Images image = Images();
-      var res = await Future.wait(images.map((element) async {
-        Utility.base64String(
-                constants.path + companyId + constants.folder + element.image)
-            .then((value) async => {
-                  image.id = element.id,
-                  image.image = value,
-                  image.apartment_id = element.apartment_id,
-                  await dbHelper
-                      .insertImages(image)
-                      .then((value) => {fetchDbImages()}),
-                });
-      }));
-      if (res != null) {
-        fetchDbImages();
-      }
-    }
-  }
 
-  Future<void> fetchDbImages() async {
-    await dbHelper
-        .fetchDetailsImages(apartmentId)
-        .then((value) => {populateImageList(value)});
-  }
-
-  void _insertTags(List<Tags> tags) async {
-    for (int i = 0; i < tags.length; i++) {
-      Tags tag = Tags();
-      tag.id = tags.elementAt(i).id;
-      tag.tag = tags.elementAt(i).tag;
-      tag.image_id = tags.elementAt(i).image_id;
-      tag.apartment_id = tags.elementAt(i).apartment_id;
-      final id = await dbHelper.insertTags(tag);
-      print('inserted row id: $id');
-    }
-    fetchDbTags();
-  }
-
-  Future<void> fetchDbTags() async {
-    return await dbHelper.fetchTags(apartmentId).then((value) => {
-          if (value != null) {populateTagList(value)}
-        });
-  }
-
-  void _insertFeatures(List<Features> features) async {
-    for (int i = 0; i < features.length; i++) {
-      Features feat = Features();
-      feat.id = features.elementAt(i).id;
-      feat.feat = features.elementAt(i).feat;
-      feat.apartment_id = features.elementAt(i).apartment_id;
-      final id = await dbHelper.insertFeatures(feat);
-      print('inserted row id: $id');
-    }
-    fetchDbFeatures();
-  }
-
-  Future<void> fetchDbFeatures() async {
-    return await dbHelper
-        .fetchFeatures(apartmentId)
-        .then((value) => {populateFeaturesList(value)});
-  }
-
-  void updateImage(var index) async {
+  void updateImage(var image,var picId,var tag) async {
     try {
       var tempImage = await FilePicker.platform.pickFiles(
           type: FileType.custom, allowedExtensions: ['jpg', 'png', 'jpeg']);
@@ -718,8 +597,8 @@ class _MyHomePageState extends State<ApartmentDetails> {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => EditPhotoViewer(
                   pic: File(tempImage.files.single.path),
-                  tag: getTag(index),
-                  picId: picList.elementAt(index).id,
+                  tag: tag,
+                  picId: picId,
                   apartmentId: apartmentId,
                 )));
       }
@@ -727,7 +606,8 @@ class _MyHomePageState extends State<ApartmentDetails> {
       print('Error while picking the file: ' + e.toString());
     }
   }
-    void updateBannerImage() async {
+
+  void updateBannerImage() async {
     try {
       var tempImage = await FilePicker.platform.pickFiles(
           type: FileType.custom, allowedExtensions: ['jpg', 'png', 'jpeg']);

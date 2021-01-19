@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:admin_keja/blocs/apartmentBloc.dart';
 import 'package:admin_keja/connection/networkapi.dart';
 import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/database/dboperations.dart';
@@ -13,6 +14,7 @@ import 'package:admin_keja/ui/settings.dart';
 import 'package:admin_keja/utility/floatingactionbutton.dart';
 import 'package:admin_keja/utility/utility.dart';
 import 'package:admin_keja/views/bottomBar.dart';
+import 'package:commons/commons.dart';
 import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'createApartment.dart';
@@ -29,7 +31,8 @@ class Index extends StatefulWidget {
 
 class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
   final dbHelper = DbOperations.instance;
-  int _selectedIndex = 0;
+  MyApartmentsBloc myApartmentsBloc;
+  int _selectedIndex = 1;
   GlobalKey bottomNavigationKey = GlobalKey();
   MyCompany company = MyCompany();
   Constants constants = Constants();
@@ -44,7 +47,7 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
   Status status = Status();
   bool active;
   var month, year;
-  var phone, userid;
+  var phone;
   bool signed_in = false;
   var companyId;
   var currDate = DateTime.now();
@@ -52,15 +55,18 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    myApartmentsBloc = MyApartmentsBloc();
     fState = bottomNavigationKey.currentState;
     active = true;
-    userid = widget.userid;
     month = currDate.month;
     year = currDate.year;
-    getPrefs();
     fetchCompany();
-    fetchDbApartments();
-    fetchDbHomeSummary();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    myApartmentsBloc.dispose();
   }
 
   @override
@@ -69,14 +75,8 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          Home(
-            myHomeSummary: myHomesummarys,
-            companyId: companyId,
-          ),
-          Company(
-            apartments: apartments,
-            status: status,
-          ),
+          Settings(),
+          Company(),
           Settings(),
         ],
       ),
@@ -91,8 +91,9 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
       bottomNavigationBar: MyBottomAppBar(
           selected: _selectedIndex,
           homePressed: () {
+            infoDialog(context, 'You dont have acces to this page');
             setState(() {
-              _selectedIndex = 0;
+              //_selectedIndex = 0;
             });
           },
           companyPressed: () {
@@ -109,35 +110,17 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
   }
 
   Future<void> fetchCompany() async {
-    var result = await NetworkApi().fetchCompany(userid);
+    var result = await NetworkApi().fetchCompany(sharedPreferences.getUserId());
     print(result);
-    if(result!=Constants.fail){
-    var Map = json.decode(result);
-    setState(() {
-      companyResponse = CompanyResponse.fromJson(Map);
-      company = companyResponse.data;
-      companyId = company.id;
-      saveCompany(company);
-    });
-    fetchApartments(company.id);
-    fetchHome(company.id);
-    }
-  }
-
-  void getPrefs() {
-    userid = sharedPreferences.getUserId();
-  }
-
-  Future<void> fetchApartments(var companyId) async {
-    var result = await NetworkApi().fetchApartments(companyId);
-    print(result);
-    if(result!=Constants.fail){
+    if (result != Constants.fail) {
       var Map = json.decode(result);
-    myApartmentResponse = MyApartmentResponse.fromJson(Map);
-    _insertApartment(myApartmentResponse.data.apartments);
-    setState(() {
-      status = myApartmentResponse.status;
-    });
+      setState(() {
+        companyResponse = CompanyResponse.fromJson(Map);
+        company = companyResponse.data;
+        companyId = company.id;
+        saveCompany(company);
+      });
+      myApartmentsBloc.fetchMyApartments(company.id);
     }
   }
 
@@ -145,11 +128,11 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
     var result =
         await NetworkApi().fetchHome(companyId, month, year.toString());
     print(result);
-    if(result!=Constants.fail){
+    if (result != Constants.fail) {
       var Map = json.decode(result);
-    myHomeResponse = MyHomeResponse.fromJson(Map);
-    insertHome(myHomeResponse.data.myhomes);
-    insertHomeSummary(myHomeResponse.summary.values);
+      myHomeResponse = MyHomeResponse.fromJson(Map);
+      insertHome(myHomeResponse.data.myhomes);
+      insertHomeSummary(myHomeResponse.summary.values);
     }
   }
 
@@ -160,50 +143,7 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
     sharedPreferences.setCompanyLocation(company.address);
     sharedPreferences.setCompanyName(company.name);
     sharedPreferences.setCompanyPhone(company.phone);
-    Utility.base64String(
-            constants.path + companyId + constants.folder + company.logo)
-        .then((value) => {sharedPreferences.setCompanyPhoto(value)});
-  }
-
-  void _insertApartment(List<MyApartment> apartments) async {
-    for (int i = 0; i < apartments.length; i++) {
-      MyApartment myApartment = MyApartment();
-      myApartment.id = apartments.elementAt(i).id;
-      myApartment.owner_id = apartments.elementAt(i).owner_id;
-      myApartment.category = apartments.elementAt(i).category;
-      myApartment.title = apartments.elementAt(i).title;
-      myApartment.description = apartments.elementAt(i).description;
-      myApartment.location = apartments.elementAt(i).location;
-      myApartment.email = apartments.elementAt(i).email;
-      myApartment.video = apartments.elementAt(i).video;
-      myApartment.price = apartments.elementAt(i).price;
-      myApartment.address = apartments.elementAt(i).address;
-      myApartment.phone = apartments.elementAt(i).phone;
-      myApartment.deposit = apartments.elementAt(i).deposit;
-      myApartment.space = apartments.elementAt(i).space;
-      myApartment.latitude = apartments.elementAt(i).latitude;
-      myApartment.longitude = apartments.elementAt(i).longitude;
-      myApartment.likes = apartments.elementAt(i).likes;
-      myApartment.comments = apartments.elementAt(i).comments;
-      myApartment.rating = apartments.elementAt(i).rating;
-      myApartment.bannertag = apartments.elementAt(i).bannertag;
-      final id = await dbHelper.insertApartment(myApartment);
-      Utility.base64String(constants.path +
-              companyId +
-              constants.folder +
-              apartments.elementAt(i).banner)
-          .then((value) async =>
-              {await dbHelper.updateBanner(apartments.elementAt(i).id, value)});
-      print('inserted row id: $id');
-    }
-    fetchDbApartments();
-  }
-
-  void fetchDbApartments() async {
-    var res = await dbHelper.fetchApartments();
-    setState(() {
-      apartments = res;
-    });
+    sharedPreferences.setCompanyPhoto(company.logo);
   }
 
   void insertHome(List<MyHome> myhomes) async {
@@ -221,7 +161,6 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
       final id = await dbHelper.insertHome(myHome);
       print('inserted row id: $id');
     }
-    
   }
 
   void insertHomeSummary(List<MyHomeSummary> myhomesummary) async {

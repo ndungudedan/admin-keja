@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:admin_keja/connection/networkapi.dart';
 import 'package:admin_keja/constants/constant.dart';
+import 'package:admin_keja/database/databasehelper.dart';
 import 'package:admin_keja/database/dboperations.dart';
 import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/apartment.dart';
@@ -26,8 +27,8 @@ class EditApartment extends StatefulWidget {
     @required this.step,
   }) : super(key: key);
   final String title;
-  final MyApartment apartment;
-  final List<Features> features;
+  final MyApartmentTableData apartment;
+  final List<MyFeaturesTableData> features;
   final int step;
   @override
   _CreateApartmentState createState() => _CreateApartmentState();
@@ -51,14 +52,14 @@ class _CreateApartmentState extends State<EditApartment> {
   }
 
   final dbHelper = DbOperations.instance;
-  MyApartment apartment = MyApartment();
+  MyApartmentTableData apartment;
   List<File> image_uri = [];
   List<File> toUpload = [];
   List<String> imagepaths = [];
   var promoimage_uri, promoimage_path;
   File videofile;
   String _imagefilePath;
-  String featId;
+  int featIndex;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   final _depositController = TextEditingController();
   final _addressController = TextEditingController();
@@ -82,7 +83,7 @@ class _CreateApartmentState extends State<EditApartment> {
   Map<String, String> details = {};
   var step = 0;
   List<String> tags = [];
-  List<Features> features = [];
+  List<MyFeaturesTableData> features = [];
   double latitude;
   double longitude;
   bool location;
@@ -303,7 +304,7 @@ class _CreateApartmentState extends State<EditApartment> {
                     onTap: () {
                       setState(() {
                         _featController.text = features.elementAt(index).feat;
-                        featId = features.elementAt(index).id;
+                        featIndex = index;
                       });
                     },
                     title: Text(features.elementAt(index).feat),
@@ -345,7 +346,7 @@ class _CreateApartmentState extends State<EditApartment> {
               controller: _featController,
               onSubmitted: (value) {
                 setState(() {
-                  features.elementAt(int.parse(featId)).feat =
+                  features.elementAt(featIndex).feat =
                       _featController.text;
                   _featController.text = '';
                 });
@@ -552,10 +553,10 @@ class _CreateApartmentState extends State<EditApartment> {
     }
   }
 
-  void initData(MyApartment apartment) {
+  void initData(MyApartmentTableData apartment) {
     setState(() {
       _titleController.text = apartment.title;
-      _emailController.text = apartment.email;
+      _emailController.text = apartment.emailaddress;
       _addressController.text = apartment.address;
       _depositController.text = apartment.deposit;
       _rentController.text = apartment.price;

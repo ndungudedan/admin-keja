@@ -1,144 +1,112 @@
 import 'dart:io';
-import 'package:admin_keja/constants/constant.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:admin_keja/database/dao.dart';
+import 'package:moor/ffi.dart';
+import 'package:moor/moor.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+part 'databasehelper.g.dart';
 
-class DatabaseHelper {
-  static final _databaseName = "admin_keja.db";
-  static final _databaseVersion = 1;
+LazyDatabase _openConnection() {
+  // the LazyDatabase util lets us find the right location for the file async.
+  return LazyDatabase(() async {
+    // put the database file, called db.sqlite here, into the documents folder
+    // for your app.
+    final dbFolder = await getApplicationDocumentsDirectory();
+    final file = File(p.join(dbFolder.path, 'db.sqlite'));
+    return VmDatabase(file);
+  });
+}
 
-  static final imagestable = Constants.imagestable;
-  static final tagstable = Constants.tagstable;
-  static final featurestable = Constants.featurestable;
-  static final apartmenttable = Constants.apartmenttable;
-  static final paymenthistorytable = Constants.paymenthistorytable;
-  static final homesummarytable = Constants.homesummarytable;
-  static final transactionstable = Constants.transactionstable;
-  static final tenanttable = Constants.tenanttable;
+@UseMoor(tables: [MyApartmentTable,MyImagesTable,MyFeaturesTable,
+MyPaymentHistoryTable,MyHomeSummaryTable,MyTransactionsTable,MyTenantTable], daos: [DatabaseDao])
+class DatabaseHelper extends _$DatabaseHelper {
+  // we tell the database where to store the data with this constructor
+  DatabaseHelper() : super(_openConnection());
 
-  // make this a singleton class
-  DatabaseHelper._privateConstructor();
-  static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
+  // you should bump this number whenever you change or add a table definition. Migrations
+  // are covered later in this readme.
+  @override
+  int get schemaVersion => 2;
+}
+final databasehelper = DatabaseHelper();
+  class MyApartmentTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get onlineid => text()();
+  TextColumn get banner => text()();
+  TextColumn get bannertag => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get title => text()();
+  TextColumn get category => text()();
+  TextColumn get emailaddress => text().nullable()();
+  TextColumn get location => text().nullable()();
+  TextColumn get address => text().nullable()();
+  TextColumn get phone => text().nullable()();
+  TextColumn get video => text().nullable()();
+  TextColumn get price => text()();
+  TextColumn get deposit => text()();
+  TextColumn get space => text()();
+  TextColumn get latitude => text()();
+  TextColumn get longitude => text()();
+  TextColumn get rating => text()();
+  TextColumn get likes => text()();
+  TextColumn get comments => text()();
+}
+class MyImagesTable extends Table {
+  TextColumn get onlineid => text()();
+  TextColumn get apartment_id => text()();
+  TextColumn get tag_id => text()();
+  TextColumn get tag => text()();
+  TextColumn get image => text()();
 
-  // only have a single app-wide reference to the database
-  static Database _database;
-  Future<Database> get database async {
-    if (_database != null) return _database;
-    // lazily instantiate the db the first time it is accessed
-    _database = await _initDatabase();
-    return _database;
-  }
-
-  // this opens the database (and creates it if it doesn't exist)
-  _initDatabase() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, _databaseName);
-    return await openDatabase(path,
-        version: _databaseVersion, onCreate: _onCreate);
-  }
-
-  // SQL code to create the database table
-  Future _onCreate(Database db, int version) async {
-    await db.execute('''
-          CREATE TABLE $apartmenttable (
-            id INTEGER PRIMARY KEY,
-            online_id TEXT NOT NULL,
-            owner_id TEXT NOT NULL,
-            banner TEXT,
-            bannertag TEXT,
-            category TEXT NOT NULL,
-            title TEXT NOT NULL,
-            description TEXT,
-            location TEXT ,
-            emailaddress TEXT NOT NULL,
-            address TEXT,
-            phone TEXT NOT NULL,
-            video TEXT NOT NULL,
-            price TEXT,
-            deposit TEXT NOT NULL,
-            space TEXT NOT NULL,
-            latitude TEXT NOT NULL,
-            longitude TEXT NOT NULL,
-            likes TEXT NOT NULL,
-            comments TEXT NOT NULL,
-            rating	 TEXT NOT NULL
-          )
-          ''');
-    await db.execute('''
-          CREATE TABLE $imagestable (
-            id INTEGER PRIMARY KEY,
-            online_id TEXT NOT NULL,
-            apartment_id TEXT NOT NULL,
-            image TEXT
-          )
-          ''');
-    await db.execute('''
-          CREATE TABLE $tagstable (
-            id INTEGER PRIMARY KEY,
-            online_id TEXT NOT NULL,
-            apartment_id TEXT NOT NULL,
-            image_id TEXT NOT NULL,
-            tag TEXT NOT NULL
-          )
-          ''');
-    await db.execute('''
-          CREATE TABLE $featurestable (
-            id INTEGER PRIMARY KEY,
-            online_id TEXT NOT NULL,
-            apartment_id TEXT NOT NULL,
-            feat TEXT NOT NULL
-          )
-          ''');
-    await db.execute('''
-          CREATE TABLE $paymenthistorytable (
-            id INTEGER PRIMARY KEY,
-            online_id TEXT NOT NULL,
-            apartment_id TEXT NOT NULL,
-            title TEXT NOT NULL,
-            company_id TEXT NOT NULL,
-            month TEXT NOT NULL,
-            year TEXT NOT NULL,
-            expected TEXT NOT NULL,
-            paid TEXT NOT NULL,
-            due TEXT NOT NULL
-          )
-          ''');
-    await db.execute('''
-          CREATE TABLE $homesummarytable (
-            month TEXT NOT NULL,
-            year TEXT NOT NULL,
-            expected TEXT NOT NULL,
-            paid TEXT NOT NULL,
-            due TEXT NOT NULL
-          )
-          ''');
-    await db.execute('''
-          CREATE TABLE $transactionstable (
-            id INTEGER PRIMARY KEY,
-            online_id TEXT NOT NULL,
-            user_id TEXT NOT NULL,
-            transaction_id TEXT NOT NULL,
-            apartment_id TEXT NOT NULL,
-            status TEXT NOT NULL,
-            amount TEXT NOT NULL,
-            time TEXT NOT NULL,
-            month TEXT NOT NULL,
-            year TEXT NOT NULL,
-            type TEXT NOT NULL
-          )
-          ''');
-    await db.execute('''
-          CREATE TABLE $tenanttable (
-            id INTEGER PRIMARY KEY,
-            online_id TEXT NOT NULL,
-            apartment_id TEXT NOT NULL,
-            photo TEXT NOT NULL,
-            email TEXT NOT NULL,
-            name TEXT NOT NULL,
-            payed TEXT NOT NULL,
-            unit TEXT
-          )
-          ''');
-  }
+   @override
+  Set<Column> get primaryKey => {onlineid};
+}
+class MyFeaturesTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get onlineid => text()();
+  TextColumn get apartment_id => text()();
+  TextColumn get feat => text()();
+}
+class MyPaymentHistoryTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get onlineid => text()();
+  TextColumn get apartment_id => text()();
+  TextColumn get title => text()();
+  TextColumn get company_id => text()();
+  TextColumn get month => text()();
+  TextColumn get year => text()();
+  TextColumn get expected => text()();
+  TextColumn get paid => text()();
+  TextColumn get due => text()();
+}
+class MyHomeSummaryTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get month => text()();
+  TextColumn get year => text()();
+  TextColumn get expected => text()();
+  TextColumn get paid => text()();
+  TextColumn get due => text()();
+}
+class MyTransactionsTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get onlineid => text()();
+  TextColumn get apartment_id => text()();
+  TextColumn get transaction_id => text()();
+  TextColumn get user_id => text()();
+  TextColumn get month => text()();
+  TextColumn get year => text()();
+  TextColumn get status => text()();
+  TextColumn get amount => text()();
+  TextColumn get time => text()();
+  TextColumn get type => text()();
+}
+class MyTenantTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get onlineid => text()();
+  TextColumn get apartment_id => text()();
+  TextColumn get photo => text()();
+  TextColumn get name => text()();
+  TextColumn get email => text()();
+  TextColumn get payed => text()();
+  TextColumn get unit => text()();
 }

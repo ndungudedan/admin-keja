@@ -97,6 +97,8 @@ Images _$ImagesFromJson(Map<String, dynamic> json) {
   return Images(
     image: json['image'] as String,
     id: json['id'] as String,
+    tag: json['tag'] as String,
+    tag_id: json['tag_id'] as String,
     apartment_id: json['apartment_id'] as String,
   );
 }
@@ -104,6 +106,8 @@ Images _$ImagesFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$ImagesToJson(Images instance) => <String, dynamic>{
       'id': instance.id,
       'apartment_id': instance.apartment_id,
+      'tag': instance.tag,
+      'tag_id': instance.tag_id,
       'image': instance.image,
     };
 

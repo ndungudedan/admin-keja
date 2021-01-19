@@ -1,3 +1,4 @@
+import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/company.dart';
 import 'package:admin_keja/models/tenant.dart';
@@ -10,7 +11,8 @@ import 'package:admin_keja/ui/editCompany.dart';
 import 'package:admin_keja/ui/login.dart';
 import 'package:admin_keja/ui/map.dart';
 import 'package:admin_keja/ui/terms.dart';
-import 'package:admin_keja/utility/utility.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:commons/commons.dart';
 import 'package:flutter/material.dart';
 
 class Settings extends StatefulWidget {
@@ -27,6 +29,7 @@ class _MyHomePageState extends State<Settings> {
   bool show;
   bool check = false;
   var apartmentId;
+  Constants constants = Constants();
   MyTenant myTenant = MyTenant();
   MyTransaction transaction = MyTransaction();
   TransactionList transactionList = TransactionList();
@@ -77,19 +80,25 @@ class _MyHomePageState extends State<Settings> {
                     background: Container(
                       child: Stack(
                         fit: StackFit.expand,
-                        children: [
-                          company.logo == null
-                            ? Image.asset(
-                                'assets/images/pin7.jpg',
-                                fit: BoxFit.fitWidth,
-                              )
-                            : ColorFiltered(
-                              colorFilter: ColorFilter.mode(LightColors.kLavender, BlendMode.color),
-                                                          child: Image.memory(
-                                  Utility.dataFromBase64String(company.logo),
+                        children: [ColorFiltered(
+                                  colorFilter: ColorFilter.mode(
+                                      LightColors.kLavender, BlendMode.color),
+                                  child:
+                                  CachedNetworkImage(
+                    imageUrl: 
+        constants.path + sharedPreferences.getCompanyId()+ constants.folder + company.logo,
+                    fit: BoxFit.fitWidth,
+                    placeholder: (context, url) => Container(
+                        alignment: Alignment(0.0, 2.0),
+                        child: Center(child: CircularProgressIndicator())),
+                    errorWidget: (context, url, error) => Container(
+                        alignment: Alignment(0.0, 2.0),
+                        child: Image.asset(
+                                  'assets/images/pin7.jpg',
                                   fit: BoxFit.fitWidth,
+                                )),
+                  ),
                                 ),
-                            ),
                           Positioned(
                             bottom: 50,
                             left: 0,
@@ -122,16 +131,20 @@ class _MyHomePageState extends State<Settings> {
                     centerTitle: true,
                     background: Stack(
                       fit: StackFit.expand,
-                      children: [
-                        company.logo == null
-                            ? Image.asset(
-                                'assets/images/pin7.jpg',
-                                fit: BoxFit.fitWidth,
-                              )
-                            : Image.memory(
-                                Utility.dataFromBase64String(company.logo),
-                                fit: BoxFit.fitWidth,
-                              ),
+                      children: [CachedNetworkImage(
+                    imageUrl: 
+        constants.path + sharedPreferences.getCompanyId()+ constants.folder + company.logo,
+                    fit: BoxFit.fitWidth,
+                    placeholder: (context, url) => Container(
+                        alignment: Alignment(0.0, 2.0),
+                        child: Center(child: CircularProgressIndicator())),
+                    errorWidget: (context, url, error) => Container(
+                        alignment: Alignment(0.0, 2.0),
+                        child: Image.asset(
+                                  'assets/images/pin7.jpg',
+                                  fit: BoxFit.fitWidth,
+                                )),
+                  ),
                         Positioned(
                             bottom: 100,
                             left: 50,
@@ -163,6 +176,9 @@ class _MyHomePageState extends State<Settings> {
               title: Text('Change Credentials'),
             ),
             ListTile(
+              onTap: () {
+                infoDialog(context, 'You dont have acces to this page');
+              },
               leading: Icon(Icons.message),
               title: Text('Broadcast Messages'),
             ),
@@ -171,7 +187,7 @@ class _MyHomePageState extends State<Settings> {
               title: Text('Map View'),
               onTap: () {
                 Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => Gmap()));
+                    .push(MaterialPageRoute(builder: (context) => Gmap()));
               },
             ),
             ListTile(
@@ -179,7 +195,7 @@ class _MyHomePageState extends State<Settings> {
               title: Text('Contact us'),
               onTap: () {
                 Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => ContactUs()));
+                    .push(MaterialPageRoute(builder: (context) => ContactUs()));
               },
             ),
             ListTile(
@@ -187,7 +203,7 @@ class _MyHomePageState extends State<Settings> {
               title: Text('Terms & Conditions'),
               onTap: () {
                 Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => Terms()));
+                    .push(MaterialPageRoute(builder: (context) => Terms()));
               },
             ),
             ListTile(
@@ -195,15 +211,16 @@ class _MyHomePageState extends State<Settings> {
               title: Text('About'),
               onTap: () {
                 Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => About()));
+                    .push(MaterialPageRoute(builder: (context) => About()));
               },
             ),
             ListTile(
               onTap: () {
                 Navigator.of(context).pushAndRemoveUntil(
-    MaterialPageRoute(builder: (BuildContext context) => LoginPage()),
-    ModalRoute.withName('/'),
-  );
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => LoginPage()),
+                  ModalRoute.withName('/'),
+                );
               },
               leading: Icon(Icons.settings_power),
               title: Text('Log Out'),
