@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:admin_keja/blocs/apartmentBloc.dart';
 import 'package:admin_keja/connection/networkapi.dart';
 import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/management/management.dart';
@@ -22,7 +23,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:path/path.dart' as path;
-import 'package:video_player/video_player.dart';
 
 class CreateApartment extends StatefulWidget {
   CreateApartment({Key key, this.title}) : super(key: key);
@@ -36,14 +36,17 @@ class _CreateApartmentState extends State<CreateApartment> {
   void initState() {
     location = false;
     getCategory();
+    myApartmentsBloc = MyApartmentsBloc();
     super.initState();
   }
 
   @override
   void dispose() {
+    myApartmentsBloc.dispose();
     super.dispose();
   }
 
+  MyApartmentsBloc myApartmentsBloc;
   List<File> image_uri = [];
   List<File> toUpload = [];
   List<String> imagepaths = [];
@@ -118,15 +121,11 @@ class _CreateApartmentState extends State<CreateApartment> {
           allowMultiple: true);
       if (result != null) {
         List<File> templist = result.paths.map((path) => File(path)).toList();
-        setState(() {
-          for (int i = 0; i < templist.length; i++) {
-            if (i <= 16) {
-              image_uri.add(templist.elementAt(i));
-              imagepaths.add(templist.elementAt(i).path);
-              compressAndGetFile(templist.elementAt(i));
-            }
+        for (int i = 0; i < templist.length; i++) {
+          if (i < 16 && toUpload.length < 16) {
+            compressAndGetFile(templist.elementAt(i));
           }
-        });
+        }
       }
     } on TargetPlatform catch (e) {
       print('Error while picking the file: ' + e.toString());
@@ -141,18 +140,24 @@ class _CreateApartmentState extends State<CreateApartment> {
           allowMultiple: false);
       if (result != null) {
         File temp = File(result.files.single.path);
-        final directory = await getApplicationDocumentsDirectory();
-        var res = await FlutterImageCompress.compressAndGetFile(
-          temp.absolute.path,
-          directory.path + '/' + path.basename(temp.path),
-          quality: 40,
-        );
-        setState(() {
-          banner = res;
-        });
-        print('worked');
-        print(temp.lengthSync());
-        print(res.lengthSync());
+        var decodedImage = await decodeImageFromList(temp.readAsBytesSync());
+        print(decodedImage.width);
+        print(decodedImage.height);
+        if (decodedImage.width >= Constants.bannerWidth &&
+            decodedImage.height >= Constants.bannerHeight) {
+          final directory = await getApplicationDocumentsDirectory();
+          var res = await FlutterImageCompress.compressAndGetFile(
+            temp.absolute.path,
+            directory.path + '/' + path.basename(temp.path),
+            quality: 40,
+          );
+          setState(() {
+            banner = res;
+          });
+          print('worked');
+          print(temp.lengthSync());
+          print(res.lengthSync());
+        }
       }
     } on TargetPlatform catch (e) {
       print('Error while picking the file: ' + e.toString());
@@ -160,15 +165,13 @@ class _CreateApartmentState extends State<CreateApartment> {
   }
 
   onProgress(double progress) {
-    progressDialog.update(
-      progress: progress,
-    );
+    progressDialog.style(progress: progress);
   }
 
   @override
   Widget build(BuildContext context) {
     progressDialog = ProgressDialog(context,
-        type: ProgressDialogType.Download, isDismissible: false);
+        type: ProgressDialogType.Download, isDismissible: true);
     progressDialog.style(
       message: 'Uploading data',
       borderRadius: 10.0,
@@ -317,7 +320,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                   hint: 'Rent',
                   currentfocus: _rentFocus,
                   nextfocus: _depositFocus,
-                  inputType: TextInputType.emailAddress,
+                  inputType: TextInputType.number,
                   controller: _rentController,
                 ),
                 TextFieldArea(
@@ -470,10 +473,29 @@ class _CreateApartmentState extends State<CreateApartment> {
                         },
                       ),
                     )
-                  : SizedBox(),
+                  : Center(
+                      child: RaisedButton(
+                        splashColor: Colors.amber,
+                        color: const Color.fromRGBO(247, 64, 106, 1.0),
+                        highlightElevation: 10,
+                        elevation: 15,
+                        animationDuration: Duration(seconds: 2),
+                        focusElevation: 10,
+                        colorBrightness: Brightness.dark,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
+                          child: Text('Next'),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            step = 5;
+                          });
+                        },
+                      ),
+                    ),
             ),
             Container(
-                child: image_uri.isNotEmpty
+                child: toUpload.isNotEmpty
                     ? GridView.count(
                         shrinkWrap: true,
                         primary: true,
@@ -489,7 +511,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                                 fit: StackFit.expand,
                                 children: <Widget>[
                                   Image.file(
-                                    image_uri.elementAt(index),
+                                    toUpload.elementAt(index),
                                     fit: BoxFit.fill,
                                   ),
                                   Positioned(
@@ -569,6 +591,15 @@ class _CreateApartmentState extends State<CreateApartment> {
               child: Text('Please pick a banner'),
             ),
             Center(
+                child: Text(
+                    'Min height:' +
+                        Constants.bannerHeight.toString() +
+                        '\nMin width:' +
+                        Constants.bannerWidth.toString(),
+                    style: TextStyle(
+                      color: Colors.red,
+                    ))),
+            Center(
                 child: Container(
               margin: EdgeInsets.all(12),
               height: MediaQuery.of(context).size.height / 10,
@@ -607,6 +638,31 @@ class _CreateApartmentState extends State<CreateApartment> {
                                 labelText: 'tag',
                                 helperText: 'keep it short'),
                             maxLines: 3,
+                          ),
+                        ),
+                        Center(
+                          child: RaisedButton(
+                            splashColor: Colors.amber,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(80.0),
+                              side: BorderSide(color: Colors.amberAccent),
+                            ),
+                            color: const Color.fromRGBO(247, 64, 106, 1.0),
+                            highlightElevation: 10,
+                            elevation: 15,
+                            animationDuration: Duration(seconds: 2),
+                            focusElevation: 10,
+                            colorBrightness: Brightness.dark,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(90, 15, 90, 15),
+                              child: Text('Next'),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                step = 4;
+                              });
+                            },
                           ),
                         )
                       ],
@@ -655,46 +711,66 @@ class _CreateApartmentState extends State<CreateApartment> {
                     }),
               ),
             ),
-            Align(
-              alignment: FractionalOffset.bottomCenter,
-              child: Container(
-                margin: EdgeInsets.all(20),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 5 / 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextField(
-                  controller: _featController,
-                  onSubmitted: (value) {
-                    setState(() {
-                      if (features.length < 11) {
-                        features.add(_featController.text);
-                        _featController.clear();
-                      }
-                    });
-                  },
-                  keyboardType: TextInputType.text,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    icon: Icon(
-                      Icons.business_center,
-                      color: Colors.orangeAccent,
-                      size: 30,
+            features.length < 11
+                ? Align(
+                    alignment: FractionalOffset.bottomCenter,
+                    child: Container(
+                        margin: EdgeInsets.all(20),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 5 / 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: TextField(
+                          controller: _featController,
+                          onSubmitted: (value) {
+                            setState(() {
+                              if (features.length < 11) {
+                                features.add(_featController.text);
+                                _featController.clear();
+                              }
+                            });
+                          },
+                          keyboardType: TextInputType.text,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            icon: Icon(
+                              Icons.business_center,
+                              color: Colors.orangeAccent,
+                              size: 30,
+                            ),
+                            hintText: 'Add Feature',
+                            hintStyle: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        )),
+                  )
+                : Center(
+                    child: RaisedButton(
+                      splashColor: Colors.amber,
+                      color: const Color.fromRGBO(247, 64, 106, 1.0),
+                      highlightElevation: 10,
+                      elevation: 15,
+                      animationDuration: Duration(seconds: 2),
+                      focusElevation: 10,
+                      colorBrightness: Brightness.dark,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(90, 15, 90, 15),
+                        child: Text('Next'),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          step = 6;
+                        });
+                      },
                     ),
-                    hintText: 'Add Feature',
-                    hintStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+                  )
           ],
         ),
       ),
@@ -768,7 +844,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                 highlightColor: Colors.green,
                 onPressed: () {
                   submit();
-                  /*  if (validatestep1 && validatestep2) {
+                  if (validatestep1 && validatestep2) {
                     if (toUpload.length != 16) {
                       _scaffoldKey.currentState
                           .showSnackBar(snack('Please add more Images'));
@@ -803,7 +879,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                   } else {
                     _scaffoldKey.currentState
                         .showSnackBar(snack('Please fill all details'));
-                  } */
+                  }
                 },
                 child: Text(
                   'Finish',
@@ -848,6 +924,7 @@ class _CreateApartmentState extends State<CreateApartment> {
             onPlacePicked: (result) {
               print(result.geometry.location.lat);
               setState(() {
+                step = 3;
                 latitude = result.geometry.location.lat;
                 longitude = result.geometry.location.lng;
               });
@@ -904,7 +981,7 @@ class _CreateApartmentState extends State<CreateApartment> {
       details[UploadData.units] = _spaceController.text;
       details[UploadData.bannertag] = _bannertagController.text;
     });
-    await progressDialog.show();
+    progressDialog.show();
     var result = await NetworkApi()
         .upload(toUpload, banner, tags, features, details, onProgress);
     print(result);
@@ -915,7 +992,11 @@ class _CreateApartmentState extends State<CreateApartment> {
         status = Status.fromJson(Map);
       });
       if (status.code == "1") {
-        infoDialog(context, status.message, showNeutralButton: true);
+        myApartmentsBloc.fetchMyApartments(sharedPreferences.getCompanyId());
+        successDialog(context, status.message, showNeutralButton: true,
+            neutralAction: () {
+          Navigator.pop(context);
+        });
       } else {
         errorDialog(context, status.message, showNeutralButton: true);
       }

@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:admin_keja/connection/networkapi.dart';
 import 'package:admin_keja/constants/constant.dart';
-import 'package:admin_keja/database/dboperations.dart';
+import 'package:admin_keja/database/dao.dart';
+import 'package:admin_keja/database/databasehelper.dart';
 import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:commons/commons.dart';
@@ -11,17 +12,22 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:moor/moor.dart' as moor;
 
 class EditPhotoViewer extends StatefulWidget {
   File pic;
   String tag;
   var picId;
   var apartmentId;
+  MyApartmentTableData apartment;
+  MyImagesTableData myImagesTableData;
   EditPhotoViewer(
       {Key key,
       @required this.pic,
       @required this.tag,
       @required this.picId,
+      this.apartment,
+      this.myImagesTableData,
       @required this.apartmentId})
       : super(key: key);
 
@@ -30,19 +36,23 @@ class EditPhotoViewer extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<EditPhotoViewer> {
-  final dbHelper = DbOperations.instance;
   File pic;
   String tag;
   final _tagController = TextEditingController();
   String picId = '0';
   var apartmentId;
   double progress = 0.0;
+  var dao = DatabaseDao(databasehelper);
   ProgressDialog progressDialog;
+  MyApartmentTableData apartment;
+  MyImagesTableData myImagesTableData;
 
   @override
   void initState() {
     pic = widget.pic;
     tag = widget.tag;
+    apartment = widget.apartment ?? null;
+    myImagesTableData = widget.myImagesTableData ?? null;
     _tagController.text = widget.tag;
     picId = widget.picId;
     apartmentId = widget.apartmentId;
@@ -125,29 +135,63 @@ class _MyHomePageState extends State<EditPhotoViewer> {
     );
   }
 
-  Future<void> upload(var file) async {
+  Future<void> upload(File file) async {
     await progressDialog.show();
     var result;
-    if(picId=='-1'){
+    if (picId == '-1') {
       result = await NetworkApi()
-        .updateBannerImage(file, tag, apartmentId, onProgress);
-    }else{
-   result = await NetworkApi()
-        .updateImage(file, tag, apartmentId, picId, onProgress);
-    }
-    print(result);
-    if (result != Constants.fail) {
+          .updateBannerImage(file, tag, apartmentId, onProgress);
+      print(result);
       var Map = json.decode(result);
       Status status = Status.fromJson(Map);
       progressDialog.hide();
       if (status.code == Constants.success) {
-        infoDialog(context, status.message, showNeutralButton: true);
+        successDialog(context, status.message, showNeutralButton: true);
       } else {
         errorDialog(context, status.message, showNeutralButton: true);
       }
+      var companion = MyApartmentTableCompanion(
+        onlineid: moor.Value(apartment.onlineid),
+        banner: moor.Value(path.basename(file.path)),
+        bannertag: moor.Value(_tagController.text),
+        description: moor.Value(apartment.description),
+        title: moor.Value(apartment.title),
+        category: moor.Value(apartment.category),
+        emailaddress: moor.Value(apartment.emailaddress),
+        location: moor.Value(apartment.location),
+        address: moor.Value(apartment.address),
+        phone: moor.Value(apartment.phone),
+        video: moor.Value(apartment.video),
+        price: moor.Value(apartment.price),
+        deposit: moor.Value(apartment.deposit),
+        space: moor.Value(apartment.space),
+        latitude: moor.Value(apartment.latitude),
+        longitude: moor.Value(apartment.longitude),
+        rating: moor.Value(apartment.rating),
+        likes: moor.Value(apartment.likes),
+        comments: moor.Value(apartment.comments),
+      );
+      dao.upsertApartment(companion);
     } else {
-      errorDialog(context, "Failed...Please try again later",
-          showNeutralButton: true);
+      result = await NetworkApi()
+          .updateImage(file, tag, apartmentId, picId, onProgress);
+      print(result);
+      var Map = json.decode(result);
+      Status status = Status.fromJson(Map);
+      progressDialog.hide();
+      if (status.code == Constants.success) {
+        var companion = MyImagesTableCompanion(
+                    onlineid: moor.Value(myImagesTableData.onlineid),
+                    apartment_id: moor.Value(myImagesTableData.apartment_id),
+                    tag: moor.Value(_tagController.text),
+                    tag_id: moor.Value(myImagesTableData.tag_id),
+                    image: moor.Value(path.basename(file.path)),
+                  );
+                  dao.upsertImage(companion);
+        successDialog(context, status.message, showNeutralButton: true);
+      } else {
+        errorDialog(context, status.message, showNeutralButton: true);
+      }
     }
   }
 
@@ -190,9 +234,5 @@ class _MyHomePageState extends State<EditPhotoViewer> {
     ).then((value) => {upload(value), print(value.lengthSync())});
     print('worked');
     print(file.lengthSync());
-  }
-
-  void updateLocal() {
-    //dbHelper.updateTag(apartmentId, _tagController.text);
   }
 }

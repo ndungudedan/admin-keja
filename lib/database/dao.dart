@@ -73,4 +73,7 @@ class DatabaseDao extends DatabaseAccessor<DatabaseHelper>
       print('errotr');
     });
   }
+  void upsertImage(MyImagesTableCompanion value){
+     into(myImagesTable).insertOnConflictUpdate(value);
+  }
 }

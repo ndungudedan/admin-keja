@@ -34,6 +34,9 @@ class Constants {
   static final jan = '1';
   static final dec = '12';
 
+  static final bannerHeight = 1079;
+  static final bannerWidth = 1080;
+
   static final imagestable = 'images_table';
   static final tagstable = 'tags_table';
   static final featurestable = 'features_table';

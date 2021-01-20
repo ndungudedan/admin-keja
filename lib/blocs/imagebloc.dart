@@ -17,6 +17,7 @@ class ImagesBloc {
   fetchImages(var apartmentId) async {
     var res = await repo.getImages(apartmentId);
     var map = json.decode(res);
+    print(res);
     _fetcher.sink.add(ImagesResponse.fromJson(map).data.data);
     upsertImages(ImagesResponse.fromJson(map).data.data);
   }

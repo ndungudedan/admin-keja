@@ -22,7 +22,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:moor/moor.dart' as moor;
 
-
 class ApartmentDetails extends StatefulWidget {
   ApartmentDetails({Key key, @required this.apartmentId}) : super(key: key);
   var apartmentId;
@@ -42,6 +41,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
   int step;
   String apartmentId;
   MyApartmentTableData apartment;
+  MyImagesTableData imagesTableData;
   final _tagController = TextEditingController();
   Constants constants = Constants();
   final Map<String, Marker> _markers = {};
@@ -251,6 +251,11 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                                                   .elementAt(
                                                                       index)
                                                                   .tag;
+                                                          imagesTableData =
+                                                              snapshot
+                                                                  .data
+                                                                  .elementAt(
+                                                                      index);
                                                         });
                                                         _showDialog(snapshot
                                                             .data
@@ -278,6 +283,13 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                                     icon: Icon(Icons.edit),
                                                     color: Colors.blue,
                                                     onPressed: () {
+                                                      setState(() {
+                                                        imagesTableData =
+                                                              snapshot
+                                                                  .data
+                                                                  .elementAt(
+                                                                      index);
+                                                      });
                                                       updateImage(
                                                           snapshot.data
                                                               .elementAt(index)
@@ -575,7 +587,16 @@ class _MyHomePageState extends State<ApartmentDetails> {
                 Status status = Status.fromJson(Map);
                 Navigator.pop(context);
                 if (status.code == Constants.success) {
-                  infoDialog(context, status.message, showNeutralButton: true);
+                  var companion = MyImagesTableCompanion(
+                    onlineid: moor.Value(imagesTableData.onlineid),
+                    apartment_id: moor.Value(imagesTableData.apartment_id),
+                    tag: moor.Value(_tagController.text),
+                    tag_id: moor.Value(imagesTableData.tag_id),
+                    image: moor.Value(imagesTableData.image),
+                  );
+                  dao.upsertImage(companion);
+                  successDialog(context, status.message,
+                      showNeutralButton: true);
                 } else {
                   errorDialog(context, status.message, showNeutralButton: true);
                 }
@@ -620,28 +641,29 @@ class _MyHomePageState extends State<ApartmentDetails> {
                 Navigator.pop(context);
                 if (status.code == Constants.success) {
                   var companion = MyApartmentTableCompanion(
-          onlineid: moor.Value(apartment.onlineid),
-          banner: moor.Value(apartment.banner),
-          bannertag: moor.Value(_tagController.text),
-          description: moor.Value(apartment.description),
-          title: moor.Value(apartment.title),
-          category: moor.Value(apartment.category),
-          emailaddress: moor.Value(apartment.emailaddress),
-          location: moor.Value(apartment.location),
-          address: moor.Value(apartment.address),
-          phone: moor.Value(apartment.phone),
-          video: moor.Value(apartment.video),
-          price: moor.Value(apartment.price),
-          deposit: moor.Value(apartment.deposit),
-          space: moor.Value(apartment.space),
-          latitude: moor.Value(apartment.latitude),
-          longitude: moor.Value(apartment.longitude),
-          rating: moor.Value(apartment.rating),
-          likes: moor.Value(apartment.likes),
-          comments: moor.Value(apartment.comments),
-        );
-        dao.upsertApartment(companion);
-                  successDialog(context, status.message, showNeutralButton: true);
+                    onlineid: moor.Value(apartment.onlineid),
+                    banner: moor.Value(apartment.banner),
+                    bannertag: moor.Value(_tagController.text),
+                    description: moor.Value(apartment.description),
+                    title: moor.Value(apartment.title),
+                    category: moor.Value(apartment.category),
+                    emailaddress: moor.Value(apartment.emailaddress),
+                    location: moor.Value(apartment.location),
+                    address: moor.Value(apartment.address),
+                    phone: moor.Value(apartment.phone),
+                    video: moor.Value(apartment.video),
+                    price: moor.Value(apartment.price),
+                    deposit: moor.Value(apartment.deposit),
+                    space: moor.Value(apartment.space),
+                    latitude: moor.Value(apartment.latitude),
+                    longitude: moor.Value(apartment.longitude),
+                    rating: moor.Value(apartment.rating),
+                    likes: moor.Value(apartment.likes),
+                    comments: moor.Value(apartment.comments),
+                  );
+                  dao.upsertApartment(companion);
+                  successDialog(context, status.message,
+                      showNeutralButton: true);
                 } else {
                   errorDialog(context, status.message, showNeutralButton: true);
                 }
@@ -659,6 +681,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => EditPhotoViewer(
                   pic: File(tempImage.files.single.path),
+                  myImagesTableData: imagesTableData,
                   tag: tag,
                   picId: picId,
                   apartmentId: apartmentId,
@@ -674,13 +697,29 @@ class _MyHomePageState extends State<ApartmentDetails> {
       var tempImage = await FilePicker.platform.pickFiles(
           type: FileType.custom, allowedExtensions: ['jpg', 'png', 'jpeg']);
       if (tempImage != null) {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => EditPhotoViewer(
-                  pic: File(tempImage.files.single.path),
-                  tag: apartment.bannertag,
-                  picId: '-1',
-                  apartmentId: apartmentId,
-                )));
+        File temp = File(tempImage.files.single.path);
+        var decodedImage = await decodeImageFromList(temp.readAsBytesSync());
+        print(decodedImage.width);
+        print(decodedImage.height);
+        if (decodedImage.width >= Constants.bannerWidth &&
+            decodedImage.height >= Constants.bannerHeight) {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => EditPhotoViewer(
+                    pic: File(tempImage.files.single.path),
+                    tag: apartment.bannertag,
+                    picId: '-1',
+                    apartmentId: apartmentId,
+                    apartment: apartment,
+                  )));
+        } else {
+          errorDialog(
+              context,
+              "Min width: " +
+                  Constants.bannerWidth.toString() +
+                  "\nMin height: " +
+                  Constants.bannerHeight.toString(),
+              showNeutralButton: true);
+        }
       }
     } on TargetPlatform catch (e) {
       print('Error while picking the file: ' + e.toString());

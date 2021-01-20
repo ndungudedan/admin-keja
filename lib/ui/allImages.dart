@@ -15,6 +15,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:commons/commons.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:moor/moor.dart' as moor;
 
 class AllImages extends StatefulWidget {
   AllImages({Key key, this.apartmentId}) : super(key: key);
@@ -29,6 +30,7 @@ class _MyHomePageState extends State<AllImages> {
   var dao = DatabaseDao(databasehelper);
   ImagesBloc imageBloc;
   var apartmentId;
+  MyImagesTableData imagesTableData;
   Constants constants = Constants();
   final _tagController = TextEditingController();
 
@@ -117,6 +119,11 @@ class _MyHomePageState extends State<AllImages> {
                                             setState(() {
                                               _tagController.text =
                                                   snapshot.data.elementAt(index).tag;
+                                                  imagesTableData =
+                                                              snapshot
+                                                                  .data
+                                                                  .elementAt(
+                                                                      index);
                                             });
                                             _showDialog(snapshot.data.elementAt(index).onlineid);
                                           },
@@ -138,6 +145,13 @@ class _MyHomePageState extends State<AllImages> {
                                         icon: Icon(Icons.edit),
                                         color: Colors.blue,
                                         onPressed: () {
+                                          setState(() {
+                                                        imagesTableData =
+                                                              snapshot
+                                                                  .data
+                                                                  .elementAt(
+                                                                      index);
+                                                      });
                                           updateImage(
                                               snapshot.data.elementAt(index).image,
                                               snapshot.data.elementAt(index).onlineid,
@@ -210,7 +224,16 @@ class _MyHomePageState extends State<AllImages> {
                 Status status = Status.fromJson(Map);
                 Navigator.pop(context);
                 if (status.code == Constants.success) {
-                  infoDialog(context, status.message, showNeutralButton: true);
+                  var companion = MyImagesTableCompanion(
+                    onlineid: moor.Value(imagesTableData.onlineid),
+                    apartment_id: moor.Value(imagesTableData.apartment_id),
+                    tag: moor.Value(_tagController.text),
+                    tag_id: moor.Value(imagesTableData.tag_id),
+                    image: moor.Value(imagesTableData.image),
+                  );
+                  dao.upsertImage(companion);
+                  successDialog(context, status.message,
+                      showNeutralButton: true);
                 } else {
                   errorDialog(context, status.message, showNeutralButton: true);
                 }
@@ -219,7 +242,6 @@ class _MyHomePageState extends State<AllImages> {
       ),
     );
   }
-
   void updateImage(var image, var picId, var tag) async {
     try {
       var tempImage = await FilePicker.platform.pickFiles(
@@ -228,6 +250,7 @@ class _MyHomePageState extends State<AllImages> {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => EditPhotoViewer(
                   pic: File(tempImage.files.single.path),
+                  myImagesTableData: imagesTableData,
                   tag: tag,
                   picId: picId,
                   apartmentId: apartmentId,
