@@ -141,7 +141,6 @@ class _CreateApartmentState extends State<CreateApartment> {
           allowMultiple: false);
       if (result != null) {
         File temp = File(result.files.single.path);
-
         final directory = await getApplicationDocumentsDirectory();
         var res = await FlutterImageCompress.compressAndGetFile(
           temp.absolute.path,

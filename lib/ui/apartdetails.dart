@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:admin_keja/blocs/featurebloc.dart';
@@ -19,10 +20,12 @@ import 'package:commons/commons.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:moor/moor.dart' as moor;
+
 
 class ApartmentDetails extends StatefulWidget {
-  ApartmentDetails({Key key, @required this.apartment}) : super(key: key);
-  MyApartmentTableData apartment;
+  ApartmentDetails({Key key, @required this.apartmentId}) : super(key: key);
+  var apartmentId;
 
   final String title = 'apartmentDetails';
 
@@ -45,14 +48,12 @@ class _MyHomePageState extends State<ApartmentDetails> {
 
   @override
   void initState() {
-    apartment = widget.apartment;
-    apartmentId = widget.apartment.onlineid;
+    apartmentId = widget.apartmentId;
     featureBloc = FeatureBloc();
     imageBloc = ImagesBloc();
     featureBloc.fetchFeatures(apartmentId);
     imageBloc.fetchImages(apartmentId);
     super.initState();
-    
   }
 
   @override
@@ -64,356 +65,395 @@ class _MyHomePageState extends State<ApartmentDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: scaffoldKey,
-      appBar: AppBar(
-        backgroundColor: LightColors.kDarkYellow,
-        automaticallyImplyLeading: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(apartment.title + ' Apartments'),
-      ),
-      body: ListView(
-        //shrinkWrap: true,
-        padding: const EdgeInsets.all(8),
-        children: <Widget>[
-          ConnectionCallback(
-            onlineCall: () {},
-          ),
-          Center(
-            child: apartmentDetails(apartment),
-          ),
-          Center(
-            child: Container(
-              height: 200,
-              child: Stack(
-                fit: StackFit.expand,
-                children: <Widget>[
-                  CachedNetworkImage(
-                    imageUrl: constants.path +
-                        sharedPreferences.getCompanyId() +
-                        constants.folder +
-                        apartment.banner,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                        alignment: Alignment(0.0, 2.0),
-                        child: Center(child: CircularProgressIndicator())),
-                    errorWidget: (context, url, error) => Container(
-                        alignment: Alignment(0.0, 2.0),
-                        child: Center(child: Icon(Icons.error))),
-                  ),
-                  Positioned(
-                    bottom: 1.0,
-                    left: 0.0,
-                    right: 0.0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Color.fromARGB(200, 0, 0, 0),
-                            Color.fromARGB(0, 0, 0, 0)
-                          ],
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                        ),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 20.0),
-                      child: apartment.bannertag != null &&
-                              apartment.bannertag.isNotEmpty
-                          ? GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _tagController.text = apartment.bannertag;
-                                });
-                                _showBannerDialog(apartment.bannertag);
-                              },
-                              child: Text(
-                                apartment.bannertag,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            )
-                          : Text(''),
-                    ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: LightColors.kLavender,
-                      child: IconButton(
-                        icon: Icon(Icons.edit),
-                        color: Colors.blue,
-                        onPressed: () {
-                          updateBannerImage();
-                        },
-                      ),
-                    ),
-                  ),
-                ],
+    return StreamBuilder<Object>(
+        stream: dao.watchSingleApartment(apartmentId),
+        builder: (context, snapshot) {
+          apartment = snapshot.data;
+          return Scaffold(
+            key: scaffoldKey,
+            appBar: AppBar(
+              backgroundColor: LightColors.kDarkYellow,
+              automaticallyImplyLeading: true,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () => Navigator.of(context).pop(),
               ),
+              title: Text(apartment.title + ' Apartments'),
             ),
-          ),
-          Container(
-            height: 380,
-            child: StreamBuilder(
-              stream: dao.watchImagesLimit(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data.isNotEmpty) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text('*Click on the tag to edit'),
-                      Expanded(
-                        child: GridView.count(
-                          physics: NeverScrollableScrollPhysics(),
-                            padding: const EdgeInsets.all(8),
-                            crossAxisCount: 3,
-                            childAspectRatio: 0.7,
-                            children:
-                                List.generate(snapshot.data.length, (index) {
-                              return Container(
-                                margin: EdgeInsets.all(5.0),
-                                child: ClipRRect(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5.0)),
-                                  child: GestureDetector(
-                                    onTap: () {},
-                                    child: Stack(
-                                      fit: StackFit.expand,
-                                      children: <Widget>[
-                                        CachedNetworkImage(
-                                          imageUrl: constants.path +
-                                              sharedPreferences.getCompanyId() +
-                                              constants.folder +
-                                              snapshot.data.elementAt(index).image,
-                                          fit: BoxFit.fill,
-                                          placeholder: (context, url) => Container(
-                                              alignment: Alignment(0.0, 2.0),
-                                              child: Center(
-                                                  child:
-                                                      CircularProgressIndicator())),
-                                          errorWidget: (context, url, error) =>
-                                              Container(
-                                                  alignment:
-                                                      Alignment(0.0, 2.0),
-                                                  child: Center(
-                                                      child:
-                                                          Icon(Icons.error))),
-                                        ),
-                                        Positioned(
-                                          bottom: 1.0,
-                                          left: 0.0,
-                                          right: 0.0,
-                                          child: Container(
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [
-                                                    Color.fromARGB(
-                                                        200, 0, 0, 0),
-                                                    Color.fromARGB(0, 0, 0, 0)
-                                                  ],
-                                                  begin: Alignment.bottomCenter,
-                                                  end: Alignment.topCenter,
-                                                ),
-                                              ),
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 10.0,
-                                                  horizontal: 20.0),
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    _tagController.text =
-                                                        snapshot.data.elementAt(index).tag;
-                                                  });
-                                                  _showDialog(snapshot.data.elementAt(index).onlineid);
-                                                },
-                                                child: Text(
-                                                  snapshot.data.elementAt(index).tag,
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              )),
-                                        ),
-                                        Positioned(
-                                          bottom: 120,
-                                          left: 70,
-                                          child: CircleAvatar(
-                                            radius: 20,
-                                            backgroundColor:
-                                                LightColors.kLavender,
-                                            child: IconButton(
-                                              icon: Icon(Icons.edit),
-                                              color: Colors.blue,
-                                              onPressed: () {
-                                                updateImage(snapshot.data.elementAt(index).image, snapshot.data.elementAt(index).onlineid, snapshot.data.elementAt(index).tag);
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                            })),
-                      ),
-                      GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => AllImages(
-                                          apartmentId: apartmentId,
-                                        )));
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'view all',
-                              style: TextStyle(
-                                color: Colors.blue,
+            body: ListView(
+              //shrinkWrap: true,
+              padding: const EdgeInsets.all(8),
+              children: <Widget>[
+                ConnectionCallback(
+                  onlineCall: () {},
+                ),
+                Center(
+                  child: apartmentDetails(apartment),
+                ),
+                Center(
+                  child: Container(
+                    height: 200,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: <Widget>[
+                        CachedNetworkImage(
+                          imageUrl: constants.path +
+                              sharedPreferences.getCompanyId() +
+                              constants.folder +
+                              apartment.banner,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                              alignment: Alignment(0.0, 2.0),
+                              child:
+                                  Center(child: CircularProgressIndicator())),
+                          errorWidget: (context, url, error) => Container(
+                              alignment: Alignment(0.0, 2.0),
+                              child: Center(child: Icon(Icons.error))),
+                        ),
+                        Positioned(
+                          bottom: 1.0,
+                          left: 0.0,
+                          right: 0.0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color.fromARGB(200, 0, 0, 0),
+                                  Color.fromARGB(0, 0, 0, 0)
+                                ],
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
                               ),
                             ),
-                          ))
-                    ],
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('No data'),
-                  );
-                } else if (snapshot.data != null && snapshot.data.isEmpty) {
-                  return Center(
-                    child: Text(''),
-                  );
-                }
-                return Center(
-                    child: Center(
-                  child: Container(
-                      height: 150.0,
-                      width: 150.0,
-                      child: Center(child: Text('loading'))),
-                ));
-              },
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(5),
-            //height: 200,
-            child: StreamBuilder(
-              stream: dao.watchFeatures(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data.isNotEmpty) {
-                  return Column(
-                    children: [
-                      Center(
-                          child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(child: Text('Features')),
-                          CircleAvatar(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 10.0, horizontal: 20.0),
+                            child: apartment.bannertag != null &&
+                                    apartment.bannertag.isNotEmpty
+                                ? GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _tagController.text =
+                                            apartment.bannertag;
+                                      });
+                                      _showBannerDialog(apartment.bannertag);
+                                    },
+                                    child: Text(
+                                      apartment.bannertag,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : Text(''),
+                          ),
+                        ),
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: CircleAvatar(
                             radius: 20,
                             backgroundColor: LightColors.kLavender,
                             child: IconButton(
                               icon: Icon(Icons.edit),
                               color: Colors.blue,
                               onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => EditApartment(
-                                          apartment: apartment,
-                                          features: snapshot.data,
-                                          step: 3,
-                                        )));
+                                updateBannerImage();
                               },
                             ),
                           ),
-                        ],
-                      )),
-                      GridView.count(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        childAspectRatio: 6.0,
-                        scrollDirection: Axis.vertical,
-                        children: List.generate(snapshot.data.length, (index) {
-                          return featuresCard(
-                              snapshot.data.elementAt(index).feat);
-                        }),
-                      ),
-                    ],
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('No data'),
-                  );
-                } else if (snapshot.data != null && snapshot.data.isEmpty) {
-                  return Center(
-                    child: Text(''),
-                  );
-                }
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(5),
-            child: Container(
-              child: Column(
-                children: <Widget>[
-                  Center(
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(child: Text('More Details')),
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: LightColors.kLavender,
-                        child: IconButton(
-                          icon: Icon(Icons.edit),
-                          color: Colors.blue,
-                          onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => EditApartment(
-                                      apartment: apartment,
-                                      step: 1,
-                                    )));
-                          },
                         ),
-                      ),
-                    ],
-                  )),
-                  ListTile(
-                    title: Text('Phone'),
-                    leading: Icon(Icons.call),
-                    subtitle: Text(apartment.phone),
+                      ],
+                    ),
                   ),
-                  ListTile(
-                    title: Text('Email'),
-                    leading: Icon(Icons.email),
-                    subtitle: Text(apartment.emailaddress),
+                ),
+                Container(
+                  height: 380,
+                  child: StreamBuilder(
+                    stream: dao.watchImagesLimit(apartment.onlineid),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data.isNotEmpty) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text('*Click on the tag to edit'),
+                            Expanded(
+                              child: GridView.count(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  padding: const EdgeInsets.all(8),
+                                  crossAxisCount: 3,
+                                  childAspectRatio: 0.7,
+                                  children: List.generate(snapshot.data.length,
+                                      (index) {
+                                    return Container(
+                                      margin: EdgeInsets.all(5.0),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(5.0)),
+                                        child: GestureDetector(
+                                          onTap: () {},
+                                          child: Stack(
+                                            fit: StackFit.expand,
+                                            children: <Widget>[
+                                              CachedNetworkImage(
+                                                imageUrl: constants.path +
+                                                    sharedPreferences
+                                                        .getCompanyId() +
+                                                    constants.folder +
+                                                    snapshot.data
+                                                        .elementAt(index)
+                                                        .image,
+                                                fit: BoxFit.fill,
+                                                placeholder: (context, url) =>
+                                                    Container(
+                                                        alignment:
+                                                            Alignment(0.0, 2.0),
+                                                        child: Center(
+                                                            child:
+                                                                CircularProgressIndicator())),
+                                                errorWidget: (context, url,
+                                                        error) =>
+                                                    Container(
+                                                        alignment:
+                                                            Alignment(0.0, 2.0),
+                                                        child: Center(
+                                                            child: Icon(
+                                                                Icons.error))),
+                                              ),
+                                              Positioned(
+                                                bottom: 1.0,
+                                                left: 0.0,
+                                                right: 0.0,
+                                                child: Container(
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        colors: [
+                                                          Color.fromARGB(
+                                                              200, 0, 0, 0),
+                                                          Color.fromARGB(
+                                                              0, 0, 0, 0)
+                                                        ],
+                                                        begin: Alignment
+                                                            .bottomCenter,
+                                                        end:
+                                                            Alignment.topCenter,
+                                                      ),
+                                                    ),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10.0,
+                                                            horizontal: 20.0),
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          _tagController.text =
+                                                              snapshot.data
+                                                                  .elementAt(
+                                                                      index)
+                                                                  .tag;
+                                                        });
+                                                        _showDialog(snapshot
+                                                            .data
+                                                            .elementAt(index)
+                                                            .onlineid);
+                                                      },
+                                                      child: Text(
+                                                        snapshot.data
+                                                            .elementAt(index)
+                                                            .tag,
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    )),
+                                              ),
+                                              Positioned(
+                                                bottom: 120,
+                                                left: 70,
+                                                child: CircleAvatar(
+                                                  radius: 20,
+                                                  backgroundColor:
+                                                      LightColors.kLavender,
+                                                  child: IconButton(
+                                                    icon: Icon(Icons.edit),
+                                                    color: Colors.blue,
+                                                    onPressed: () {
+                                                      updateImage(
+                                                          snapshot.data
+                                                              .elementAt(index)
+                                                              .image,
+                                                          snapshot.data
+                                                              .elementAt(index)
+                                                              .onlineid,
+                                                          snapshot.data
+                                                              .elementAt(index)
+                                                              .tag);
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  })),
+                            ),
+                            GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => AllImages(
+                                                apartmentId: apartmentId,
+                                              )));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    'view all',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ))
+                          ],
+                        );
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text('No data'),
+                        );
+                      } else if (snapshot.data != null &&
+                          snapshot.data.isEmpty) {
+                        return Center(
+                          child: Text(''),
+                        );
+                      }
+                      return Center(
+                          child: Center(
+                        child: Container(
+                            height: 150.0,
+                            width: 150.0,
+                            child: Center(child: Text('loading'))),
+                      ));
+                    },
                   ),
-                  ListTile(
-                    title: Text('Address'),
-                    leading: Icon(Icons.account_box),
-                    subtitle:
-                        Text(apartment.address + '\n' + apartment.location),
+                ),
+                Container(
+                  padding: EdgeInsets.all(5),
+                  //height: 200,
+                  child: StreamBuilder(
+                    stream: dao.watchFeatures(apartment.onlineid),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data.isNotEmpty) {
+                        return Column(
+                          children: [
+                            Center(
+                                child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(child: Text('Features')),
+                                CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: LightColors.kLavender,
+                                  child: IconButton(
+                                    icon: Icon(Icons.edit),
+                                    color: Colors.blue,
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditApartment(
+                                                    apartment: apartment,
+                                                    features: snapshot.data,
+                                                    step: 3,
+                                                  )));
+                                    },
+                                  ),
+                                ),
+                              ],
+                            )),
+                            GridView.count(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              crossAxisCount: 2,
+                              childAspectRatio: 6.0,
+                              scrollDirection: Axis.vertical,
+                              children:
+                                  List.generate(snapshot.data.length, (index) {
+                                return featuresCard(
+                                    snapshot.data.elementAt(index).feat);
+                              }),
+                            ),
+                          ],
+                        );
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text('No data'),
+                        );
+                      } else if (snapshot.data != null &&
+                          snapshot.data.isEmpty) {
+                        return Center(
+                          child: Text(''),
+                        );
+                      }
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    },
                   ),
-                ],
-              ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(5),
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Center(
+                            child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(child: Text('More Details')),
+                            CircleAvatar(
+                              radius: 20,
+                              backgroundColor: LightColors.kLavender,
+                              child: IconButton(
+                                icon: Icon(Icons.edit),
+                                color: Colors.blue,
+                                onPressed: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => EditApartment(
+                                            apartment: apartment,
+                                            step: 1,
+                                          )));
+                                },
+                              ),
+                            ),
+                          ],
+                        )),
+                        ListTile(
+                          title: Text('Phone'),
+                          leading: Icon(Icons.call),
+                          subtitle: Text(apartment.phone),
+                        ),
+                        ListTile(
+                          title: Text('Email'),
+                          leading: Icon(Icons.email),
+                          subtitle: Text(apartment.emailaddress),
+                        ),
+                        ListTile(
+                          title: Text('Address'),
+                          leading: Icon(Icons.account_box),
+                          subtitle: Text(
+                              apartment.address + '\n' + apartment.location),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-    );
+          );
+        });
   }
 
   SnackBar snack(String message) {
@@ -528,8 +568,8 @@ class _MyHomePageState extends State<ApartmentDetails> {
           FlatButton(
               child: const Text('DONE'),
               onPressed: () async {
-                var result = await NetworkApi().updateTag(_tagController.text,
-                    apartmentId, picId);
+                var result = await NetworkApi()
+                    .updateTag(_tagController.text, apartmentId, picId);
                 print(result);
                 var Map = json.decode(result);
                 Status status = Status.fromJson(Map);
@@ -579,7 +619,29 @@ class _MyHomePageState extends State<ApartmentDetails> {
                 Status status = Status.fromJson(Map);
                 Navigator.pop(context);
                 if (status.code == Constants.success) {
-                  infoDialog(context, status.message, showNeutralButton: true);
+                  var companion = MyApartmentTableCompanion(
+          onlineid: moor.Value(apartment.onlineid),
+          banner: moor.Value(apartment.banner),
+          bannertag: moor.Value(_tagController.text),
+          description: moor.Value(apartment.description),
+          title: moor.Value(apartment.title),
+          category: moor.Value(apartment.category),
+          emailaddress: moor.Value(apartment.emailaddress),
+          location: moor.Value(apartment.location),
+          address: moor.Value(apartment.address),
+          phone: moor.Value(apartment.phone),
+          video: moor.Value(apartment.video),
+          price: moor.Value(apartment.price),
+          deposit: moor.Value(apartment.deposit),
+          space: moor.Value(apartment.space),
+          latitude: moor.Value(apartment.latitude),
+          longitude: moor.Value(apartment.longitude),
+          rating: moor.Value(apartment.rating),
+          likes: moor.Value(apartment.likes),
+          comments: moor.Value(apartment.comments),
+        );
+        dao.upsertApartment(companion);
+                  successDialog(context, status.message, showNeutralButton: true);
                 } else {
                   errorDialog(context, status.message, showNeutralButton: true);
                 }
@@ -589,7 +651,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
     );
   }
 
-  void updateImage(var image,var picId,var tag) async {
+  void updateImage(var image, var picId, var tag) async {
     try {
       var tempImage = await FilePicker.platform.pickFiles(
           type: FileType.custom, allowedExtensions: ['jpg', 'png', 'jpeg']);

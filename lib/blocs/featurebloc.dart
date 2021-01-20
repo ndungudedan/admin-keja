@@ -26,17 +26,14 @@ class FeatureBloc {
 
   Future<void> insertFeatures(List<Features> features) async {
     final _items = <MyFeaturesTableCompanion>[];
-    List<String> onIds = [];
     features.forEach((feat) {
       var companion = MyFeaturesTableCompanion(
         onlineid: Value(feat.id),
         apartment_id: Value(feat.apartment_id),
         feat: Value(feat.feat),
       );
-      onIds.add(feat.id);
       _items.add(companion);
     });
-    dao.deleteFeatures(onIds);
     dao.insertFeatures(_items);
   }
 }

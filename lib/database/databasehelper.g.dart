@@ -9,7 +9,6 @@ part of 'databasehelper.dart';
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
 class MyApartmentTableData extends DataClass
     implements Insertable<MyApartmentTableData> {
-  final int id;
   final String onlineid;
   final String banner;
   final String bannertag;
@@ -30,8 +29,7 @@ class MyApartmentTableData extends DataClass
   final String likes;
   final String comments;
   MyApartmentTableData(
-      {@required this.id,
-      @required this.onlineid,
+      {@required this.onlineid,
       @required this.banner,
       @required this.bannertag,
       this.description,
@@ -54,10 +52,8 @@ class MyApartmentTableData extends DataClass
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     return MyApartmentTableData(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       onlineid: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}onlineid']),
       banner:
@@ -101,9 +97,6 @@ class MyApartmentTableData extends DataClass
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
     if (!nullToAbsent || onlineid != null) {
       map['onlineid'] = Variable<String>(onlineid);
     }
@@ -166,7 +159,6 @@ class MyApartmentTableData extends DataClass
 
   MyApartmentTableCompanion toCompanion(bool nullToAbsent) {
     return MyApartmentTableCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       onlineid: onlineid == null && nullToAbsent
           ? const Value.absent()
           : Value(onlineid),
@@ -223,7 +215,6 @@ class MyApartmentTableData extends DataClass
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return MyApartmentTableData(
-      id: serializer.fromJson<int>(json['id']),
       onlineid: serializer.fromJson<String>(json['onlineid']),
       banner: serializer.fromJson<String>(json['banner']),
       bannertag: serializer.fromJson<String>(json['bannertag']),
@@ -249,7 +240,6 @@ class MyApartmentTableData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'onlineid': serializer.toJson<String>(onlineid),
       'banner': serializer.toJson<String>(banner),
       'bannertag': serializer.toJson<String>(bannertag),
@@ -273,8 +263,7 @@ class MyApartmentTableData extends DataClass
   }
 
   MyApartmentTableData copyWith(
-          {int id,
-          String onlineid,
+          {String onlineid,
           String banner,
           String bannertag,
           String description,
@@ -294,7 +283,6 @@ class MyApartmentTableData extends DataClass
           String likes,
           String comments}) =>
       MyApartmentTableData(
-        id: id ?? this.id,
         onlineid: onlineid ?? this.onlineid,
         banner: banner ?? this.banner,
         bannertag: bannertag ?? this.bannertag,
@@ -318,7 +306,6 @@ class MyApartmentTableData extends DataClass
   @override
   String toString() {
     return (StringBuffer('MyApartmentTableData(')
-          ..write('id: $id, ')
           ..write('onlineid: $onlineid, ')
           ..write('banner: $banner, ')
           ..write('bannertag: $bannertag, ')
@@ -344,52 +331,50 @@ class MyApartmentTableData extends DataClass
 
   @override
   int get hashCode => $mrjf($mrjc(
-      id.hashCode,
+      onlineid.hashCode,
       $mrjc(
-          onlineid.hashCode,
+          banner.hashCode,
           $mrjc(
-              banner.hashCode,
+              bannertag.hashCode,
               $mrjc(
-                  bannertag.hashCode,
+                  description.hashCode,
                   $mrjc(
-                      description.hashCode,
+                      title.hashCode,
                       $mrjc(
-                          title.hashCode,
+                          category.hashCode,
                           $mrjc(
-                              category.hashCode,
+                              emailaddress.hashCode,
                               $mrjc(
-                                  emailaddress.hashCode,
+                                  location.hashCode,
                                   $mrjc(
-                                      location.hashCode,
+                                      address.hashCode,
                                       $mrjc(
-                                          address.hashCode,
+                                          phone.hashCode,
                                           $mrjc(
-                                              phone.hashCode,
+                                              video.hashCode,
                                               $mrjc(
-                                                  video.hashCode,
+                                                  price.hashCode,
                                                   $mrjc(
-                                                      price.hashCode,
+                                                      deposit.hashCode,
                                                       $mrjc(
-                                                          deposit.hashCode,
+                                                          space.hashCode,
                                                           $mrjc(
-                                                              space.hashCode,
+                                                              latitude.hashCode,
                                                               $mrjc(
-                                                                  latitude
+                                                                  longitude
                                                                       .hashCode,
                                                                   $mrjc(
-                                                                      longitude
+                                                                      rating
                                                                           .hashCode,
                                                                       $mrjc(
-                                                                          rating
+                                                                          likes
                                                                               .hashCode,
-                                                                          $mrjc(
-                                                                              likes.hashCode,
-                                                                              comments.hashCode))))))))))))))))))));
+                                                                          comments
+                                                                              .hashCode)))))))))))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is MyApartmentTableData &&
-          other.id == this.id &&
           other.onlineid == this.onlineid &&
           other.banner == this.banner &&
           other.bannertag == this.bannertag &&
@@ -412,7 +397,6 @@ class MyApartmentTableData extends DataClass
 }
 
 class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
-  final Value<int> id;
   final Value<String> onlineid;
   final Value<String> banner;
   final Value<String> bannertag;
@@ -433,7 +417,6 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
   final Value<String> likes;
   final Value<String> comments;
   const MyApartmentTableCompanion({
-    this.id = const Value.absent(),
     this.onlineid = const Value.absent(),
     this.banner = const Value.absent(),
     this.bannertag = const Value.absent(),
@@ -455,7 +438,6 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
     this.comments = const Value.absent(),
   });
   MyApartmentTableCompanion.insert({
-    this.id = const Value.absent(),
     @required String onlineid,
     @required String banner,
     @required String bannertag,
@@ -489,7 +471,6 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
         likes = Value(likes),
         comments = Value(comments);
   static Insertable<MyApartmentTableData> custom({
-    Expression<int> id,
     Expression<String> onlineid,
     Expression<String> banner,
     Expression<String> bannertag,
@@ -511,7 +492,6 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
     Expression<String> comments,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (onlineid != null) 'onlineid': onlineid,
       if (banner != null) 'banner': banner,
       if (bannertag != null) 'bannertag': bannertag,
@@ -535,8 +515,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
   }
 
   MyApartmentTableCompanion copyWith(
-      {Value<int> id,
-      Value<String> onlineid,
+      {Value<String> onlineid,
       Value<String> banner,
       Value<String> bannertag,
       Value<String> description,
@@ -556,7 +535,6 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
       Value<String> likes,
       Value<String> comments}) {
     return MyApartmentTableCompanion(
-      id: id ?? this.id,
       onlineid: onlineid ?? this.onlineid,
       banner: banner ?? this.banner,
       bannertag: bannertag ?? this.bannertag,
@@ -582,9 +560,6 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (onlineid.present) {
       map['onlineid'] = Variable<String>(onlineid.value);
     }
@@ -648,7 +623,6 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
   @override
   String toString() {
     return (StringBuffer('MyApartmentTableCompanion(')
-          ..write('id: $id, ')
           ..write('onlineid: $onlineid, ')
           ..write('banner: $banner, ')
           ..write('bannertag: $bannertag, ')
@@ -678,15 +652,6 @@ class $MyApartmentTableTable extends MyApartmentTable
   final GeneratedDatabase _db;
   final String _alias;
   $MyApartmentTableTable(this._db, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
-  @override
-  GeneratedIntColumn get id => _id ??= _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
-  }
-
   final VerificationMeta _onlineidMeta = const VerificationMeta('onlineid');
   GeneratedTextColumn _onlineid;
   @override
@@ -921,7 +886,6 @@ class $MyApartmentTableTable extends MyApartmentTable
 
   @override
   List<GeneratedColumn> get $columns => [
-        id,
         onlineid,
         banner,
         bannertag,
@@ -954,9 +918,6 @@ class $MyApartmentTableTable extends MyApartmentTable
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
-    }
     if (data.containsKey('onlineid')) {
       context.handle(_onlineidMeta,
           onlineid.isAcceptableOrUnknown(data['onlineid'], _onlineidMeta));
@@ -1067,7 +1028,7 @@ class $MyApartmentTableTable extends MyApartmentTable
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {onlineid};
   @override
   MyApartmentTableData map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -1432,23 +1393,19 @@ class $MyImagesTableTable extends MyImagesTable
 
 class MyFeaturesTableData extends DataClass
     implements Insertable<MyFeaturesTableData> {
-  final int id;
   final String onlineid;
   final String apartment_id;
   final String feat;
   MyFeaturesTableData(
-      {@required this.id,
-      @required this.onlineid,
+      {@required this.onlineid,
       @required this.apartment_id,
       @required this.feat});
   factory MyFeaturesTableData.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     return MyFeaturesTableData(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       onlineid: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}onlineid']),
       apartment_id: stringType
@@ -1459,9 +1416,6 @@ class MyFeaturesTableData extends DataClass
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
     if (!nullToAbsent || onlineid != null) {
       map['onlineid'] = Variable<String>(onlineid);
     }
@@ -1476,7 +1430,6 @@ class MyFeaturesTableData extends DataClass
 
   MyFeaturesTableCompanion toCompanion(bool nullToAbsent) {
     return MyFeaturesTableCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       onlineid: onlineid == null && nullToAbsent
           ? const Value.absent()
           : Value(onlineid),
@@ -1491,7 +1444,6 @@ class MyFeaturesTableData extends DataClass
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return MyFeaturesTableData(
-      id: serializer.fromJson<int>(json['id']),
       onlineid: serializer.fromJson<String>(json['onlineid']),
       apartment_id: serializer.fromJson<String>(json['apartment_id']),
       feat: serializer.fromJson<String>(json['feat']),
@@ -1501,7 +1453,6 @@ class MyFeaturesTableData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'onlineid': serializer.toJson<String>(onlineid),
       'apartment_id': serializer.toJson<String>(apartment_id),
       'feat': serializer.toJson<String>(feat),
@@ -1509,9 +1460,8 @@ class MyFeaturesTableData extends DataClass
   }
 
   MyFeaturesTableData copyWith(
-          {int id, String onlineid, String apartment_id, String feat}) =>
+          {String onlineid, String apartment_id, String feat}) =>
       MyFeaturesTableData(
-        id: id ?? this.id,
         onlineid: onlineid ?? this.onlineid,
         apartment_id: apartment_id ?? this.apartment_id,
         feat: feat ?? this.feat,
@@ -1519,7 +1469,6 @@ class MyFeaturesTableData extends DataClass
   @override
   String toString() {
     return (StringBuffer('MyFeaturesTableData(')
-          ..write('id: $id, ')
           ..write('onlineid: $onlineid, ')
           ..write('apartment_id: $apartment_id, ')
           ..write('feat: $feat')
@@ -1528,31 +1477,27 @@ class MyFeaturesTableData extends DataClass
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode,
-      $mrjc(onlineid.hashCode, $mrjc(apartment_id.hashCode, feat.hashCode))));
+  int get hashCode => $mrjf(
+      $mrjc(onlineid.hashCode, $mrjc(apartment_id.hashCode, feat.hashCode)));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is MyFeaturesTableData &&
-          other.id == this.id &&
           other.onlineid == this.onlineid &&
           other.apartment_id == this.apartment_id &&
           other.feat == this.feat);
 }
 
 class MyFeaturesTableCompanion extends UpdateCompanion<MyFeaturesTableData> {
-  final Value<int> id;
   final Value<String> onlineid;
   final Value<String> apartment_id;
   final Value<String> feat;
   const MyFeaturesTableCompanion({
-    this.id = const Value.absent(),
     this.onlineid = const Value.absent(),
     this.apartment_id = const Value.absent(),
     this.feat = const Value.absent(),
   });
   MyFeaturesTableCompanion.insert({
-    this.id = const Value.absent(),
     @required String onlineid,
     @required String apartment_id,
     @required String feat,
@@ -1560,13 +1505,11 @@ class MyFeaturesTableCompanion extends UpdateCompanion<MyFeaturesTableData> {
         apartment_id = Value(apartment_id),
         feat = Value(feat);
   static Insertable<MyFeaturesTableData> custom({
-    Expression<int> id,
     Expression<String> onlineid,
     Expression<String> apartment_id,
     Expression<String> feat,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (onlineid != null) 'onlineid': onlineid,
       if (apartment_id != null) 'apartment_id': apartment_id,
       if (feat != null) 'feat': feat,
@@ -1574,12 +1517,10 @@ class MyFeaturesTableCompanion extends UpdateCompanion<MyFeaturesTableData> {
   }
 
   MyFeaturesTableCompanion copyWith(
-      {Value<int> id,
-      Value<String> onlineid,
+      {Value<String> onlineid,
       Value<String> apartment_id,
       Value<String> feat}) {
     return MyFeaturesTableCompanion(
-      id: id ?? this.id,
       onlineid: onlineid ?? this.onlineid,
       apartment_id: apartment_id ?? this.apartment_id,
       feat: feat ?? this.feat,
@@ -1589,9 +1530,6 @@ class MyFeaturesTableCompanion extends UpdateCompanion<MyFeaturesTableData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (onlineid.present) {
       map['onlineid'] = Variable<String>(onlineid.value);
     }
@@ -1607,7 +1545,6 @@ class MyFeaturesTableCompanion extends UpdateCompanion<MyFeaturesTableData> {
   @override
   String toString() {
     return (StringBuffer('MyFeaturesTableCompanion(')
-          ..write('id: $id, ')
           ..write('onlineid: $onlineid, ')
           ..write('apartment_id: $apartment_id, ')
           ..write('feat: $feat')
@@ -1621,15 +1558,6 @@ class $MyFeaturesTableTable extends MyFeaturesTable
   final GeneratedDatabase _db;
   final String _alias;
   $MyFeaturesTableTable(this._db, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
-  @override
-  GeneratedIntColumn get id => _id ??= _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
-  }
-
   final VerificationMeta _onlineidMeta = const VerificationMeta('onlineid');
   GeneratedTextColumn _onlineid;
   @override
@@ -1669,7 +1597,7 @@ class $MyFeaturesTableTable extends MyFeaturesTable
   }
 
   @override
-  List<GeneratedColumn> get $columns => [id, onlineid, apartment_id, feat];
+  List<GeneratedColumn> get $columns => [onlineid, apartment_id, feat];
   @override
   $MyFeaturesTableTable get asDslTable => this;
   @override
@@ -1682,9 +1610,6 @@ class $MyFeaturesTableTable extends MyFeaturesTable
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
-    }
     if (data.containsKey('onlineid')) {
       context.handle(_onlineidMeta,
           onlineid.isAcceptableOrUnknown(data['onlineid'], _onlineidMeta));
@@ -1709,7 +1634,7 @@ class $MyFeaturesTableTable extends MyFeaturesTable
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {onlineid};
   @override
   MyFeaturesTableData map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;

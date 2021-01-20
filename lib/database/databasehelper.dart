@@ -26,11 +26,10 @@ class DatabaseHelper extends _$DatabaseHelper {
   // you should bump this number whenever you change or add a table definition. Migrations
   // are covered later in this readme.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 }
 final databasehelper = DatabaseHelper();
   class MyApartmentTable extends Table {
-  IntColumn get id => integer().autoIncrement()();
   TextColumn get onlineid => text()();
   TextColumn get banner => text()();
   TextColumn get bannertag => text()();
@@ -50,6 +49,9 @@ final databasehelper = DatabaseHelper();
   TextColumn get rating => text()();
   TextColumn get likes => text()();
   TextColumn get comments => text()();
+
+  @override
+  Set<Column> get primaryKey => {onlineid};
 }
 class MyImagesTable extends Table {
   TextColumn get onlineid => text()();
@@ -62,10 +64,12 @@ class MyImagesTable extends Table {
   Set<Column> get primaryKey => {onlineid};
 }
 class MyFeaturesTable extends Table {
-  IntColumn get id => integer().autoIncrement()();
   TextColumn get onlineid => text()();
   TextColumn get apartment_id => text()();
   TextColumn get feat => text()();
+
+   @override
+  Set<Column> get primaryKey => {onlineid};
 }
 class MyPaymentHistoryTable extends Table {
   IntColumn get id => integer().autoIncrement()();

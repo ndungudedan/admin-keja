@@ -22,20 +22,27 @@ class DatabaseDao extends DatabaseAccessor<DatabaseHelper>
   void deleteFeatures(Iterable<String> values) {
     (delete(myFeaturesTable)..where((r) =>r.onlineid.isIn(values))).go();
   }
+  void deleteSingleFeature(var featId){
+    (delete(myFeaturesTable)..where((r) =>r.onlineid.equals(featId))).go();
+  }
 
   Stream<List<MyApartmentTableData>> watchApartments() {
     return (select(myApartmentTable)).watch();
   }
 
-  Stream<List<MyFeaturesTableData>> watchFeatures() {
-    return (select(myFeaturesTable)).watch();
+  Stream<MyApartmentTableData> watchSingleApartment(String apartId) {
+    return (select(myApartmentTable)..where((r) =>r.onlineid.equals(apartId))).watchSingle();
   }
 
-  Stream<List<MyImagesTableData>> watchImages() {
-    return (select(myImagesTable)).watch();
+  Stream<List<MyFeaturesTableData>> watchFeatures(String apartId) {
+    return (select(myFeaturesTable)..where((r) =>r.apartment_id.equals(apartId))).watch();
   }
-  Stream<List<MyImagesTableData>> watchImagesLimit() {
-    return (select(myImagesTable)..limit(6)).watch();
+
+  Stream<List<MyImagesTableData>> watchImages(String apartId) {
+    return (select(myImagesTable)..where((r) =>r.apartment_id.equals(apartId))).watch();
+  }
+  Stream<List<MyImagesTableData>> watchImagesLimit(String apartId) {
+    return (select(myImagesTable)..limit(6)..where((r) =>r.apartment_id.equals(apartId))).watch();
   }
 
   void insertApartments(List<MyApartmentTableCompanion> values) async {
@@ -45,13 +52,19 @@ class DatabaseDao extends DatabaseAccessor<DatabaseHelper>
       print('errotr');
     });
   }
+  void upsertApartment(MyApartmentTableCompanion value){
+     into(myApartmentTable).insertOnConflictUpdate(value);
+  }
 
   void insertFeatures(List<MyFeaturesTableCompanion> values) async {
     await batch((batch) {
-      batch.insertAll(myFeaturesTable, values);
+      batch.insertAllOnConflictUpdate(myFeaturesTable, values);
     }).catchError((Object error) {
       print('errotr');
     });
+  }
+  void upsertFeature(MyFeaturesTableCompanion value){
+     into(myFeaturesTable).insertOnConflictUpdate(value);
   }
   void insertUpdateImages(List<MyImagesTableCompanion> values) async {
     await batch((batch) {

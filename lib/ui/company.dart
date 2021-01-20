@@ -46,7 +46,7 @@ class _MyHomePageState extends State<Company> {
                         press: () {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => ApartmentDetails(
-                                    apartment: snapshot.data.elementAt(index),
+                                    apartmentId: snapshot.data.elementAt(index).onlineid,
                                   )));
                         },
                       ));

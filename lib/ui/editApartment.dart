@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:admin_keja/connection/networkapi.dart';
 import 'package:admin_keja/constants/constant.dart';
+import 'package:admin_keja/database/dao.dart';
 import 'package:admin_keja/database/databasehelper.dart';
 import 'package:admin_keja/database/dboperations.dart';
-import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/category.dart';
 import 'package:admin_keja/models/features.dart';
@@ -17,6 +17,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:moor/moor.dart' as moor;
 
 class EditApartment extends StatefulWidget {
   EditApartment({
@@ -35,13 +36,51 @@ class EditApartment extends StatefulWidget {
 }
 
 class _CreateApartmentState extends State<EditApartment> {
+  List<Features> typeChangeFeatures(List<MyFeaturesTableData> features) {
+    List<Features> result = [];
+    if (features != null && features.isNotEmpty) {
+      features.forEach((element) {
+        Features val = Features();
+        val.apartment_id = element.apartment_id;
+        val.feat = element.feat;
+        val.id = element.onlineid;
+        result.add(val);
+      });
+    }
+    return result;
+  }
+
+  MyApartment typeChangeApartment(MyApartmentTableData apartmentTableData) {
+    MyApartment apartment = MyApartment();
+    apartment.address = apartmentTableData.address;
+    apartment.banner = apartmentTableData.banner;
+    apartment.bannertag = apartmentTableData.bannertag;
+    apartment.category = apartmentTableData.category;
+    apartment.comments = apartmentTableData.comments;
+    apartment.deposit = apartmentTableData.deposit;
+    apartment.description = apartmentTableData.description;
+    apartment.email = apartmentTableData.emailaddress;
+    apartment.id = apartmentTableData.onlineid;
+    apartment.latitude = apartmentTableData.latitude;
+    apartment.likes = apartmentTableData.likes;
+    apartment.location = apartmentTableData.location;
+    apartment.longitude = apartmentTableData.longitude;
+    apartment.phone = apartmentTableData.phone;
+    apartment.price = apartmentTableData.price;
+    apartment.rating = apartmentTableData.rating;
+    apartment.space = apartmentTableData.space;
+    apartment.title = apartmentTableData.title;
+    apartment.video = apartmentTableData.video;
+    return apartment;
+  }
+
   @override
   void initState() {
     super.initState();
     location = false;
     step = widget.step;
-    apartment = widget.apartment;
-    features = widget.features;
+    apartment = typeChangeApartment(widget.apartment);
+    features = typeChangeFeatures(widget.features);
     getCategory();
     initData(apartment);
   }
@@ -52,7 +91,7 @@ class _CreateApartmentState extends State<EditApartment> {
   }
 
   final dbHelper = DbOperations.instance;
-  MyApartmentTableData apartment;
+  MyApartment apartment;
   List<File> image_uri = [];
   List<File> toUpload = [];
   List<String> imagepaths = [];
@@ -60,6 +99,7 @@ class _CreateApartmentState extends State<EditApartment> {
   File videofile;
   String _imagefilePath;
   int featIndex;
+  var dao = DatabaseDao(databasehelper);
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   final _depositController = TextEditingController();
   final _addressController = TextEditingController();
@@ -83,7 +123,7 @@ class _CreateApartmentState extends State<EditApartment> {
   Map<String, String> details = {};
   var step = 0;
   List<String> tags = [];
-  List<MyFeaturesTableData> features = [];
+  List<Features> features = [];
   double latitude;
   double longitude;
   bool location;
@@ -94,7 +134,6 @@ class _CreateApartmentState extends State<EditApartment> {
   final _step2Key = GlobalKey<FormState>();
   MyCategory category;
   List<MyCategory> categories = List<MyCategory>();
-
   final Map<String, Marker> _markers = {};
   Future<void> _onMapCreated(GoogleMapController controller) async {
     setState(() {
@@ -281,7 +320,6 @@ class _CreateApartmentState extends State<EditApartment> {
                 inputType: TextInputType.streetAddress,
                 controller: _locationController,
               ),
-              locationMap(),
             ],
           ),
         ),
@@ -346,8 +384,7 @@ class _CreateApartmentState extends State<EditApartment> {
               controller: _featController,
               onSubmitted: (value) {
                 setState(() {
-                  features.elementAt(featIndex).feat =
-                      _featController.text;
+                  features.elementAt(featIndex).feat = _featController.text;
                   _featController.text = '';
                 });
               },
@@ -449,7 +486,29 @@ class _CreateApartmentState extends State<EditApartment> {
       var Map = json.decode(result);
       Status status = Status.fromJson(Map);
       if (status.code == Constants.success) {
-        infoDialog(context, status.message, showNeutralButton: true);
+        var companion = MyApartmentTableCompanion(
+          onlineid: moor.Value(apartment.id),
+          banner: moor.Value(apartment.banner),
+          bannertag: moor.Value(apartment.bannertag),
+          description: moor.Value(apartment.description),
+          title: moor.Value(_titleController.text),
+          category: moor.Value(category.title),
+          emailaddress: moor.Value(apartment.email),
+          location: moor.Value(apartment.location),
+          address: moor.Value(apartment.address),
+          phone: moor.Value(apartment.phone),
+          video: moor.Value(apartment.video),
+          price: moor.Value(_rentController.text),
+          deposit: moor.Value(_depositController.text),
+          space: moor.Value(_spaceController.text),
+          latitude: moor.Value(apartment.latitude),
+          longitude: moor.Value(apartment.longitude),
+          rating: moor.Value(apartment.rating),
+          likes: moor.Value(apartment.likes),
+          comments: moor.Value(apartment.comments),
+        );
+        dao.upsertApartment(companion);
+        successDialog(context, status.message, showNeutralButton: true);
       } else {
         errorDialog(context, status.message, showNeutralButton: true);
       }
@@ -464,17 +523,40 @@ class _CreateApartmentState extends State<EditApartment> {
       details[UploadData.longitude] = longitude.toString();
       details[UploadData.apartmentPhone] = _phoneController.text;
       details[UploadData.email] = _emailController.text;
-      details[UploadData.location] =
-          _addressController.text + _locationController.text;
+      details[UploadData.location] = _locationController.text;
+      details[UploadData.address] = _addressController.text;
     });
 
-    var result = await NetworkApi().updateStep2(apartment.id, details);
+    var result =
+        await NetworkApi().updateStep2(apartment.id.toString(), details);
     print(result);
     if (result != Constants.fail) {
       var Map = json.decode(result);
       Status status = Status.fromJson(Map);
       if (status.code == Constants.success) {
-        infoDialog(context, status.message, showNeutralButton: true);
+        var companion = MyApartmentTableCompanion(
+          onlineid: moor.Value(apartment.id),
+          banner: moor.Value(apartment.banner),
+          bannertag: moor.Value(apartment.bannertag),
+          description: moor.Value(apartment.description),
+          title: moor.Value(apartment.title),
+          category: moor.Value(apartment.category),
+          emailaddress: moor.Value(_emailController.text),
+          location: moor.Value(_locationController.text),
+          address: moor.Value(_addressController.text),
+          phone: moor.Value(_phoneController.text),
+          video: moor.Value(apartment.video),
+          price: moor.Value(apartment.price),
+          deposit: moor.Value(apartment.deposit),
+          space: moor.Value(apartment.space),
+          latitude: moor.Value(apartment.latitude),
+          longitude: moor.Value(apartment.longitude),
+          rating: moor.Value(apartment.rating),
+          likes: moor.Value(apartment.likes),
+          comments: moor.Value(apartment.comments),
+        );
+        dao.upsertApartment(companion);
+        successDialog(context, status.message, showNeutralButton: true);
       } else {
         errorDialog(context, status.message, showNeutralButton: true);
       }
@@ -486,56 +568,64 @@ class _CreateApartmentState extends State<EditApartment> {
   void submitStep4() async {
     var result = await NetworkApi().updateFeatures(apartment.id, features);
     print(result);
-    if (result != Constants.fail) {
-      var Map = json.decode(result);
-      Status status = Status.fromJson(Map);
-      if (status.code == Constants.success) {
-        infoDialog(context, status.message, showNeutralButton: true);
-      } else {
-        errorDialog(context, status.message, showNeutralButton: true);
-      }
+    var Map = json.decode(result);
+    Status status = Status.fromJson(Map);
+    if (status.code == Constants.success) {
+      final _items = <MyFeaturesTableCompanion>[];
+      features.forEach((feat) {
+        var companion = MyFeaturesTableCompanion(
+          onlineid: moor.Value(feat.id),
+          apartment_id: moor.Value(feat.apartment_id),
+          feat: moor.Value(feat.feat),
+        );
+        _items.add(companion);
+      });
+      dao.insertFeatures(_items);
+      successDialog(context, status.message, showNeutralButton: true);
     } else {
-      errorDialog(context, "Operation failed...", showNeutralButton: true);
+      errorDialog(context, status.message, showNeutralButton: true);
     }
   }
 
-  void deleteFeature(int index, var id) async {
-    var result = await NetworkApi().deleteFeature(id);
+  void deleteFeature(int index, var featId) async {
+    var result = await NetworkApi().deleteFeature(featId);
     print(result);
-    if (result != Constants.fail) {
-      var Map = json.decode(result);
-      Status status = Status.fromJson(Map);
-      if (status.code == Constants.success) {
-        setState(() {
-          String deletedItem = features.removeAt(index).feat;
-        });
-        successDialog(context, status.message, showNeutralButton: true);
-        dbHelper.deleteFeature(int.tryParse(features.removeAt(index).id));
-      } else {
-        errorDialog(context, status.message, showNeutralButton: true);
-      }
+    var Map = json.decode(result);
+    Status status = Status.fromJson(Map);
+    if (status.code == Constants.success) {
+      successDialog(context, status.message, showNeutralButton: true);
+      dao.deleteSingleFeature(featId);
+      setState(() {
+        features.removeAt(index);
+      });
     } else {
-      errorDialog(context, "Operation failed...", showNeutralButton: true);
+      errorDialog(context, status.message, showNeutralButton: true);
     }
   }
 
   void insertFeature() async {
-    var result =
-        await NetworkApi().insertFeature(apartment.id, _featController.text);
+    var result = await NetworkApi()
+        .insertFeature(apartment.id.toString(), _featController.text);
+    var response = jsonDecode(result);
     print(result);
-    if (result != Constants.fail) {
-      var Map = json.decode(result);
-      Status status = Status.fromJson(Map);
+    if (response != Constants.fail) {
+      var companion = MyFeaturesTableCompanion(
+        onlineid: moor.Value(response),
+        apartment_id: moor.Value(apartment.id),
+        feat: moor.Value(_featController.text),
+      );
+      dao.upsertFeature(companion);
+      Features feat = Features();
+      feat.apartment_id = apartment.id;
+      feat.feat = _featController.text;
+      feat.id = response;
       setState(() {
+        features.add(feat);
         _featController.text = '';
       });
-      if (status.code == Constants.success) {
-        successDialog(context, status.message, showNeutralButton: true);
-      } else {
-        errorDialog(context, status.message, showNeutralButton: true);
-      }
+      successDialog(context, "Success", showNeutralButton: true);
     } else {
-      errorDialog(context, "Operation failed...", showNeutralButton: true);
+      errorDialog(context, "Failed", showNeutralButton: true);
     }
   }
 
@@ -547,16 +637,21 @@ class _CreateApartmentState extends State<EditApartment> {
       setState(() {
         var response = CategoryResponse.fromJson(Map);
         categories = response.data.categorys;
+        categories.forEach((element) {
+          if (element.title == apartment.category) {
+            category = element;
+          }
+        });
       });
     } else {
       errorDialog(context, "Upload failed...", showNeutralButton: true);
     }
   }
 
-  void initData(MyApartmentTableData apartment) {
+  void initData(MyApartment apartment) {
     setState(() {
       _titleController.text = apartment.title;
-      _emailController.text = apartment.emailaddress;
+      _emailController.text = apartment.email;
       _addressController.text = apartment.address;
       _depositController.text = apartment.deposit;
       _rentController.text = apartment.price;

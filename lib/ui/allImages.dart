@@ -54,7 +54,7 @@ class _MyHomePageState extends State<AllImages> {
         title: Text('Pictures'),
       ),
       body: StreamBuilder(
-        stream: dao.watchImages(),
+        stream: dao.watchImages(apartmentId),
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data.isNotEmpty) {
             return Column(

@@ -357,6 +357,7 @@ class NetworkApi {
       'phone': details[UploadData.apartmentPhone],
       'email': details[UploadData.email],
       'location': details[UploadData.location],
+      'address': details[UploadData.address],
     });
     return json;
   }
