@@ -44,7 +44,10 @@ class About extends StatelessWidget {
                   if(snapshot.hasData) {
                     return Text(snapshot.data);
                   }
-                  return CircularProgressIndicator();
+                  return SizedBox(
+                    height: 40,
+                    width: 40,
+                    child: CircularProgressIndicator());
                 },
               )
             ],

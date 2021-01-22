@@ -682,7 +682,7 @@ class _CreateApartmentState extends State<CreateApartment> {
         child: Column(
           children: [
             Center(
-              child: Text(features.length.toString() + '/11'),
+              child: Text(features.length.toString() + '/8'),
             ),
             Flexible(
               child: Container(
@@ -711,7 +711,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                     }),
               ),
             ),
-            features.length < 11
+            features.length < 8
                 ? Align(
                     alignment: FractionalOffset.bottomCenter,
                     child: Container(
@@ -728,7 +728,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                           controller: _featController,
                           onSubmitted: (value) {
                             setState(() {
-                              if (features.length < 11) {
+                              if (features.length < 8) {
                                 features.add(_featController.text);
                                 _featController.clear();
                               }
