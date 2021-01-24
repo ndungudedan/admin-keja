@@ -48,7 +48,7 @@ class Terms extends StatelessWidget {
                     return SizedBox(
                       width: 40,
                       height: 40,
-                      child: CircularProgressIndicator());
+                      child: Center(child: CircularProgressIndicator()));
                   },
                 )
             ],

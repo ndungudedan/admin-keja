@@ -72,7 +72,6 @@ class MyFeaturesTable extends Table {
   Set<Column> get primaryKey => {onlineid};
 }
 class MyPaymentHistoryTable extends Table {
-  IntColumn get id => integer().autoIncrement()();
   TextColumn get onlineid => text()();
   TextColumn get apartment_id => text()();
   TextColumn get title => text()();
@@ -82,6 +81,10 @@ class MyPaymentHistoryTable extends Table {
   TextColumn get expected => text()();
   TextColumn get paid => text()();
   TextColumn get due => text()();
+  TextColumn get timestamp => text()();
+
+  @override
+  Set<Column> get primaryKey => {onlineid};
 }
 class MyHomeSummaryTable extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -92,7 +95,6 @@ class MyHomeSummaryTable extends Table {
   TextColumn get due => text()();
 }
 class MyTransactionsTable extends Table {
-  IntColumn get id => integer().autoIncrement()();
   TextColumn get onlineid => text()();
   TextColumn get apartment_id => text()();
   TextColumn get transaction_id => text()();
@@ -103,9 +105,11 @@ class MyTransactionsTable extends Table {
   TextColumn get amount => text()();
   TextColumn get time => text()();
   TextColumn get type => text()();
+
+  @override
+  Set<Column> get primaryKey => {onlineid};
 }
 class MyTenantTable extends Table {
-  IntColumn get id => integer().autoIncrement()();
   TextColumn get onlineid => text()();
   TextColumn get apartment_id => text()();
   TextColumn get photo => text()();
@@ -113,4 +117,7 @@ class MyTenantTable extends Table {
   TextColumn get email => text()();
   TextColumn get payed => text()();
   TextColumn get unit => text()();
+
+  @override
+  Set<Column> get primaryKey => {onlineid};
 }

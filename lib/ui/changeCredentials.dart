@@ -10,6 +10,7 @@ import 'package:admin_keja/ui/index.dart';
 import 'package:admin_keja/utility/connectioncallback.dart';
 import 'package:admin_keja/views/inputFieldArea.dart';
 import 'package:admin_keja/views/submitButton.dart';
+import 'package:commons/commons.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,9 +29,9 @@ class _LoginPageState extends State<ChangeCredentials>
   final _oldController = TextEditingController();
   final _newController = TextEditingController();
   final _confirmController = TextEditingController();
-    final FocusNode _emailFocus = FocusNode();
+  final FocusNode _emailFocus = FocusNode();
   final FocusNode _oldpasswordFocus = FocusNode();
-    final FocusNode _newpassFocus = FocusNode();
+  final FocusNode _newpassFocus = FocusNode();
   final FocusNode _confirmpasswordFocus = FocusNode();
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   AnimationController _loginButtonController;
@@ -157,21 +158,18 @@ class _LoginPageState extends State<ChangeCredentials>
       var result = await NetworkApi().changeCredentials(_emailController.text,
           _confirmController.text, sharedPreferences.getUserId());
       print(result);
-      if (result != Constants.fail) {
-        var Map = json.decode(result);
-        Status status = Status.fromJson(Map);
-        setState(() {
-          loading = false;
-        });
-        if (status.code == '1') {
-          savePrefs();
+      var Map = json.decode(result);
+      Status status = Status.fromJson(Map);
+      setState(() {
+        loading = false;
+      });
+      if (status.code == '1') {
+        savePrefs();
+        successDialog(context, status.message, neutralAction: () {
           Navigator.of(context).pop();
-        } else {
-          _scaffoldKey.currentState.showSnackBar(snack(status.message));
-        }
-      }else{
-        _scaffoldKey.currentState
-            .showSnackBar(snack("Failed..Please try later"));
+        });
+      } else {
+        errorDialog(context, status.message);
       }
     }
   }

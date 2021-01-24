@@ -90,7 +90,9 @@ class MyHomeSummary {
   String due;
   String month;
   String year;
-  MyHomeSummary({this.id,this.expected, this.paid, this.due, this.month, this.year});
+  String timestamp;
+  MyHomeSummary(
+      {this.id, this.expected, this.paid, this.due, this.month, this.year,this.timestamp});
 
   factory MyHomeSummary.fromJson(Map<String, dynamic> json) =>
       _$MyHomeSummaryFromJson(json);
@@ -112,7 +114,6 @@ class MyHomeSummary {
       "expected": expected,
       "paid": paid,
       "due": due,
-      
     };
     if (id != null) {
       map["id"] = id;

@@ -44,6 +44,7 @@ MyHomeSummary _$MyHomeSummaryFromJson(Map<String, dynamic> json) {
     due: json['due'] as String,
     month: json['month'] as String,
     year: json['year'] as String,
+    timestamp: json['timestamp'] as String,
   );
 }
 
@@ -55,6 +56,7 @@ Map<String, dynamic> _$MyHomeSummaryToJson(MyHomeSummary instance) =>
       'due': instance.due,
       'month': instance.month,
       'year': instance.year,
+      'timestamp': instance.timestamp,
     };
 
 MyHomeSummaryList _$MyHomeSummaryListFromJson(Map<String, dynamic> json) {

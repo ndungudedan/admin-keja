@@ -1,48 +1,31 @@
-import 'dart:convert';
-import 'package:admin_keja/common/styles.dart';
-import 'package:admin_keja/connection/networkapi.dart';
-import 'package:admin_keja/constants/constant.dart';
-import 'package:admin_keja/database/dboperations.dart';
-import 'package:admin_keja/models/home.dart';
+import 'package:admin_keja/database/dao.dart';
+import 'package:admin_keja/database/databasehelper.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/apartment.dart';
-import 'package:admin_keja/utility/utility.dart';
 import 'package:admin_keja/views/customAppBar.dart';
 import 'package:admin_keja/views/homeText.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
-  Home({Key key, this.companyId, this.myHomeSummary}) : super(key: key);
-  List<MyHomeSummary> myHomeSummary;
-  var companyId;
+  Home({Key key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<Home> {
-  final dbHelper = DbOperations.instance;
-  bool show;
-  bool homelistInitialized = false;
-  var companyId;
+  var dao = DatabaseDao(databasehelper);
   int touchedIndex;
   int selected_index = 0;
   var month, year;
-  MyHomeSummary summary = MyHomeSummary();
-  List<MyHome> sorted = List<MyHome>();
-  List<MyHomeSummary> summarys = List<MyHomeSummary>();
   var currDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    companyId = widget.companyId;
     month = currDate.month;
     year = currDate.year;
-    summarys = widget.myHomeSummary;
-    show = false;
-    sort(selected_index);
   }
 
   @override
@@ -52,73 +35,104 @@ class _MyHomePageState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    companyId = widget.companyId;
-    if (!homelistInitialized) {
-      summarys = widget.myHomeSummary;
-      if(summarys!=null && summarys.isNotEmpty){
-        summary = summarys.elementAt(selected_index);
-        sort(selected_index);
-      }
-    }
     Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      backgroundColor:LightColors.kLightYellow,
-      appBar: CustomBarWidget(
-        height: 150,
-        sortMonth: summary.month ?? currDate.month.toString(),
-        year: summary.year ?? currDate.year.toString(),
-        totalDue: summary.due ?? '',
-        totalExpected: summary.expected ?? '',
-        totalPaid: 
-        summary.paid ?? '',
-        nextPressed: () {
-          sort(selected_index + 1);
-        },
-        prevPressed: () {
-          sort(selected_index - 1);
-        },
-      ),
-      body: sorted != null &&sorted.isNotEmpty
-          ? SingleChildScrollView(
-              physics: ScrollPhysics(),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Container(
-                    height: size.height - 200,
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        // physics: NeverScrollableScrollPhysics(),
-                        scrollDirection: Axis.vertical,
-                        padding: const EdgeInsets.all(8),
-                        itemCount: sorted.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return viewCard(index);
-                        }),
-                  ),
-                ],
+    return StreamBuilder(
+        stream: dao.watchHomeSummary(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data.isNotEmpty) {
+          return Scaffold(
+              backgroundColor: LightColors.kLightYellow,
+              appBar: CustomBarWidget(
+                height: 150,
+                sortMonth: snapshot.data.elementAt(selected_index).month ??
+                    currDate.month.toString(),
+                year: snapshot.data.elementAt(selected_index).year ??
+                    currDate.year.toString(),
+                totalDue: snapshot.data.elementAt(selected_index).due ?? '',
+                totalExpected:
+                    snapshot.data.elementAt(selected_index).expected ?? '',
+                totalPaid: snapshot.data.elementAt(selected_index).paid ?? '',
+                nextPressed: () {
+                  setState(() {
+                    if (selected_index < snapshot.data.length-1) {
+                      selected_index = selected_index + 1;
+                    }
+                  });
+                },
+                prevPressed: () {
+                  setState(() {
+                    if (selected_index>0) {
+                      selected_index = selected_index - 1;
+                    }
+                  });
+                  
+                },
               ),
-            )
-          : Center(child: CircularProgressIndicator()),
-    );
+              body: StreamBuilder(
+                stream: dao.watchPaymentHistory(
+                    snapshot.data.elementAt(selected_index).month,
+                    snapshot.data.elementAt(selected_index).year),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data.isNotEmpty) {
+                    return SingleChildScrollView(
+                      physics: ScrollPhysics(),
+                      child: Container(
+                        height: size.height - 200,
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            // physics: NeverScrollableScrollPhysics(),
+                            scrollDirection: Axis.vertical,
+                            padding: const EdgeInsets.all(8),
+                            itemCount: snapshot.data.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return viewCard(snapshot.data.elementAt(index));
+                            }),
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('No data'),
+                    );
+                  } else if (snapshot.data != null && snapshot.data.isEmpty) {
+                    return Center(
+                      child: Text('No data'),
+                    );
+                  }
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+              ));
+              } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('No data'),
+                    );
+                  } else if (snapshot.data != null && snapshot.data.isEmpty) {
+                    return Center(
+                      child: Text('No data'),
+                    );
+                  }
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+        });
   }
 
-  GestureDetector viewCard(var index) {
+  GestureDetector viewCard(MyPaymentHistoryTableData myHome) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => Apartment(
-              title: sorted.elementAt(index).title,
-                  month: summary.month,
-                  year: summary.year,
-                  apartmentId: sorted.elementAt(index).apartment_id,
+                  title: myHome.title,
+                  month: myHome.month,
+                  year: myHome.year,
+                  apartmentId: myHome.apartment_id,
                 )));
       },
       child: Container(
-margin: EdgeInsets.symmetric(vertical: 15.0),         
-decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30.0)),
+          margin: EdgeInsets.symmetric(vertical: 15.0),
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(30.0)),
           child: Stack(
             children: <Widget>[
               Row(
@@ -148,8 +162,11 @@ decoration: BoxDecoration(
                             ),
                             sectionsSpace: 0,
                             centerSpaceRadius: 20,
-                            sections: showingSections(sorted.elementAt(index).paid,
-                            sorted.elementAt(index).due,sorted.elementAt(index).expected,)),
+                            sections: showingSections(
+                              myHome.paid,
+                              myHome.due,
+                              myHome.expected,
+                            )),
                       ),
                     ),
                   ),
@@ -162,24 +179,26 @@ decoration: BoxDecoration(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            sorted.elementAt(index).title,
-                            style: TextStyle(fontSize: 16.0,
-              fontWeight: FontWeight.w700,),
+                            myHome.title,
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                           HomeTextArea(
                             colorHex: 0xff13d38e,
                             title: 'Expected: ',
-                            txt: sorted.elementAt(index).expected,
+                            txt: myHome.expected,
                           ),
                           HomeTextArea(
                             colorHex: 0xff0293ee,
                             title: 'Paid: ',
-                            txt: sorted.elementAt(index).paid,
+                            txt: myHome.paid,
                           ),
                           HomeTextArea(
                             colorHex: 0xfff8b250,
                             title: 'Due: ',
-                            txt: sorted.elementAt(index).due,
+                            txt: myHome.due,
                           ),
                         ],
                       ),
@@ -192,27 +211,6 @@ decoration: BoxDecoration(
     );
   }
 
-  void sort(int index) {
-    setState(() {
-      if (index < summarys.length && index >= 0) {
-        selected_index = index;
-        summary = summarys.elementAt(index);
-      }
-    });
-    if (summary.month == null) {
-      fetchDbHome(month, year);
-    } else {
-      fetchDbHome(summary.month, summary.year);
-    }
-  }
-
-  Future<void> fetchDbHome(var month, var year) async {
-    var res = await dbHelper.fetchHome(month, year);
-    setState(() {
-      sorted = res;
-    });
-  }
-
   List<PieChartSectionData> showingSections(var paid, var due, var expected) {
     return List.generate(2, (i) {
       final isTouched = i == touchedIndex;
@@ -220,7 +218,7 @@ decoration: BoxDecoration(
       final double radius = isTouched ? 60 : 50;
       final double paid_perc =
           (double.parse(paid) * 100) / double.parse(expected).round();
-          final double due_perc =
+      final double due_perc =
           (double.parse(due) * 100) / double.parse(expected).round();
       switch (i) {
         case 0:

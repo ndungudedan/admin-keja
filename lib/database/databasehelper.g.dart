@@ -1649,7 +1649,6 @@ class $MyFeaturesTableTable extends MyFeaturesTable
 
 class MyPaymentHistoryTableData extends DataClass
     implements Insertable<MyPaymentHistoryTableData> {
-  final int id;
   final String onlineid;
   final String apartment_id;
   final String title;
@@ -1659,9 +1658,9 @@ class MyPaymentHistoryTableData extends DataClass
   final String expected;
   final String paid;
   final String due;
+  final String timestamp;
   MyPaymentHistoryTableData(
-      {@required this.id,
-      @required this.onlineid,
+      {@required this.onlineid,
       @required this.apartment_id,
       @required this.title,
       @required this.company_id,
@@ -1669,15 +1668,14 @@ class MyPaymentHistoryTableData extends DataClass
       @required this.year,
       @required this.expected,
       @required this.paid,
-      @required this.due});
+      @required this.due,
+      @required this.timestamp});
   factory MyPaymentHistoryTableData.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     return MyPaymentHistoryTableData(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       onlineid: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}onlineid']),
       apartment_id: stringType
@@ -1693,14 +1691,13 @@ class MyPaymentHistoryTableData extends DataClass
           .mapFromDatabaseResponse(data['${effectivePrefix}expected']),
       paid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}paid']),
       due: stringType.mapFromDatabaseResponse(data['${effectivePrefix}due']),
+      timestamp: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}timestamp']),
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
     if (!nullToAbsent || onlineid != null) {
       map['onlineid'] = Variable<String>(onlineid);
     }
@@ -1728,12 +1725,14 @@ class MyPaymentHistoryTableData extends DataClass
     if (!nullToAbsent || due != null) {
       map['due'] = Variable<String>(due);
     }
+    if (!nullToAbsent || timestamp != null) {
+      map['timestamp'] = Variable<String>(timestamp);
+    }
     return map;
   }
 
   MyPaymentHistoryTableCompanion toCompanion(bool nullToAbsent) {
     return MyPaymentHistoryTableCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       onlineid: onlineid == null && nullToAbsent
           ? const Value.absent()
           : Value(onlineid),
@@ -1753,6 +1752,9 @@ class MyPaymentHistoryTableData extends DataClass
           : Value(expected),
       paid: paid == null && nullToAbsent ? const Value.absent() : Value(paid),
       due: due == null && nullToAbsent ? const Value.absent() : Value(due),
+      timestamp: timestamp == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timestamp),
     );
   }
 
@@ -1760,7 +1762,6 @@ class MyPaymentHistoryTableData extends DataClass
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return MyPaymentHistoryTableData(
-      id: serializer.fromJson<int>(json['id']),
       onlineid: serializer.fromJson<String>(json['onlineid']),
       apartment_id: serializer.fromJson<String>(json['apartment_id']),
       title: serializer.fromJson<String>(json['title']),
@@ -1770,13 +1771,13 @@ class MyPaymentHistoryTableData extends DataClass
       expected: serializer.fromJson<String>(json['expected']),
       paid: serializer.fromJson<String>(json['paid']),
       due: serializer.fromJson<String>(json['due']),
+      timestamp: serializer.fromJson<String>(json['timestamp']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'onlineid': serializer.toJson<String>(onlineid),
       'apartment_id': serializer.toJson<String>(apartment_id),
       'title': serializer.toJson<String>(title),
@@ -1786,12 +1787,12 @@ class MyPaymentHistoryTableData extends DataClass
       'expected': serializer.toJson<String>(expected),
       'paid': serializer.toJson<String>(paid),
       'due': serializer.toJson<String>(due),
+      'timestamp': serializer.toJson<String>(timestamp),
     };
   }
 
   MyPaymentHistoryTableData copyWith(
-          {int id,
-          String onlineid,
+          {String onlineid,
           String apartment_id,
           String title,
           String company_id,
@@ -1799,9 +1800,9 @@ class MyPaymentHistoryTableData extends DataClass
           String year,
           String expected,
           String paid,
-          String due}) =>
+          String due,
+          String timestamp}) =>
       MyPaymentHistoryTableData(
-        id: id ?? this.id,
         onlineid: onlineid ?? this.onlineid,
         apartment_id: apartment_id ?? this.apartment_id,
         title: title ?? this.title,
@@ -1811,11 +1812,11 @@ class MyPaymentHistoryTableData extends DataClass
         expected: expected ?? this.expected,
         paid: paid ?? this.paid,
         due: due ?? this.due,
+        timestamp: timestamp ?? this.timestamp,
       );
   @override
   String toString() {
     return (StringBuffer('MyPaymentHistoryTableData(')
-          ..write('id: $id, ')
           ..write('onlineid: $onlineid, ')
           ..write('apartment_id: $apartment_id, ')
           ..write('title: $title, ')
@@ -1824,33 +1825,35 @@ class MyPaymentHistoryTableData extends DataClass
           ..write('year: $year, ')
           ..write('expected: $expected, ')
           ..write('paid: $paid, ')
-          ..write('due: $due')
+          ..write('due: $due, ')
+          ..write('timestamp: $timestamp')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => $mrjf($mrjc(
-      id.hashCode,
+      onlineid.hashCode,
       $mrjc(
-          onlineid.hashCode,
+          apartment_id.hashCode,
           $mrjc(
-              apartment_id.hashCode,
+              title.hashCode,
               $mrjc(
-                  title.hashCode,
+                  company_id.hashCode,
                   $mrjc(
-                      company_id.hashCode,
+                      month.hashCode,
                       $mrjc(
-                          month.hashCode,
+                          year.hashCode,
                           $mrjc(
-                              year.hashCode,
-                              $mrjc(expected.hashCode,
-                                  $mrjc(paid.hashCode, due.hashCode))))))))));
+                              expected.hashCode,
+                              $mrjc(
+                                  paid.hashCode,
+                                  $mrjc(due.hashCode,
+                                      timestamp.hashCode))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is MyPaymentHistoryTableData &&
-          other.id == this.id &&
           other.onlineid == this.onlineid &&
           other.apartment_id == this.apartment_id &&
           other.title == this.title &&
@@ -1859,12 +1862,12 @@ class MyPaymentHistoryTableData extends DataClass
           other.year == this.year &&
           other.expected == this.expected &&
           other.paid == this.paid &&
-          other.due == this.due);
+          other.due == this.due &&
+          other.timestamp == this.timestamp);
 }
 
 class MyPaymentHistoryTableCompanion
     extends UpdateCompanion<MyPaymentHistoryTableData> {
-  final Value<int> id;
   final Value<String> onlineid;
   final Value<String> apartment_id;
   final Value<String> title;
@@ -1874,8 +1877,8 @@ class MyPaymentHistoryTableCompanion
   final Value<String> expected;
   final Value<String> paid;
   final Value<String> due;
+  final Value<String> timestamp;
   const MyPaymentHistoryTableCompanion({
-    this.id = const Value.absent(),
     this.onlineid = const Value.absent(),
     this.apartment_id = const Value.absent(),
     this.title = const Value.absent(),
@@ -1885,9 +1888,9 @@ class MyPaymentHistoryTableCompanion
     this.expected = const Value.absent(),
     this.paid = const Value.absent(),
     this.due = const Value.absent(),
+    this.timestamp = const Value.absent(),
   });
   MyPaymentHistoryTableCompanion.insert({
-    this.id = const Value.absent(),
     @required String onlineid,
     @required String apartment_id,
     @required String title,
@@ -1897,6 +1900,7 @@ class MyPaymentHistoryTableCompanion
     @required String expected,
     @required String paid,
     @required String due,
+    @required String timestamp,
   })  : onlineid = Value(onlineid),
         apartment_id = Value(apartment_id),
         title = Value(title),
@@ -1905,9 +1909,9 @@ class MyPaymentHistoryTableCompanion
         year = Value(year),
         expected = Value(expected),
         paid = Value(paid),
-        due = Value(due);
+        due = Value(due),
+        timestamp = Value(timestamp);
   static Insertable<MyPaymentHistoryTableData> custom({
-    Expression<int> id,
     Expression<String> onlineid,
     Expression<String> apartment_id,
     Expression<String> title,
@@ -1917,9 +1921,9 @@ class MyPaymentHistoryTableCompanion
     Expression<String> expected,
     Expression<String> paid,
     Expression<String> due,
+    Expression<String> timestamp,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (onlineid != null) 'onlineid': onlineid,
       if (apartment_id != null) 'apartment_id': apartment_id,
       if (title != null) 'title': title,
@@ -1929,12 +1933,12 @@ class MyPaymentHistoryTableCompanion
       if (expected != null) 'expected': expected,
       if (paid != null) 'paid': paid,
       if (due != null) 'due': due,
+      if (timestamp != null) 'timestamp': timestamp,
     });
   }
 
   MyPaymentHistoryTableCompanion copyWith(
-      {Value<int> id,
-      Value<String> onlineid,
+      {Value<String> onlineid,
       Value<String> apartment_id,
       Value<String> title,
       Value<String> company_id,
@@ -1942,9 +1946,9 @@ class MyPaymentHistoryTableCompanion
       Value<String> year,
       Value<String> expected,
       Value<String> paid,
-      Value<String> due}) {
+      Value<String> due,
+      Value<String> timestamp}) {
     return MyPaymentHistoryTableCompanion(
-      id: id ?? this.id,
       onlineid: onlineid ?? this.onlineid,
       apartment_id: apartment_id ?? this.apartment_id,
       title: title ?? this.title,
@@ -1954,15 +1958,13 @@ class MyPaymentHistoryTableCompanion
       expected: expected ?? this.expected,
       paid: paid ?? this.paid,
       due: due ?? this.due,
+      timestamp: timestamp ?? this.timestamp,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (onlineid.present) {
       map['onlineid'] = Variable<String>(onlineid.value);
     }
@@ -1990,13 +1992,15 @@ class MyPaymentHistoryTableCompanion
     if (due.present) {
       map['due'] = Variable<String>(due.value);
     }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<String>(timestamp.value);
+    }
     return map;
   }
 
   @override
   String toString() {
     return (StringBuffer('MyPaymentHistoryTableCompanion(')
-          ..write('id: $id, ')
           ..write('onlineid: $onlineid, ')
           ..write('apartment_id: $apartment_id, ')
           ..write('title: $title, ')
@@ -2005,7 +2009,8 @@ class MyPaymentHistoryTableCompanion
           ..write('year: $year, ')
           ..write('expected: $expected, ')
           ..write('paid: $paid, ')
-          ..write('due: $due')
+          ..write('due: $due, ')
+          ..write('timestamp: $timestamp')
           ..write(')'))
         .toString();
   }
@@ -2016,15 +2021,6 @@ class $MyPaymentHistoryTableTable extends MyPaymentHistoryTable
   final GeneratedDatabase _db;
   final String _alias;
   $MyPaymentHistoryTableTable(this._db, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
-  @override
-  GeneratedIntColumn get id => _id ??= _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
-  }
-
   final VerificationMeta _onlineidMeta = const VerificationMeta('onlineid');
   GeneratedTextColumn _onlineid;
   @override
@@ -2135,9 +2131,20 @@ class $MyPaymentHistoryTableTable extends MyPaymentHistoryTable
     );
   }
 
+  final VerificationMeta _timestampMeta = const VerificationMeta('timestamp');
+  GeneratedTextColumn _timestamp;
+  @override
+  GeneratedTextColumn get timestamp => _timestamp ??= _constructTimestamp();
+  GeneratedTextColumn _constructTimestamp() {
+    return GeneratedTextColumn(
+      'timestamp',
+      $tableName,
+      false,
+    );
+  }
+
   @override
   List<GeneratedColumn> get $columns => [
-        id,
         onlineid,
         apartment_id,
         title,
@@ -2146,7 +2153,8 @@ class $MyPaymentHistoryTableTable extends MyPaymentHistoryTable
         year,
         expected,
         paid,
-        due
+        due,
+        timestamp
       ];
   @override
   $MyPaymentHistoryTableTable get asDslTable => this;
@@ -2160,9 +2168,6 @@ class $MyPaymentHistoryTableTable extends MyPaymentHistoryTable
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
-    }
     if (data.containsKey('onlineid')) {
       context.handle(_onlineidMeta,
           onlineid.isAcceptableOrUnknown(data['onlineid'], _onlineidMeta));
@@ -2221,11 +2226,17 @@ class $MyPaymentHistoryTableTable extends MyPaymentHistoryTable
     } else if (isInserting) {
       context.missing(_dueMeta);
     }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp'], _timestampMeta));
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {onlineid};
   @override
   MyPaymentHistoryTableData map(Map<String, dynamic> data,
       {String tablePrefix}) {
@@ -2623,7 +2634,6 @@ class $MyHomeSummaryTableTable extends MyHomeSummaryTable
 
 class MyTransactionsTableData extends DataClass
     implements Insertable<MyTransactionsTableData> {
-  final int id;
   final String onlineid;
   final String apartment_id;
   final String transaction_id;
@@ -2635,8 +2645,7 @@ class MyTransactionsTableData extends DataClass
   final String time;
   final String type;
   MyTransactionsTableData(
-      {@required this.id,
-      @required this.onlineid,
+      {@required this.onlineid,
       @required this.apartment_id,
       @required this.transaction_id,
       @required this.user_id,
@@ -2650,10 +2659,8 @@ class MyTransactionsTableData extends DataClass
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     return MyTransactionsTableData(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       onlineid: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}onlineid']),
       apartment_id: stringType
@@ -2676,9 +2683,6 @@ class MyTransactionsTableData extends DataClass
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
     if (!nullToAbsent || onlineid != null) {
       map['onlineid'] = Variable<String>(onlineid);
     }
@@ -2714,7 +2718,6 @@ class MyTransactionsTableData extends DataClass
 
   MyTransactionsTableCompanion toCompanion(bool nullToAbsent) {
     return MyTransactionsTableCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       onlineid: onlineid == null && nullToAbsent
           ? const Value.absent()
           : Value(onlineid),
@@ -2743,7 +2746,6 @@ class MyTransactionsTableData extends DataClass
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return MyTransactionsTableData(
-      id: serializer.fromJson<int>(json['id']),
       onlineid: serializer.fromJson<String>(json['onlineid']),
       apartment_id: serializer.fromJson<String>(json['apartment_id']),
       transaction_id: serializer.fromJson<String>(json['transaction_id']),
@@ -2760,7 +2762,6 @@ class MyTransactionsTableData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'onlineid': serializer.toJson<String>(onlineid),
       'apartment_id': serializer.toJson<String>(apartment_id),
       'transaction_id': serializer.toJson<String>(transaction_id),
@@ -2775,8 +2776,7 @@ class MyTransactionsTableData extends DataClass
   }
 
   MyTransactionsTableData copyWith(
-          {int id,
-          String onlineid,
+          {String onlineid,
           String apartment_id,
           String transaction_id,
           String user_id,
@@ -2787,7 +2787,6 @@ class MyTransactionsTableData extends DataClass
           String time,
           String type}) =>
       MyTransactionsTableData(
-        id: id ?? this.id,
         onlineid: onlineid ?? this.onlineid,
         apartment_id: apartment_id ?? this.apartment_id,
         transaction_id: transaction_id ?? this.transaction_id,
@@ -2802,7 +2801,6 @@ class MyTransactionsTableData extends DataClass
   @override
   String toString() {
     return (StringBuffer('MyTransactionsTableData(')
-          ..write('id: $id, ')
           ..write('onlineid: $onlineid, ')
           ..write('apartment_id: $apartment_id, ')
           ..write('transaction_id: $transaction_id, ')
@@ -2819,30 +2817,25 @@ class MyTransactionsTableData extends DataClass
 
   @override
   int get hashCode => $mrjf($mrjc(
-      id.hashCode,
+      onlineid.hashCode,
       $mrjc(
-          onlineid.hashCode,
+          apartment_id.hashCode,
           $mrjc(
-              apartment_id.hashCode,
+              transaction_id.hashCode,
               $mrjc(
-                  transaction_id.hashCode,
+                  user_id.hashCode,
                   $mrjc(
-                      user_id.hashCode,
+                      month.hashCode,
                       $mrjc(
-                          month.hashCode,
+                          year.hashCode,
                           $mrjc(
-                              year.hashCode,
-                              $mrjc(
-                                  status.hashCode,
-                                  $mrjc(
-                                      amount.hashCode,
-                                      $mrjc(time.hashCode,
-                                          type.hashCode)))))))))));
+                              status.hashCode,
+                              $mrjc(amount.hashCode,
+                                  $mrjc(time.hashCode, type.hashCode))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is MyTransactionsTableData &&
-          other.id == this.id &&
           other.onlineid == this.onlineid &&
           other.apartment_id == this.apartment_id &&
           other.transaction_id == this.transaction_id &&
@@ -2857,7 +2850,6 @@ class MyTransactionsTableData extends DataClass
 
 class MyTransactionsTableCompanion
     extends UpdateCompanion<MyTransactionsTableData> {
-  final Value<int> id;
   final Value<String> onlineid;
   final Value<String> apartment_id;
   final Value<String> transaction_id;
@@ -2869,7 +2861,6 @@ class MyTransactionsTableCompanion
   final Value<String> time;
   final Value<String> type;
   const MyTransactionsTableCompanion({
-    this.id = const Value.absent(),
     this.onlineid = const Value.absent(),
     this.apartment_id = const Value.absent(),
     this.transaction_id = const Value.absent(),
@@ -2882,7 +2873,6 @@ class MyTransactionsTableCompanion
     this.type = const Value.absent(),
   });
   MyTransactionsTableCompanion.insert({
-    this.id = const Value.absent(),
     @required String onlineid,
     @required String apartment_id,
     @required String transaction_id,
@@ -2904,7 +2894,6 @@ class MyTransactionsTableCompanion
         time = Value(time),
         type = Value(type);
   static Insertable<MyTransactionsTableData> custom({
-    Expression<int> id,
     Expression<String> onlineid,
     Expression<String> apartment_id,
     Expression<String> transaction_id,
@@ -2917,7 +2906,6 @@ class MyTransactionsTableCompanion
     Expression<String> type,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (onlineid != null) 'onlineid': onlineid,
       if (apartment_id != null) 'apartment_id': apartment_id,
       if (transaction_id != null) 'transaction_id': transaction_id,
@@ -2932,8 +2920,7 @@ class MyTransactionsTableCompanion
   }
 
   MyTransactionsTableCompanion copyWith(
-      {Value<int> id,
-      Value<String> onlineid,
+      {Value<String> onlineid,
       Value<String> apartment_id,
       Value<String> transaction_id,
       Value<String> user_id,
@@ -2944,7 +2931,6 @@ class MyTransactionsTableCompanion
       Value<String> time,
       Value<String> type}) {
     return MyTransactionsTableCompanion(
-      id: id ?? this.id,
       onlineid: onlineid ?? this.onlineid,
       apartment_id: apartment_id ?? this.apartment_id,
       transaction_id: transaction_id ?? this.transaction_id,
@@ -2961,9 +2947,6 @@ class MyTransactionsTableCompanion
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (onlineid.present) {
       map['onlineid'] = Variable<String>(onlineid.value);
     }
@@ -3000,7 +2983,6 @@ class MyTransactionsTableCompanion
   @override
   String toString() {
     return (StringBuffer('MyTransactionsTableCompanion(')
-          ..write('id: $id, ')
           ..write('onlineid: $onlineid, ')
           ..write('apartment_id: $apartment_id, ')
           ..write('transaction_id: $transaction_id, ')
@@ -3021,15 +3003,6 @@ class $MyTransactionsTableTable extends MyTransactionsTable
   final GeneratedDatabase _db;
   final String _alias;
   $MyTransactionsTableTable(this._db, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
-  @override
-  GeneratedIntColumn get id => _id ??= _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
-  }
-
   final VerificationMeta _onlineidMeta = const VerificationMeta('onlineid');
   GeneratedTextColumn _onlineid;
   @override
@@ -3156,7 +3129,6 @@ class $MyTransactionsTableTable extends MyTransactionsTable
 
   @override
   List<GeneratedColumn> get $columns => [
-        id,
         onlineid,
         apartment_id,
         transaction_id,
@@ -3180,9 +3152,6 @@ class $MyTransactionsTableTable extends MyTransactionsTable
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
-    }
     if (data.containsKey('onlineid')) {
       context.handle(_onlineidMeta,
           onlineid.isAcceptableOrUnknown(data['onlineid'], _onlineidMeta));
@@ -3251,7 +3220,7 @@ class $MyTransactionsTableTable extends MyTransactionsTable
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {onlineid};
   @override
   MyTransactionsTableData map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -3266,7 +3235,6 @@ class $MyTransactionsTableTable extends MyTransactionsTable
 
 class MyTenantTableData extends DataClass
     implements Insertable<MyTenantTableData> {
-  final int id;
   final String onlineid;
   final String apartment_id;
   final String photo;
@@ -3275,8 +3243,7 @@ class MyTenantTableData extends DataClass
   final String payed;
   final String unit;
   MyTenantTableData(
-      {@required this.id,
-      @required this.onlineid,
+      {@required this.onlineid,
       @required this.apartment_id,
       @required this.photo,
       @required this.name,
@@ -3287,10 +3254,8 @@ class MyTenantTableData extends DataClass
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     return MyTenantTableData(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       onlineid: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}onlineid']),
       apartment_id: stringType
@@ -3308,9 +3273,6 @@ class MyTenantTableData extends DataClass
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
     if (!nullToAbsent || onlineid != null) {
       map['onlineid'] = Variable<String>(onlineid);
     }
@@ -3337,7 +3299,6 @@ class MyTenantTableData extends DataClass
 
   MyTenantTableCompanion toCompanion(bool nullToAbsent) {
     return MyTenantTableCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       onlineid: onlineid == null && nullToAbsent
           ? const Value.absent()
           : Value(onlineid),
@@ -3359,7 +3320,6 @@ class MyTenantTableData extends DataClass
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return MyTenantTableData(
-      id: serializer.fromJson<int>(json['id']),
       onlineid: serializer.fromJson<String>(json['onlineid']),
       apartment_id: serializer.fromJson<String>(json['apartment_id']),
       photo: serializer.fromJson<String>(json['photo']),
@@ -3373,7 +3333,6 @@ class MyTenantTableData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'onlineid': serializer.toJson<String>(onlineid),
       'apartment_id': serializer.toJson<String>(apartment_id),
       'photo': serializer.toJson<String>(photo),
@@ -3385,8 +3344,7 @@ class MyTenantTableData extends DataClass
   }
 
   MyTenantTableData copyWith(
-          {int id,
-          String onlineid,
+          {String onlineid,
           String apartment_id,
           String photo,
           String name,
@@ -3394,7 +3352,6 @@ class MyTenantTableData extends DataClass
           String payed,
           String unit}) =>
       MyTenantTableData(
-        id: id ?? this.id,
         onlineid: onlineid ?? this.onlineid,
         apartment_id: apartment_id ?? this.apartment_id,
         photo: photo ?? this.photo,
@@ -3406,7 +3363,6 @@ class MyTenantTableData extends DataClass
   @override
   String toString() {
     return (StringBuffer('MyTenantTableData(')
-          ..write('id: $id, ')
           ..write('onlineid: $onlineid, ')
           ..write('apartment_id: $apartment_id, ')
           ..write('photo: $photo, ')
@@ -3420,22 +3376,19 @@ class MyTenantTableData extends DataClass
 
   @override
   int get hashCode => $mrjf($mrjc(
-      id.hashCode,
+      onlineid.hashCode,
       $mrjc(
-          onlineid.hashCode,
+          apartment_id.hashCode,
           $mrjc(
-              apartment_id.hashCode,
+              photo.hashCode,
               $mrjc(
-                  photo.hashCode,
-                  $mrjc(
-                      name.hashCode,
-                      $mrjc(email.hashCode,
-                          $mrjc(payed.hashCode, unit.hashCode))))))));
+                  name.hashCode,
+                  $mrjc(email.hashCode,
+                      $mrjc(payed.hashCode, unit.hashCode)))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is MyTenantTableData &&
-          other.id == this.id &&
           other.onlineid == this.onlineid &&
           other.apartment_id == this.apartment_id &&
           other.photo == this.photo &&
@@ -3446,7 +3399,6 @@ class MyTenantTableData extends DataClass
 }
 
 class MyTenantTableCompanion extends UpdateCompanion<MyTenantTableData> {
-  final Value<int> id;
   final Value<String> onlineid;
   final Value<String> apartment_id;
   final Value<String> photo;
@@ -3455,7 +3407,6 @@ class MyTenantTableCompanion extends UpdateCompanion<MyTenantTableData> {
   final Value<String> payed;
   final Value<String> unit;
   const MyTenantTableCompanion({
-    this.id = const Value.absent(),
     this.onlineid = const Value.absent(),
     this.apartment_id = const Value.absent(),
     this.photo = const Value.absent(),
@@ -3465,7 +3416,6 @@ class MyTenantTableCompanion extends UpdateCompanion<MyTenantTableData> {
     this.unit = const Value.absent(),
   });
   MyTenantTableCompanion.insert({
-    this.id = const Value.absent(),
     @required String onlineid,
     @required String apartment_id,
     @required String photo,
@@ -3481,7 +3431,6 @@ class MyTenantTableCompanion extends UpdateCompanion<MyTenantTableData> {
         payed = Value(payed),
         unit = Value(unit);
   static Insertable<MyTenantTableData> custom({
-    Expression<int> id,
     Expression<String> onlineid,
     Expression<String> apartment_id,
     Expression<String> photo,
@@ -3491,7 +3440,6 @@ class MyTenantTableCompanion extends UpdateCompanion<MyTenantTableData> {
     Expression<String> unit,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (onlineid != null) 'onlineid': onlineid,
       if (apartment_id != null) 'apartment_id': apartment_id,
       if (photo != null) 'photo': photo,
@@ -3503,8 +3451,7 @@ class MyTenantTableCompanion extends UpdateCompanion<MyTenantTableData> {
   }
 
   MyTenantTableCompanion copyWith(
-      {Value<int> id,
-      Value<String> onlineid,
+      {Value<String> onlineid,
       Value<String> apartment_id,
       Value<String> photo,
       Value<String> name,
@@ -3512,7 +3459,6 @@ class MyTenantTableCompanion extends UpdateCompanion<MyTenantTableData> {
       Value<String> payed,
       Value<String> unit}) {
     return MyTenantTableCompanion(
-      id: id ?? this.id,
       onlineid: onlineid ?? this.onlineid,
       apartment_id: apartment_id ?? this.apartment_id,
       photo: photo ?? this.photo,
@@ -3526,9 +3472,6 @@ class MyTenantTableCompanion extends UpdateCompanion<MyTenantTableData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (onlineid.present) {
       map['onlineid'] = Variable<String>(onlineid.value);
     }
@@ -3556,7 +3499,6 @@ class MyTenantTableCompanion extends UpdateCompanion<MyTenantTableData> {
   @override
   String toString() {
     return (StringBuffer('MyTenantTableCompanion(')
-          ..write('id: $id, ')
           ..write('onlineid: $onlineid, ')
           ..write('apartment_id: $apartment_id, ')
           ..write('photo: $photo, ')
@@ -3574,15 +3516,6 @@ class $MyTenantTableTable extends MyTenantTable
   final GeneratedDatabase _db;
   final String _alias;
   $MyTenantTableTable(this._db, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
-  @override
-  GeneratedIntColumn get id => _id ??= _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
-  }
-
   final VerificationMeta _onlineidMeta = const VerificationMeta('onlineid');
   GeneratedTextColumn _onlineid;
   @override
@@ -3671,7 +3604,7 @@ class $MyTenantTableTable extends MyTenantTable
 
   @override
   List<GeneratedColumn> get $columns =>
-      [id, onlineid, apartment_id, photo, name, email, payed, unit];
+      [onlineid, apartment_id, photo, name, email, payed, unit];
   @override
   $MyTenantTableTable get asDslTable => this;
   @override
@@ -3683,9 +3616,6 @@ class $MyTenantTableTable extends MyTenantTable
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
-    }
     if (data.containsKey('onlineid')) {
       context.handle(_onlineidMeta,
           onlineid.isAcceptableOrUnknown(data['onlineid'], _onlineidMeta));
@@ -3734,7 +3664,7 @@ class $MyTenantTableTable extends MyTenantTable
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {onlineid};
   @override
   MyTenantTableData map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;

@@ -113,9 +113,11 @@ class _MyHomePageState extends State<EditPhotoViewer> {
             Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              child: Image.file(
-                pic,
-                fit: BoxFit.fitHeight,
+              child: InteractiveViewer(
+                              child: Image.file(
+                  pic,
+                  fit: BoxFit.fitHeight,
+                ),
               ),
             ),
             Positioned(

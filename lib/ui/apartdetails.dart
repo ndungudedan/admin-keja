@@ -476,13 +476,15 @@ class _MyHomePageState extends State<ApartmentDetails> {
 
   Row featuresCard(var feature) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Icon(
-          Icons.star,
-          size: 13,
-          color: Colors.lightBlueAccent,
-        ),
-        Flexible(
+            Icons.star,
+            size: 13,
+            color: Colors.lightBlueAccent,
+          ),
+        Expanded(
           child: Text(
             feature,
             overflow: TextOverflow.visible,

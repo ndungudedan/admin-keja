@@ -47,7 +47,7 @@ class About extends StatelessWidget {
                   return SizedBox(
                     height: 40,
                     width: 40,
-                    child: CircularProgressIndicator());
+                    child: Center(child: CircularProgressIndicator()));
                 },
               )
             ],
