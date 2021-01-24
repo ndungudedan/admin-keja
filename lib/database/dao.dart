@@ -101,6 +101,14 @@ class DatabaseDao extends DatabaseAccessor<DatabaseHelper>
   void upsertApartment(MyApartmentTableCompanion value) {
     into(myApartmentTable).insertOnConflictUpdate(value);
   }
+  void updateEnabled(bool enabled,var id){
+    (update(myApartmentTable)
+      ..where((t) => t.onlineid.equals(id))
+    ).write(MyApartmentTableCompanion(
+      enabled: Value(enabled),
+    ),
+  );
+  }
 
   void insertFeatures(List<MyFeaturesTableCompanion> values) async {
     await batch((batch) {

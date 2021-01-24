@@ -27,6 +27,7 @@ class MyApartment {
   String video;
   String rating;
   String liked;
+  String enabled;
 
   MyApartment({
     this.id,
@@ -52,6 +53,7 @@ class MyApartment {
     this.location,
     this.banner,
     this.bannertag,
+    this.enabled,
   });
 
   factory MyApartment.fromJson(Map<String, dynamic> json) =>

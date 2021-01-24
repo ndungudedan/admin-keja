@@ -196,6 +196,7 @@ class _CreateApartmentState extends State<CreateApartment> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            Text('*Click the circles to navigate',style: TextStyle(fontSize: 7.0),),
             Center(
               child: Container(
                 margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -455,7 +456,7 @@ class _CreateApartmentState extends State<CreateApartment> {
           shrinkWrap: true,
           children: [
             Center(
-              child: Text(toUpload.length.toString() + '/16'),
+              child: Text(toUpload.length.toString() + '/max: 16'),
             ),
             Center(
               child: toUpload.length < 16
@@ -682,7 +683,7 @@ class _CreateApartmentState extends State<CreateApartment> {
         child: Column(
           children: [
             Center(
-              child: Text(features.length.toString() + '/8'),
+              child: Text(features.length.toString() + '/min: 4'),
             ),
             Flexible(
               child: Container(
@@ -711,7 +712,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                     }),
               ),
             ),
-            features.length < 8
+            features.length < 4
                 ? Align(
                     alignment: FractionalOffset.bottomCenter,
                     child: Container(
@@ -728,7 +729,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                           controller: _featController,
                           onSubmitted: (value) {
                             setState(() {
-                              if (features.length < 8) {
+                              if (features.length < 4) {
                                 features.add(_featController.text);
                                 _featController.clear();
                               }
@@ -843,9 +844,8 @@ class _CreateApartmentState extends State<CreateApartment> {
                 ),
                 highlightColor: Colors.green,
                 onPressed: () {
-                  submit();
                   if (validatestep1 && validatestep2) {
-                    if (toUpload.length != 16) {
+                    if (toUpload.length ==0 ) {
                       _scaffoldKey.currentState
                           .showSnackBar(snack('Please add more Images'));
                       return;
@@ -865,12 +865,12 @@ class _CreateApartmentState extends State<CreateApartment> {
                           .showSnackBar(snack('Banner tag cannot be empty'));
                       return;
                     }
-                    if (tags.length != 16) {
+                    if (tags.length == 0) {
                       _scaffoldKey.currentState
                           .showSnackBar(snack('Please fill all tags'));
                       return;
                     }
-                    if (features.length != 11) {
+                    if (features.length <4) {
                       _scaffoldKey.currentState
                           .showSnackBar(snack('Please add more features'));
                       return;
@@ -940,7 +940,7 @@ class _CreateApartmentState extends State<CreateApartment> {
   void addtag(var index) async {
     var result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => PhotoViewer(
-              picList: image_uri,
+              picList: toUpload,
               tagList: tags,
               index: index,
             )));

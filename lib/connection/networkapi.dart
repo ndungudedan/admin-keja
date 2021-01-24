@@ -5,22 +5,23 @@ import 'package:admin_keja/management/management.dart';
 import 'network.dart';
 
 class NetworkApi {
-  Constants constants=Constants();
-  
+  Constants constants = Constants();
+
   Future<dynamic> login(var email, var pass) async {
     Network network = Network(constants.baseurl);
     var data = await network.call(loginjson(email, pass));
     return data;
   }
-    Future<dynamic> getApartmentLocations() async {
+
+  Future<dynamic> getApartmentLocations() async {
     Network network = Network(constants.baseurl);
     var data = await network.call(locationsjson());
     return data;
   }
 
-    Future<dynamic> changeCredentials(var email, var pass,var userId) async {
+  Future<dynamic> changeCredentials(var email, var pass, var userId) async {
     Network network = Network(constants.baseurl);
-    var data = await network.call(changeCredentialsjson(email, pass,userId));
+    var data = await network.call(changeCredentialsjson(email, pass, userId));
     return data;
   }
 
@@ -29,59 +30,74 @@ class NetworkApi {
     var data = await network.call(companyjson(userId));
     return data;
   }
+
   Future<dynamic> fetchApartments(var companyId) async {
     Network network = Network(constants.baseurl);
     var data = await network.call(apartmentsjson(companyId));
     return data;
   }
-  Future<dynamic> fetchHome(var companyId,var month,var year) async {
+
+  Future<dynamic> fetchHome(var companyId, var month, var year) async {
     Network network = Network(constants.baseurl);
-    var data = await network.call(homejson(companyId,month,year));
+    var data = await network.call(homejson(companyId, month, year));
     return data;
   }
-  Future<dynamic> fetchApartmentSummary(var apartmentId,var month,var year) async {
+
+  Future<dynamic> fetchApartmentSummary(
+      var apartmentId, var month, var year) async {
     Network network = Network(constants.baseurl);
-    var data = await network.call(apartmentSummaryjson(apartmentId,month,year));
+    var data =
+        await network.call(apartmentSummaryjson(apartmentId, month, year));
     return data;
   }
-    Future<dynamic> fetchTransactions(var apartmentId,var month,var year) async {
+
+  Future<dynamic> fetchTransactions(
+      var apartmentId, var month, var year) async {
     Network network = Network(constants.baseurl);
-    var data = await network.call(apartmentTransactionsjson(apartmentId,month,year));
+    var data =
+        await network.call(apartmentTransactionsjson(apartmentId, month, year));
     return data;
   }
+
   Future<dynamic> fetchTenants(var apartmentId) async {
     Network network = Network(constants.baseurl);
     var data = await network.call(tenantsjson(apartmentId));
     return data;
   }
-  Future<dynamic> fetchTenantTransactions(var apartmentId,var tenantId) async {
+
+  Future<dynamic> fetchTenantTransactions(var apartmentId, var tenantId) async {
     Network network = Network(constants.baseurl);
-    var data = await network.call(tenanttransjson(apartmentId,tenantId));
+    var data = await network.call(tenanttransjson(apartmentId, tenantId));
     return data;
   }
-    Future<dynamic> addUnit(var apartmentId,var userId,var unit) async {
+
+  Future<dynamic> addUnit(var apartmentId, var userId, var unit) async {
     Network network = Network(constants.baseurl);
-    var data = await network.call(addUnitjson(apartmentId,userId,unit));
+    var data = await network.call(addUnitjson(apartmentId, userId, unit));
     return data;
   }
-  Future<dynamic> fungaKeja(var apartmentId,var userId) async {
+
+  Future<dynamic> fungaKeja(var apartmentId, var userId) async {
     Network network = Network(constants.baseurl);
-    var data = await network.call(fungaKejajson(apartmentId,userId));
+    var data = await network.call(fungaKejajson(apartmentId, userId));
     return data;
   }
-    Future<dynamic> getImages(var apartmentId) async {
+
+  Future<dynamic> getImages(var apartmentId) async {
     // 6
     Network network = Network(constants.baseurl);
     // 7
     var Data = await network.call(imagejson(apartmentId));
     return Data;
   }
-      Future<dynamic> getTags(var apartmentId) async {
+
+  Future<dynamic> getTags(var apartmentId) async {
     Network network = Network(constants.baseurl);
     var Data = await network.call(tagjson(apartmentId));
     return Data;
   }
-    Future<dynamic> getFeatures(String apartmentId) async {
+
+  Future<dynamic> getFeatures(String apartmentId) async {
     // 6
     Network network = Network(constants.baseurl);
     // 7
@@ -89,92 +105,123 @@ class NetworkApi {
     return Data;
   }
 
-  Future<dynamic> upload(var images,var banner,var tags,var features,var details,Function onProgress) async {
+  Future<dynamic> upload(var images, var banner, var tags, var features,
+      var details, Function onProgress) async {
     // 6
     Network network = Network(constants.uploadurl);
     // 7
-    var Data = await network.uploadApartment(images,banner,tags,features,details,onProgress);
+    var Data = await network.uploadApartment(
+        images, banner, tags, features, details, onProgress);
     return Data;
   }
-    Future<dynamic> updateImage(var file,var tag,var apartmentId,var picId,Function onProgress) async {
+
+  Future<dynamic> updateImage(var file, var tag, var apartmentId, var picId,
+      Function onProgress) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.updateApartment(file,tag,apartmentId,picId,onProgress);
+    var Data = await network.updateApartment(
+        file, tag, apartmentId, picId, onProgress);
     return Data;
   }
-  Future<dynamic> updateBannerImage(var file,var tag,var apartmentId,Function onProgress) async {
+
+  Future<dynamic> updateBannerImage(
+      var file, var tag, var apartmentId, Function onProgress) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.updateBannerApartment(file,tag,apartmentId,onProgress);
+    var Data =
+        await network.updateBannerApartment(file, tag, apartmentId, onProgress);
     return Data;
   }
-      Future<dynamic> updateTag(var tag,var apartmentId,var picId) async {
+
+  Future<dynamic> updateTag(var tag, var apartmentId, var picId) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.call(updateTagJson(tag,apartmentId,picId));
+    var Data = await network.call(updateTagJson(tag, apartmentId, picId));
     return Data;
   }
-   Future<dynamic> updateBannerTag(var tag,var apartmentId) async {
+
+  Future<dynamic> updateBannerTag(var tag, var apartmentId) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.call(updateBannerTagJson(tag,apartmentId));
+    var Data = await network.call(updateBannerTagJson(tag, apartmentId));
     return Data;
   }
-    Future<dynamic> updateStep1(var apartmentId,var details) async {
+
+  Future<dynamic> updateStep1(var apartmentId, var details) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.call(updateStep1Json(apartmentId,details));
+    var Data = await network.call(updateStep1Json(apartmentId, details));
     return Data;
   }
-  Future<dynamic> updateStep2(var apartmentId,var details) async {
+
+  Future<dynamic> updateStep2(var apartmentId, var details) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.call(updateStep2Json(apartmentId,details));
+    var Data = await network.call(updateStep2Json(apartmentId, details));
     return Data;
   }
-    Future<dynamic> updateFeatures(var apartmentId,var features) async {
+
+  Future<dynamic> updateFeatures(var apartmentId, var features) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.updateFeatures(features,apartmentId);
+    var Data = await network.updateFeatures(features, apartmentId);
     return Data;
   }
-      Future<dynamic> deleteFeature(var featureId) async {
+
+  Future<dynamic> deleteFeature(var featureId) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
     var Data = await network.call(deleteFeatureJson(featureId));
     return Data;
   }
-  Future<dynamic> insertFeature(var apartmentId,var feature) async {
+
+  Future<dynamic> insertFeature(var apartmentId, var feature) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.call(insertFeatureJson(apartmentId,feature));
+    var Data = await network.call(insertFeatureJson(apartmentId, feature));
     return Data;
   }
-  Future<dynamic> updateCompany(var upload,var details) async {
+
+  Future<dynamic> updateCompany(var upload, var details) async {
     // 6
     Network network = Network(constants.updateurl);
     // 7
-    var Data = await network.updateCompany(upload,details);
+    var Data = await network.updateCompany(upload, details);
     return Data;
   }
-    Future<dynamic> fetchCategorys() async {
+
+  Future<dynamic> fetchCategorys() async {
     Network network = Network(constants.baseurl);
     var data = await network.call(categoryjson());
     return data;
   }
 
-    String categoryjson() {
+  Future<dynamic> updateEnabled(bool enabled,var apartmentId) async {
+    Network network = Network(constants.baseurl);
+    var data = await network.call(enablejson(enabled,apartmentId));
+    return data;
+  }
+
+  String categoryjson() {
     var json = jsonEncode(<String, String>{
       'functionality': 'getCategorys',
+    });
+    return json;
+  }
+    String enablejson(bool enabled,var apartmentId) {
+    var json = jsonEncode(<String, String>{
+      'functionality': 'updateEnabled',
+      'enabled': enabled ?'1':'0',
+      'apartmentId': apartmentId,
     });
     return json;
   }
@@ -186,6 +233,7 @@ class NetworkApi {
     });
     return json;
   }
+
   String imagejson(var apartmentId) {
     var json = jsonEncode(<String, String>{
       'functionality': 'retreiveImages',
@@ -193,7 +241,8 @@ class NetworkApi {
     });
     return json;
   }
-    String tagjson(var apartmentId) {
+
+  String tagjson(var apartmentId) {
     var json = jsonEncode(<String, String>{
       'functionality': 'retreiveTags',
       'apartmentId': apartmentId,
@@ -201,18 +250,19 @@ class NetworkApi {
     return json;
   }
 
-  String addUnitjson(var apartmentId, var userId,var unit) {
+  String addUnitjson(var apartmentId, var userId, var unit) {
     var json = jsonEncode(<String, String>{
-      'functionality':'addUnit',
+      'functionality': 'addUnit',
       'apartmentId': apartmentId,
       'userId': userId,
       'unit': unit,
     });
     return json;
   }
-    String fungaKejajson(var apartmentId, var userId) {
+
+  String fungaKejajson(var apartmentId, var userId) {
     var json = jsonEncode(<String, String>{
-      'functionality':'fungaKeja',
+      'functionality': 'fungaKeja',
       'apartmentId': apartmentId,
       'tenantId': userId,
       'present': '0',
@@ -222,22 +272,24 @@ class NetworkApi {
 
   String loginjson(var email, var pass) {
     var json = jsonEncode(<String, String>{
-      'functionality':'login',
+      'functionality': 'login',
       'email': email,
       'password': pass,
     });
     return json;
   }
-    String locationsjson() {
+
+  String locationsjson() {
     var json = jsonEncode(<String, String>{
-      'functionality':'getLocations',
+      'functionality': 'getLocations',
       'companyId': sharedPreferences.getCompanyId(),
     });
     return json;
   }
-    String changeCredentialsjson(var email, var pass,var userId) {
+
+  String changeCredentialsjson(var email, var pass, var userId) {
     var json = jsonEncode(<String, String>{
-      'functionality':'updateCredentials',
+      'functionality': 'updateCredentials',
       'email': email,
       'password': pass,
       'userId': userId,
@@ -247,65 +299,70 @@ class NetworkApi {
 
   String companyjson(var userId) {
     var json = jsonEncode(<String, String>{
-      'functionality':'getCompany',
+      'functionality': 'getCompany',
       'userId': userId,
     });
     return json;
   }
+
   String tenantsjson(var apartmentId) {
     var json = jsonEncode(<String, String>{
-      'functionality':'getTenants',
+      'functionality': 'getTenants',
       'apartmentId': apartmentId,
     });
     return json;
   }
-  
-    String apartmentsjson(var companyId) {
+
+  String apartmentsjson(var companyId) {
     var json = jsonEncode(<String, String>{
-      'functionality':'getApartments',
+      'functionality': 'getApartments',
       'companyId': companyId,
     });
     return json;
   }
-  String tenanttransjson(var apartmentId,var tenantId) {
+
+  String tenanttransjson(var apartmentId, var tenantId) {
     var json = jsonEncode(<String, String>{
-      'functionality':'getTenantTransactions',
+      'functionality': 'getTenantTransactions',
       'apartmentId': apartmentId,
       'tenantId': tenantId,
     });
     return json;
   }
 
-  String homejson(var companyId,var month,var year) {
+  String homejson(var companyId, var month, var year) {
     var json = jsonEncode(<String, String>{
-      'functionality':'getHome',
+      'functionality': 'getHome',
       'companyId': companyId,
       'year': year,
-      'month': '0'+month.toString(),
-    });
-    return json;
-  } String apartmentSummaryjson(var apartmentId,var month,var year) {
-    var json = jsonEncode(<String, String>{
-      'functionality':'getApartmentSummary',
-      'apartmentId': apartmentId,
-      'year': year,
-      'month': '0'+month.toString(),
+      'month': '0' + month.toString(),
     });
     return json;
   }
-  
-   String apartmentTransactionsjson(var apartmentId,var month,var year) {
+
+  String apartmentSummaryjson(var apartmentId, var month, var year) {
     var json = jsonEncode(<String, String>{
-      'functionality':'getApartmentTransactions',
+      'functionality': 'getApartmentSummary',
       'apartmentId': apartmentId,
       'year': year,
-      'month': '0'+month.toString(),
+      'month': '0' + month.toString(),
     });
     return json;
   }
-  String updateStep1Json(var apartmentId,var details) {
+
+  String apartmentTransactionsjson(var apartmentId, var month, var year) {
     var json = jsonEncode(<String, String>{
-      'functionality':'updateStep1',
+      'functionality': 'getApartmentTransactions',
+      'apartmentId': apartmentId,
+      'year': year,
+      'month': '0' + month.toString(),
+    });
+    return json;
+  }
+
+  String updateStep1Json(var apartmentId, var details) {
+    var json = jsonEncode(<String, String>{
+      'functionality': 'updateStep1',
       'apartmentId': apartmentId,
       'title': details[UploadData.apartmentName],
       'rent': details[UploadData.apartmentRent],
@@ -315,42 +372,46 @@ class NetworkApi {
     });
     return json;
   }
-    String updateTagJson(var tag,var apartmentId,var picId) {
+
+  String updateTagJson(var tag, var apartmentId, var picId) {
     var json = jsonEncode(<String, String>{
-      'functionality':'updateTag',
+      'functionality': 'updateTag',
       'apartmentId': apartmentId,
       'tag': tag,
       "imageId": picId,
     });
     return json;
   }
-  String updateBannerTagJson(var tag,var apartmentId) {
+
+  String updateBannerTagJson(var tag, var apartmentId) {
     var json = jsonEncode(<String, String>{
-      'functionality':'updateBannerTag',
+      'functionality': 'updateBannerTag',
       'apartmentId': apartmentId,
       'tag': tag,
     });
     return json;
   }
-  
-      String deleteFeatureJson(var featureId) {
+
+  String deleteFeatureJson(var featureId) {
     var json = jsonEncode(<String, String>{
-      'functionality':'deleteFeature',
+      'functionality': 'deleteFeature',
       'featureId': featureId,
     });
     return json;
   }
-        String insertFeatureJson(var apartmentId,var feature) {
+
+  String insertFeatureJson(var apartmentId, var feature) {
     var json = jsonEncode(<String, String>{
-      'functionality':'insertFeature',
+      'functionality': 'insertFeature',
       'apartmentId': apartmentId,
       'feature': feature,
     });
     return json;
   }
-    String updateStep2Json(var apartmentId,var details) {
+
+  String updateStep2Json(var apartmentId, var details) {
     var json = jsonEncode(<String, String>{
-      'functionality':'updateStep2',
+      'functionality': 'updateStep2',
       'apartmentId': apartmentId,
       'longitude': details[UploadData.longitude],
       'latitude': details[UploadData.latitude],

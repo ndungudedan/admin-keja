@@ -28,6 +28,7 @@ class MyApartmentTableData extends DataClass
   final String rating;
   final String likes;
   final String comments;
+  final bool enabled;
   MyApartmentTableData(
       {@required this.onlineid,
       @required this.banner,
@@ -47,12 +48,14 @@ class MyApartmentTableData extends DataClass
       @required this.longitude,
       @required this.rating,
       @required this.likes,
-      @required this.comments});
+      @required this.comments,
+      @required this.enabled});
   factory MyApartmentTableData.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
+    final boolType = db.typeSystem.forDartType<bool>();
     return MyApartmentTableData(
       onlineid: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}onlineid']),
@@ -92,6 +95,8 @@ class MyApartmentTableData extends DataClass
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}likes']),
       comments: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}comments']),
+      enabled:
+          boolType.mapFromDatabaseResponse(data['${effectivePrefix}enabled']),
     );
   }
   @override
@@ -154,6 +159,9 @@ class MyApartmentTableData extends DataClass
     if (!nullToAbsent || comments != null) {
       map['comments'] = Variable<String>(comments);
     }
+    if (!nullToAbsent || enabled != null) {
+      map['enabled'] = Variable<bool>(enabled);
+    }
     return map;
   }
 
@@ -208,6 +216,9 @@ class MyApartmentTableData extends DataClass
       comments: comments == null && nullToAbsent
           ? const Value.absent()
           : Value(comments),
+      enabled: enabled == null && nullToAbsent
+          ? const Value.absent()
+          : Value(enabled),
     );
   }
 
@@ -234,6 +245,7 @@ class MyApartmentTableData extends DataClass
       rating: serializer.fromJson<String>(json['rating']),
       likes: serializer.fromJson<String>(json['likes']),
       comments: serializer.fromJson<String>(json['comments']),
+      enabled: serializer.fromJson<bool>(json['enabled']),
     );
   }
   @override
@@ -259,6 +271,7 @@ class MyApartmentTableData extends DataClass
       'rating': serializer.toJson<String>(rating),
       'likes': serializer.toJson<String>(likes),
       'comments': serializer.toJson<String>(comments),
+      'enabled': serializer.toJson<bool>(enabled),
     };
   }
 
@@ -281,7 +294,8 @@ class MyApartmentTableData extends DataClass
           String longitude,
           String rating,
           String likes,
-          String comments}) =>
+          String comments,
+          bool enabled}) =>
       MyApartmentTableData(
         onlineid: onlineid ?? this.onlineid,
         banner: banner ?? this.banner,
@@ -302,6 +316,7 @@ class MyApartmentTableData extends DataClass
         rating: rating ?? this.rating,
         likes: likes ?? this.likes,
         comments: comments ?? this.comments,
+        enabled: enabled ?? this.enabled,
       );
   @override
   String toString() {
@@ -324,7 +339,8 @@ class MyApartmentTableData extends DataClass
           ..write('longitude: $longitude, ')
           ..write('rating: $rating, ')
           ..write('likes: $likes, ')
-          ..write('comments: $comments')
+          ..write('comments: $comments, ')
+          ..write('enabled: $enabled')
           ..write(')'))
         .toString();
   }
@@ -369,8 +385,9 @@ class MyApartmentTableData extends DataClass
                                                                       $mrjc(
                                                                           likes
                                                                               .hashCode,
-                                                                          comments
-                                                                              .hashCode)))))))))))))))))));
+                                                                          $mrjc(
+                                                                              comments.hashCode,
+                                                                              enabled.hashCode))))))))))))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -393,7 +410,8 @@ class MyApartmentTableData extends DataClass
           other.longitude == this.longitude &&
           other.rating == this.rating &&
           other.likes == this.likes &&
-          other.comments == this.comments);
+          other.comments == this.comments &&
+          other.enabled == this.enabled);
 }
 
 class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
@@ -416,6 +434,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
   final Value<String> rating;
   final Value<String> likes;
   final Value<String> comments;
+  final Value<bool> enabled;
   const MyApartmentTableCompanion({
     this.onlineid = const Value.absent(),
     this.banner = const Value.absent(),
@@ -436,6 +455,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
     this.rating = const Value.absent(),
     this.likes = const Value.absent(),
     this.comments = const Value.absent(),
+    this.enabled = const Value.absent(),
   });
   MyApartmentTableCompanion.insert({
     @required String onlineid,
@@ -457,6 +477,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
     @required String rating,
     @required String likes,
     @required String comments,
+    @required bool enabled,
   })  : onlineid = Value(onlineid),
         banner = Value(banner),
         bannertag = Value(bannertag),
@@ -469,7 +490,8 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
         longitude = Value(longitude),
         rating = Value(rating),
         likes = Value(likes),
-        comments = Value(comments);
+        comments = Value(comments),
+        enabled = Value(enabled);
   static Insertable<MyApartmentTableData> custom({
     Expression<String> onlineid,
     Expression<String> banner,
@@ -490,6 +512,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
     Expression<String> rating,
     Expression<String> likes,
     Expression<String> comments,
+    Expression<bool> enabled,
   }) {
     return RawValuesInsertable({
       if (onlineid != null) 'onlineid': onlineid,
@@ -511,6 +534,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
       if (rating != null) 'rating': rating,
       if (likes != null) 'likes': likes,
       if (comments != null) 'comments': comments,
+      if (enabled != null) 'enabled': enabled,
     });
   }
 
@@ -533,7 +557,8 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
       Value<String> longitude,
       Value<String> rating,
       Value<String> likes,
-      Value<String> comments}) {
+      Value<String> comments,
+      Value<bool> enabled}) {
     return MyApartmentTableCompanion(
       onlineid: onlineid ?? this.onlineid,
       banner: banner ?? this.banner,
@@ -554,6 +579,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
       rating: rating ?? this.rating,
       likes: likes ?? this.likes,
       comments: comments ?? this.comments,
+      enabled: enabled ?? this.enabled,
     );
   }
 
@@ -617,6 +643,9 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
     if (comments.present) {
       map['comments'] = Variable<String>(comments.value);
     }
+    if (enabled.present) {
+      map['enabled'] = Variable<bool>(enabled.value);
+    }
     return map;
   }
 
@@ -641,7 +670,8 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
           ..write('longitude: $longitude, ')
           ..write('rating: $rating, ')
           ..write('likes: $likes, ')
-          ..write('comments: $comments')
+          ..write('comments: $comments, ')
+          ..write('enabled: $enabled')
           ..write(')'))
         .toString();
   }
@@ -884,6 +914,18 @@ class $MyApartmentTableTable extends MyApartmentTable
     );
   }
 
+  final VerificationMeta _enabledMeta = const VerificationMeta('enabled');
+  GeneratedBoolColumn _enabled;
+  @override
+  GeneratedBoolColumn get enabled => _enabled ??= _constructEnabled();
+  GeneratedBoolColumn _constructEnabled() {
+    return GeneratedBoolColumn(
+      'enabled',
+      $tableName,
+      false,
+    );
+  }
+
   @override
   List<GeneratedColumn> get $columns => [
         onlineid,
@@ -904,7 +946,8 @@ class $MyApartmentTableTable extends MyApartmentTable
         longitude,
         rating,
         likes,
-        comments
+        comments,
+        enabled
       ];
   @override
   $MyApartmentTableTable get asDslTable => this;
@@ -1023,6 +1066,12 @@ class $MyApartmentTableTable extends MyApartmentTable
           comments.isAcceptableOrUnknown(data['comments'], _commentsMeta));
     } else if (isInserting) {
       context.missing(_commentsMeta);
+    }
+    if (data.containsKey('enabled')) {
+      context.handle(_enabledMeta,
+          enabled.isAcceptableOrUnknown(data['enabled'], _enabledMeta));
+    } else if (isInserting) {
+      context.missing(_enabledMeta);
     }
     return context;
   }

@@ -78,6 +78,13 @@ class _MyHomePageState extends State<ApartmentDetails> {
                 onPressed: () => Navigator.of(context).pop(),
               ),
               title: Text(apartment.title + ' Apartments'),
+              actions: [
+                Switch(
+                    value: apartment.enabled,
+                    onChanged: (value) {
+                      updateEnabled(value);
+                    })
+              ],
             ),
             body: ListView(
               //shrinkWrap: true,
@@ -102,11 +109,13 @@ class _MyHomePageState extends State<ApartmentDetails> {
                               apartment.banner,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Container(
+                              height: 200,
                               alignment: Alignment(0.0, 2.0),
                               child:
                                   Center(child: CircularProgressIndicator())),
                           errorWidget: (context, url, error) => Container(
                               alignment: Alignment(0.0, 2.0),
+                              height: 200,
                               child: Center(child: Icon(Icons.error))),
                         ),
                         Positioned(
@@ -284,10 +293,10 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                                     onPressed: () {
                                                       setState(() {
                                                         imagesTableData =
-                                                              snapshot
-                                                                  .data
-                                                                  .elementAt(
-                                                                      index);
+                                                            snapshot
+                                                                .data
+                                                                .elementAt(
+                                                                    index);
                                                       });
                                                       updateImage(
                                                           snapshot.data
@@ -480,10 +489,10 @@ class _MyHomePageState extends State<ApartmentDetails> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Icon(
-            Icons.star,
-            size: 13,
-            color: Colors.lightBlueAccent,
-          ),
+          Icons.star,
+          size: 13,
+          color: Colors.lightBlueAccent,
+        ),
         Expanded(
           child: Text(
             feature,
@@ -724,6 +733,19 @@ class _MyHomePageState extends State<ApartmentDetails> {
       }
     } on TargetPlatform catch (e) {
       print('Error while picking the file: ' + e.toString());
+    }
+  }
+
+  Future<void> updateEnabled(bool enabled) async {
+    var result = await NetworkApi().updateEnabled(enabled, apartmentId);
+    print(result);
+    var Map = json.decode(result);
+    Status status = Status.fromJson(Map);
+    if (status.code == Constants.success) {
+      dao.updateEnabled(enabled, apartmentId);
+      successDialog(context, status.message);
+    } else {
+      errorDialog(context, status.message);
     }
   }
 }

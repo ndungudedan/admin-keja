@@ -31,6 +31,7 @@ MyApartment _$MyApartmentFromJson(Map<String, dynamic> json) {
     location: json['location'] as String,
     banner: json['banner'] as String,
     bannertag: json['bannertag'] as String,
+    enabled: json['enabled'] as String,
   );
 }
 
@@ -59,6 +60,7 @@ Map<String, dynamic> _$MyApartmentToJson(MyApartment instance) =>
       'video': instance.video,
       'rating': instance.rating,
       'liked': instance.liked,
+      'enabled': instance.enabled,
     };
 
 ApartmentList _$ApartmentListFromJson(Map<String, dynamic> json) {

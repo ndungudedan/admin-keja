@@ -26,7 +26,7 @@ class DatabaseHelper extends _$DatabaseHelper {
   // you should bump this number whenever you change or add a table definition. Migrations
   // are covered later in this readme.
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 }
 final databasehelper = DatabaseHelper();
   class MyApartmentTable extends Table {
@@ -49,6 +49,7 @@ final databasehelper = DatabaseHelper();
   TextColumn get rating => text()();
   TextColumn get likes => text()();
   TextColumn get comments => text()();
+  BoolColumn get enabled => boolean()();
 
   @override
   Set<Column> get primaryKey => {onlineid};
