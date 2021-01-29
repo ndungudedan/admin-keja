@@ -59,6 +59,118 @@
           }
         },
         {
+          "client_id": "269437489559-3f3r4lldelu4oqbrl1g164lmvfqmg3bv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cheki_keja",
+            "certificate_hash": "7191cfcb5c9fd1e568ebbc5e5467476e472f604f"
+          }
+        },
+        {
+          "client_id": "269437489559-q1nvdk248lvkap4u4ve4mirn0u5mnef9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeUy2xAbqYuwqY0AlaEPCkK7IcYoDY4x8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "269437489559-q1nvdk248lvkap4u4ve4mirn0u5mnef9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "269437489559-ud8a77ibf5i18cputpv6j5hgt8jnsspu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.Tidtech.Apartments"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269437489559:android:da2f19c89177565eb9f4d2",
+        "android_client_info": {
+          "package_name": "com.tidtech.admin_keja"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "269437489559-4oqdg9hue2j1knvjhmkgd7pmciv5j5jm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tidtech.admin_keja",
+            "certificate_hash": "7191cfcb5c9fd1e568ebbc5e5467476e472f604f"
+          }
+        },
+        {
+          "client_id": "269437489559-9ic1a9c1n668bvhlsjcvc4bek2qfac6r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tidtech.admin_keja",
+            "certificate_hash": "cf19c85200080561f2947a24ebc7975b261b6f92"
+          }
+        },
+        {
+          "client_id": "269437489559-q1nvdk248lvkap4u4ve4mirn0u5mnef9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeUy2xAbqYuwqY0AlaEPCkK7IcYoDY4x8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "269437489559-q1nvdk248lvkap4u4ve4mirn0u5mnef9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "269437489559-ud8a77ibf5i18cputpv6j5hgt8jnsspu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.Tidtech.Apartments"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269437489559:android:9cf05b879188e53cb9f4d2",
+        "android_client_info": {
+          "package_name": "com.tidtech.cheki_keja"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "269437489559-iso13ci2ul9aa9srt99r82fairhucmk5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tidtech.cheki_keja",
+            "certificate_hash": "7191cfcb5c9fd1e568ebbc5e5467476e472f604f"
+          }
+        },
+        {
+          "client_id": "269437489559-t5d385dbj2nmgv65jqhr128mbeb23at8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tidtech.cheki_keja",
+            "certificate_hash": "cf19c85200080561f2947a24ebc7975b261b6f92"
+          }
+        },
+        {
           "client_id": "269437489559-q1nvdk248lvkap4u4ve4mirn0u5mnef9.apps.googleusercontent.com",
           "client_type": 3
         }
