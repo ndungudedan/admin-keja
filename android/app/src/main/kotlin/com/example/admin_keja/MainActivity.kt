@@ -1,6 +1,10 @@
-package com.example.admin_keja
+package com.tidtech.admin_keja
 
 import io.flutter.embedding.android.FlutterActivity
 
 class MainActivity: FlutterActivity() {
+    override fun configureFlutterEngine(@NonNull flutterEngine: 
+     FlutterEngine) {
+     GeneratedPluginRegistrant.registerWith(flutterEngine)
+   }
 }
