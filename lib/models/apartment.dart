@@ -27,10 +27,12 @@ class MyApartment {
   String video;
   String rating;
   String liked;
-  String enabled;
+  bool enabled;
+  bool vacant;
 
   MyApartment({
     this.id,
+    this.vacant,
     this.owner_id,
     this.owner_name,
     this.owner_logo,

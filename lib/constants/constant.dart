@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 
 class Constants {
   static final googleApiKey = 'AIzaSyBGBtSP_q6F5pUtLZAM3GQY7r-cFyG5NZo';
-  final String baseurl = 'http://192.168.43.188/chekiKeja/adminKeja.php/';
-  final String uploadurl = 'http://192.168.43.188/chekiKeja/tengenezaKeja.php/';
-  final String updateurl = 'http://192.168.43.188/chekiKeja/updateKeja.php/';
+  
+  /* final String baseurl = 'http://192.168.42.175/chekiKeja/adminKeja.php/';
+  final String uploadurl = 'http://192.168.42.175/chekiKeja/tengenezaKeja.php/';
+  final String updateurl = 'http://192.168.42.175/chekiKeja/updateKeja.php/';
   final String termsurl = 'http://192.168.43.188/chekiKeja/uploads/terms.rtf';
   final String abouturl = 'http://192.168.43.188/chekiKeja/uploads/about.rtf';
-  final String path = 'http://192.168.43.188/chekiKeja/uploads/';
+  final String path = 'http://192.168.42.175/chekiKeja/uploads/'; */
 
-/*    final String baseurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/adminKeja.php/';
+  final String baseurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/adminKeja.php/';
   final String uploadurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/tengenezaKeja.php/';
   final String updateurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/updateKeja.php/';
   final String termsurl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/uploads/terms.rtf';
   final String abouturl = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/uploads/about.rtf';
-  final String path = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/uploads/';  */
+  final String path = 'http://adminkeja.romeofoxalpha.co.ke/chekiKeja/uploads/';   
 
   final String folder = '/images/';
 
@@ -34,8 +35,8 @@ class Constants {
   static final jan = '1';
   static final dec = '12';
 
-  static final bannerHeight = 1079;
-  static final bannerWidth = 1080;
+  static final bannerHeight = 500;
+  static final bannerWidth = 800;
 
   static final imagestable = 'images_table';
   static final tagstable = 'tags_table';

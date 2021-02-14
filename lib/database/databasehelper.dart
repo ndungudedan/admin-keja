@@ -50,6 +50,7 @@ final databasehelper = DatabaseHelper();
   TextColumn get likes => text()();
   TextColumn get comments => text()();
   BoolColumn get enabled => boolean()();
+  BoolColumn get vacant => boolean()();
 
   @override
   Set<Column> get primaryKey => {onlineid};

@@ -105,12 +105,12 @@ class _MyHomePageState extends State<Home> {
               ));
               } else if (snapshot.hasError) {
                     return Center(
-                      child: Text('No data'),
-                    );
+                                    child: Image.asset('assets/images/no_data.jpg'),
+                                  );
                   } else if (snapshot.data != null && snapshot.data.isEmpty) {
                     return Center(
-                      child: Text('No data'),
-                    );
+                                    child: Image.asset('assets/images/no_data.jpg'),
+                                  );
                   }
                   return Center(
                     child: CircularProgressIndicator(),

@@ -12,7 +12,7 @@ class SharedPrefsManagement {
   }
 
   @override
-  String saveImage(String userId, String key, Uint8List image){
+  String saveImage(String userId, String key, Uint8List image) {
     final base64Image = Base64Encoder().convert(image);
     sharedPreferences.setString(SharedPrefs.photo, base64Image);
     return key;
@@ -21,7 +21,7 @@ class SharedPrefsManagement {
   @override
   Uint8List getImage(String userId, String key) {
     final base64Image = sharedPreferences.getString(SharedPrefs.photo);
-      if (base64Image != null) return Base64Decoder().convert(base64Image);
+    if (base64Image != null) return Base64Decoder().convert(base64Image);
     return null;
   }
 
@@ -33,10 +33,14 @@ class SharedPrefsManagement {
     return sharedPreferences.containsKey(SharedPrefs.email);
   }
 
+  unsetEmail() {
+    sharedPreferences.remove(SharedPrefs.email);
+  }
+
   setEmail(var val) {
     sharedPreferences.setString(SharedPrefs.email, val);
   }
-  
+
   setPassword(var val) {
     sharedPreferences.setString(SharedPrefs.password, val);
   }
@@ -89,7 +93,7 @@ class SharedPrefsManagement {
     sharedPreferences.setString(SharedPrefs.companylocation, val);
   }
 
-  setCompanyPhoto(String image){
+  setCompanyPhoto(String image) {
     sharedPreferences.setString(SharedPrefs.companyphoto, image);
   }
 
@@ -129,10 +133,10 @@ class SharedPrefsManagement {
     return sharedPreferences.getString(SharedPrefs.firstname);
   }
 
-    @override
+  @override
   String getCompanyPhoto() {
     final base64Image = sharedPreferences.getString(SharedPrefs.companyphoto);
-      if (base64Image != null) return base64Image;
+    if (base64Image != null) return base64Image;
     return null;
   }
 

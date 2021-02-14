@@ -174,13 +174,13 @@ class _MyHomePageState extends State<ApartmentDetails> {
                     ),
                   ),
                 ),
-                Container(
-                  height: 380,
-                  child: StreamBuilder(
-                    stream: dao.watchImagesLimit(apartment.onlineid),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data.isNotEmpty) {
-                        return Column(
+                StreamBuilder(
+                  stream: dao.watchImagesLimit(apartment.onlineid),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data.isNotEmpty) {
+                      return Container(
+                        height: snapshot.data.length <= 3 ? 240 : 400,
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
@@ -312,6 +312,29 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                                   ),
                                                 ),
                                               ),
+                                            snapshot.data.length>3 ?  Positioned(
+                                                bottom: 120,
+                                                right: 70,
+                                                child: CircleAvatar(
+                                                  radius: 20,
+                                                  backgroundColor:
+                                                      LightColors.kLavender,
+                                                  child: IconButton(
+                                                    icon: Icon(Icons.close),
+                                                    color: Colors.red,
+                                                    onPressed: () {
+                                                      deleteImage(
+                                                          snapshot.data
+                                                              .elementAt(index)
+                                                              .onlineid,
+                                                          snapshot.data
+                                                              .elementAt(index)
+                                                              .image);
+                                                    },
+                                                  ),
+                                                ),
+                                              )
+                                              :SizedBox()
                                             ],
                                           ),
                                         ),
@@ -330,34 +353,56 @@ class _MyHomePageState extends State<ApartmentDetails> {
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'view all',
-                                    style: TextStyle(
-                                      color: Colors.blue,
-                                    ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      SizedBox(),
+                                      SizedBox(
+                                        height: 30,
+                                        width: 30,
+                                        child: FloatingActionButton(
+                                            child: Icon(
+                                              Icons.add,
+                                              size: 15,
+                                              color: Colors.white,
+                                            ),
+                                            backgroundColor: Colors.deepOrange,
+                                            onPressed: () {
+                                              addImage();
+                                            }),
+                                      ),
+                                      Text(
+                                        'view all',
+                                        style: TextStyle(
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ))
                           ],
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Container(
+                        height: 10,
+                        child: Center(
                           child: Text('No data'),
-                        );
-                      } else if (snapshot.data != null &&
-                          snapshot.data.isEmpty) {
-                        return Center(
+                        ),
+                      );
+                    } else if (snapshot.data != null && snapshot.data.isEmpty) {
+                      return Container(
+                        height: 10,
+                        child: Center(
                           child: Text(''),
-                        );
-                      }
-                      return Center(
-                          child: Center(
-                        child: Container(
-                            height: 150.0,
-                            width: 150.0,
-                            child: Center(child: Text('loading'))),
-                      ));
-                    },
-                  ),
+                        ),
+                      );
+                    }
+                    return Container(
+                        height: 150.0,
+                        width: 150.0,
+                        child: Center(child: Text('loading')));
+                  },
                 ),
                 Container(
                   padding: EdgeInsets.all(5),
@@ -590,12 +635,12 @@ class _MyHomePageState extends State<ApartmentDetails> {
           FlatButton(
               child: const Text('DONE'),
               onPressed: () async {
+                Navigator.pop(context);
                 var result = await NetworkApi()
                     .updateTag(_tagController.text, apartmentId, picId);
                 print(result);
                 var Map = json.decode(result);
                 Status status = Status.fromJson(Map);
-                Navigator.pop(context);
                 if (status.code == Constants.success) {
                   var companion = MyImagesTableCompanion(
                     onlineid: moor.Value(imagesTableData.onlineid),
@@ -643,12 +688,13 @@ class _MyHomePageState extends State<ApartmentDetails> {
           FlatButton(
               child: const Text('DONE'),
               onPressed: () async {
+                Navigator.pop(context);
                 var result = await NetworkApi()
                     .updateBannerTag(_tagController.text, apartmentId);
                 print(result);
                 var Map = json.decode(result);
                 Status status = Status.fromJson(Map);
-                Navigator.pop(context);
+
                 if (status.code == Constants.success) {
                   var companion = MyApartmentTableCompanion(
                     onlineid: moor.Value(apartment.onlineid),
@@ -670,6 +716,8 @@ class _MyHomePageState extends State<ApartmentDetails> {
                     rating: moor.Value(apartment.rating),
                     likes: moor.Value(apartment.likes),
                     comments: moor.Value(apartment.comments),
+                    enabled: moor.Value(apartment.enabled),
+                    vacant: moor.Value(apartment.vacant),
                   );
                   dao.upsertApartment(companion);
                   successDialog(context, status.message,
@@ -700,6 +748,40 @@ class _MyHomePageState extends State<ApartmentDetails> {
     } on TargetPlatform catch (e) {
       print('Error while picking the file: ' + e.toString());
     }
+  }
+
+  Future<void> deleteImage(var id, var image) async {
+    var result = await NetworkApi().deleteImage(id, image);
+    print(result);
+    var Map = json.decode(result);
+    Status status = Status.fromJson(Map);
+
+    if (status.code == Constants.success) {
+      dao.deleteImage(id);
+      successDialog(context, status.message, showNeutralButton: true);
+    } else {
+      errorDialog(context, status.message, showNeutralButton: true);
+    }
+  }
+
+  Future<void> addImage() async {
+    try {
+      var tempImage = await FilePicker.platform.pickFiles(
+          type: FileType.custom, allowedExtensions: ['jpg', 'png', 'jpeg']);
+      if (tempImage != null) {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => EditPhotoViewer(
+                  pic: File(tempImage.files.single.path),
+                  myImagesTableData: null,
+                  tag: 'tag',
+                  picId: '-2',
+                  apartmentId: apartmentId,
+                )));
+      }
+    } on TargetPlatform catch (e) {
+      print('Error while picking the file: ' + e.toString());
+    }
+    
   }
 
   void updateBannerImage() async {

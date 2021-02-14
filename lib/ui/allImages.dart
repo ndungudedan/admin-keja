@@ -160,7 +160,30 @@ class _MyHomePageState extends State<AllImages> {
                                       ),
                                     ),
                                   ),
-                                ],
+                                 snapshot.data.length>3 ?  Positioned(
+                                                bottom: 120,
+                                                right: 70,
+                                                child: CircleAvatar(
+                                                  radius: 20,
+                                                  backgroundColor:
+                                                      LightColors.kLavender,
+                                                  child: IconButton(
+                                                    icon: Icon(Icons.close),
+                                                    color: Colors.red,
+                                                    onPressed: () {
+                                                      deleteImage(
+                                                          snapshot.data
+                                                              .elementAt(index)
+                                                              .onlineid,
+                                                          snapshot.data
+                                                              .elementAt(index)
+                                                              .image);
+                                                    },
+                                                  ),
+                                                ),
+                                              )
+                                              :SizedBox()
+                                              ],
                               ),
                             ),
                           ),
@@ -217,12 +240,12 @@ class _MyHomePageState extends State<AllImages> {
           FlatButton(
               child: const Text('DONE'),
               onPressed: () async {
+                 Navigator.pop(context);
                 var result = await NetworkApi()
                     .updateTag(_tagController.text, apartmentId, picId);
                 print(result);
                 var Map = json.decode(result);
                 Status status = Status.fromJson(Map);
-                Navigator.pop(context);
                 if (status.code == Constants.success) {
                   var companion = MyImagesTableCompanion(
                     onlineid: moor.Value(imagesTableData.onlineid),
@@ -241,7 +264,23 @@ class _MyHomePageState extends State<AllImages> {
         ],
       ),
     );
+  } 
+  Future<void> deleteImage(var id,var image) async {
+                var result = await NetworkApi()
+                    .deleteImage(id,image);
+                print(result);
+                var Map = json.decode(result);
+                Status status = Status.fromJson(Map);
+
+                if (status.code == Constants.success) {
+                  dao.deleteImage(id);
+                  successDialog(context, status.message,
+                      showNeutralButton: true);
+                } else {
+                  errorDialog(context, status.message, showNeutralButton: true);
+                }
   }
+
   void updateImage(var image, var picId, var tag) async {
     try {
       var tempImage = await FilePicker.platform.pickFiles(

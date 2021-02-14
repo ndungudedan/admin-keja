@@ -24,6 +24,11 @@ class NetworkApi {
     var data = await network.call(changeCredentialsjson(email, pass, userId));
     return data;
   }
+  Future<dynamic> signUp(var email) async {
+    Network network = Network(constants.baseurl);
+    var data = await network.call(signUpjson(email));
+    return data;
+  }
 
   Future<dynamic> fetchCompany(var userId) async {
     Network network = Network(constants.baseurl);
@@ -124,6 +129,15 @@ class NetworkApi {
         file, tag, apartmentId, picId, onProgress);
     return Data;
   }
+    Future<dynamic> addImage(
+      var file, var tag, var apartmentId, Function onProgress) async {
+    // 6
+    Network network = Network(constants.updateurl);
+    // 7
+    var Data =
+        await network.addImage(file, tag, apartmentId, onProgress);
+    return Data;
+  }
 
   Future<dynamic> updateBannerImage(
       var file, var tag, var apartmentId, Function onProgress) async {
@@ -183,6 +197,12 @@ class NetworkApi {
     return Data;
   }
 
+  Future<dynamic> deleteImage(var id,var image) async {
+    Network network = Network(constants.updateurl);
+    var Data = await network.call(deleteImageJson(id,image));
+    return Data;
+  }
+
   Future<dynamic> insertFeature(var apartmentId, var feature) async {
     // 6
     Network network = Network(constants.updateurl);
@@ -198,7 +218,13 @@ class NetworkApi {
     var Data = await network.updateCompany(upload, details);
     return Data;
   }
-
+ Future<dynamic> createCompany(var upload, var details,Function onProgress) async {
+    // 6
+    Network network = Network(constants.updateurl);
+    // 7
+    var Data = await network.createCompany(upload, details,onProgress);
+    return Data;
+  }
   Future<dynamic> fetchCategorys() async {
     Network network = Network(constants.baseurl);
     var data = await network.call(categoryjson());
@@ -208,6 +234,11 @@ class NetworkApi {
   Future<dynamic> updateEnabled(bool enabled,var apartmentId) async {
     Network network = Network(constants.baseurl);
     var data = await network.call(enablejson(enabled,apartmentId));
+    return data;
+  }
+    Future<dynamic> updateVacant(bool enabled,var apartmentId) async {
+    Network network = Network(constants.baseurl);
+    var data = await network.call(vacantjson(enabled,apartmentId));
     return data;
   }
 
@@ -225,7 +256,14 @@ class NetworkApi {
     });
     return json;
   }
-
+    String vacantjson(bool enabled,var apartmentId) {
+    var json = jsonEncode(<String, String>{
+      'functionality': 'updateVacant',
+      'vacant': enabled ?'1':'0',
+      'apartmentId': apartmentId,
+    });
+    return json;
+  }
   String getFeaturesJson(String apartmentId) {
     var json = jsonEncode(<String, String>{
       'functionality': 'getFeatures',
@@ -297,6 +335,13 @@ class NetworkApi {
     return json;
   }
 
+String signUpjson(var email) {
+    var json = jsonEncode(<String, String>{
+      'functionality': 'signUp',
+      'email': email,
+    });
+    return json;
+  }
   String companyjson(var userId) {
     var json = jsonEncode(<String, String>{
       'functionality': 'getCompany',
@@ -388,6 +433,15 @@ class NetworkApi {
       'functionality': 'updateBannerTag',
       'apartmentId': apartmentId,
       'tag': tag,
+    });
+    return json;
+  }
+String deleteImageJson(var id,var image) {
+    var json = jsonEncode(<String, String>{
+      'functionality': 'deleteImage',
+      'imageId': id,
+      'companyId': sharedPreferences.getCompanyId(),
+      'image': image,
     });
     return json;
   }

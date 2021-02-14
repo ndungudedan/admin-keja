@@ -6,10 +6,10 @@ import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/company.dart';
 import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
+import 'package:admin_keja/ui/login.dart';
 import 'package:admin_keja/utility/utility.dart';
 import 'package:admin_keja/views/submitButton.dart';
 import 'package:admin_keja/views/textfield.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:commons/commons.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -18,22 +18,22 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
-class EditCompany extends StatefulWidget {
-  EditCompany({Key key, this.title, this.company}) : super(key: key);
-  MyCompany company;
+class CreateCompany extends StatefulWidget {
+  CreateCompany({Key key, this.title}) : super(key: key);
   final String title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<EditCompany> {
+class _MyHomePageState extends State<CreateCompany> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   final _emailController = TextEditingController();
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
+  Constants constants = Constants();
   final FocusNode _titleFocus = FocusNode();
   final FocusNode _addressFocus = FocusNode();
   final FocusNode _emailFocus = FocusNode();
@@ -41,8 +41,6 @@ class _MyHomePageState extends State<EditCompany> {
   final FocusNode _locationFocus = FocusNode();
   ProgressDialog progressDialog;
   double progress = 0.0;
-
-  Constants constants = Constants();
   MyCompany company = MyCompany();
   Map<String, String> details = {};
   bool loading = false;
@@ -50,10 +48,6 @@ class _MyHomePageState extends State<EditCompany> {
   @override
   void initState() {
     super.initState();
-    company = widget.company;
-    if (company != null) {
-      initText(company);
-    }
   }
 
   @override
@@ -61,12 +55,8 @@ class _MyHomePageState extends State<EditCompany> {
     super.dispose();
   }
 
-  void initText(MyCompany company) {
-    _titleController.text = company.name ?? '';
-    _emailController.text = company.email ?? '';
-    _addressController.text = company.address ?? '';
-    _phoneController.text = company.phone ?? '';
-    _locationController.text = company.location ?? '';
+  onProgress(double progress) {
+    progressDialog.style(progress: progress);
   }
 
   @override
@@ -89,7 +79,7 @@ class _MyHomePageState extends State<EditCompany> {
     );
     return Scaffold(
         appBar: AppBar(
-          title: Text('Edit Company Details'),
+          title: Text('Create Company'),
           backgroundColor: LightColors.kDarkYellow,
         ),
         body: ListView(
@@ -105,12 +95,7 @@ class _MyHomePageState extends State<EditCompany> {
                           radius: 100,
                           backgroundImage: upload != null
                               ? FileImage(upload)
-                              : CachedNetworkImageProvider(
-                                  constants.path +
-                                      sharedPreferences.getCompanyId() +
-                                      constants.folder +
-                                      company.logo,
-                                )),
+                              : AssetImage('assets/images/placeholder.png')),
                       Positioned(
                         bottom: 5,
                         right: 5,
@@ -163,14 +148,21 @@ class _MyHomePageState extends State<EditCompany> {
                     inputType: TextInputType.streetAddress,
                     controller: _locationController,
                   ),
-                  SubmitButton(
-                      press: () {
-                        if (_formKey.currentState.validate()) {
-                          submit();
-                        }
-                      },
-                      text: 'Submit',
-                      loading: loading)
+                  Builder(
+                      builder: (context) => SubmitButton(
+                          press: () {
+                            if (_formKey.currentState.validate()) {
+                              if (upload != null) {
+                                submit();
+                              } else {
+                                Scaffold.of(context).showSnackBar(SnackBar(
+                                  content: Text('add a logo'),
+                                ));
+                              }
+                            }
+                          },
+                          text: 'Submit',
+                          loading: loading)),
                 ],
               ),
             ),
@@ -180,42 +172,38 @@ class _MyHomePageState extends State<EditCompany> {
 
   Future<void> submit() async {
     details[UploadData.address] = _addressController.text;
-    details[UploadData.companyId] = sharedPreferences.getCompanyId();
     details[UploadData.email] = _emailController.text;
     details[UploadData.location] = _locationController.text;
     details[UploadData.phone] = _phoneController.text;
     details[UploadData.title] = _titleController.text;
     progressDialog.show();
-    var result = await NetworkApi().updateCompany(upload, details);
+    var result = await NetworkApi().createCompany(upload, details, onProgress);
     print(result);
-    progressDialog.hide();
-    if (result != Constants.fail) {
-      var Map = json.decode(result);
-      Status status = Status.fromJson(Map);
-      if (status.code == Constants.success) {
-        saveCompany();
-        infoDialog(context, status.message, showNeutralButton: true,
-            neutralAction: () {
-          Navigator.pop(context);
-        });
-      } else {
-        errorDialog(context, status.message, showNeutralButton: true);
-      }
+    var Map = json.decode(result);progressDialog.hide();
+    if (CompanyResponse.fromJson(Map).status.code == Constants.success) {
+      MyCompany company = CompanyResponse.fromJson(Map).data;
+      infoDialog(context, CompanyResponse.fromJson(Map).status.message+". You will be logged out",
+          showNeutralButton: true, neutralAction: () {
+Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => LoginPage()),
+                  ModalRoute.withName('/'),
+                );      });
     } else {
-      errorDialog(context, "Failed...Please try again later",
+      errorDialog(context, CompanyResponse.fromJson(Map).status.message,
           showNeutralButton: true);
     }
+    
   }
 
-  void saveCompany() {
-    sharedPreferences.setCompanyAddress(_addressController.text);
-    sharedPreferences.setCompanyEmail(_emailController.text);
-    sharedPreferences.setCompanyLocation(_locationController.text);
-    sharedPreferences.setCompanyName(_titleController.text);
-    sharedPreferences.setCompanyPhone(_phoneController.text);
-    if (upload != null) {
-      sharedPreferences.setCompanyPhoto(path.basename(upload.path));
-    }
+  void saveCompany(MyCompany company) {
+    sharedPreferences.setCompanyAddress(company.address);
+    sharedPreferences.setCompanyEmail(company.email);
+    sharedPreferences.setCompanyId(company.id);
+    sharedPreferences.setCompanyLocation(company.address);
+    sharedPreferences.setCompanyName(company.name);
+    sharedPreferences.setCompanyPhone(company.phone);
+    sharedPreferences.setCompanyPhoto(company.logo);
   }
 
   void updateLogo() async {

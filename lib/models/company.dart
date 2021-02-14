@@ -25,7 +25,7 @@ class MyCompany {
   String name;
   String logo;
   String phone;
-  String address;
+  String address;String location;
   String email;
   Status status;
 
@@ -33,7 +33,7 @@ class MyCompany {
     this.id,
     this.logo,
     this.phone,
-    this.email,
+    this.email,this.location,
     this.name,
     this.status,
     this.address,

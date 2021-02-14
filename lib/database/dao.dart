@@ -29,6 +29,12 @@ class DatabaseDao extends DatabaseAccessor<DatabaseHelper>
   void deleteSingleFeature(var featId) {
     (delete(myFeaturesTable)..where((r) => r.onlineid.equals(featId))).go();
   }
+    void deleteImage(var imageId) {
+    (delete(myImagesTable)..where((r) => r.onlineid.equals(imageId))).go();
+  }
+  Future<int> countImages(){
+    return (select(myImagesTable).watch()).length;
+}
 
   Stream<List<MyApartmentTableData>> watchApartments() {
     return (select(myApartmentTable)).watch();
@@ -106,6 +112,14 @@ class DatabaseDao extends DatabaseAccessor<DatabaseHelper>
       ..where((t) => t.onlineid.equals(id))
     ).write(MyApartmentTableCompanion(
       enabled: Value(enabled),
+    ),
+  );
+  }
+    void updateVacant(bool enabled,var id){
+    (update(myApartmentTable)
+      ..where((t) => t.onlineid.equals(id))
+    ).write(MyApartmentTableCompanion(
+      vacant: Value(enabled),
     ),
   );
   }

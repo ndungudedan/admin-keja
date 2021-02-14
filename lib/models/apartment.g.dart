@@ -9,6 +9,7 @@ part of 'apartment.dart';
 MyApartment _$MyApartmentFromJson(Map<String, dynamic> json) {
   return MyApartment(
     id: json['id'] as String,
+    vacant: json['vacant'] as bool,
     owner_id: json['owner_id'] as String,
     owner_name: json['owner_name'] as String,
     owner_logo: json['owner_logo'] as String,
@@ -31,7 +32,7 @@ MyApartment _$MyApartmentFromJson(Map<String, dynamic> json) {
     location: json['location'] as String,
     banner: json['banner'] as String,
     bannertag: json['bannertag'] as String,
-    enabled: json['enabled'] as String,
+    enabled: json['enabled'] as bool,
   );
 }
 
@@ -61,6 +62,7 @@ Map<String, dynamic> _$MyApartmentToJson(MyApartment instance) =>
       'rating': instance.rating,
       'liked': instance.liked,
       'enabled': instance.enabled,
+      'vacant': instance.vacant,
     };
 
 ApartmentList _$ApartmentListFromJson(Map<String, dynamic> json) {

@@ -4,6 +4,7 @@ import 'package:admin_keja/connection/networkapi.dart';
 import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/database/dao.dart';
 import 'package:admin_keja/database/databasehelper.dart';
+import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:commons/commons.dart';
@@ -114,7 +115,7 @@ class _MyHomePageState extends State<EditPhotoViewer> {
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               child: InteractiveViewer(
-                              child: Image.file(
+                child: Image.file(
                   pic,
                   fit: BoxFit.fitHeight,
                 ),
@@ -172,8 +173,29 @@ class _MyHomePageState extends State<EditPhotoViewer> {
         rating: moor.Value(apartment.rating),
         likes: moor.Value(apartment.likes),
         comments: moor.Value(apartment.comments),
+        enabled: moor.Value(apartment.enabled),
+        vacant: moor.Value(apartment.vacant),
       );
       dao.upsertApartment(companion);
+    } else if (picId == '-2') {
+      result = await NetworkApi().addImage(file, tag, apartmentId, onProgress);
+      print(result);
+      progressDialog.hide();
+      if (result!=null) {
+        var Map = json.decode(result);
+      Images val = Images.fromJson(Map);
+        var companion = MyImagesTableCompanion(
+          onlineid: moor.Value(val.id),
+          apartment_id: moor.Value(val.apartment_id),
+          tag: moor.Value(val.tag),
+          tag_id: moor.Value(val.tag_id),
+          image: moor.Value(val.image),
+        );
+        dao.upsertImage(companion);
+        successDialog(context, 'success', showNeutralButton: true);
+      } else {
+        errorDialog(context, 'failed', showNeutralButton: true);
+      }
     } else {
       result = await NetworkApi()
           .updateImage(file, tag, apartmentId, picId, onProgress);
@@ -183,13 +205,13 @@ class _MyHomePageState extends State<EditPhotoViewer> {
       progressDialog.hide();
       if (status.code == Constants.success) {
         var companion = MyImagesTableCompanion(
-                    onlineid: moor.Value(myImagesTableData.onlineid),
-                    apartment_id: moor.Value(myImagesTableData.apartment_id),
-                    tag: moor.Value(_tagController.text),
-                    tag_id: moor.Value(myImagesTableData.tag_id),
-                    image: moor.Value(path.basename(file.path)),
-                  );
-                  dao.upsertImage(companion);
+          onlineid: moor.Value(myImagesTableData.onlineid),
+          apartment_id: moor.Value(myImagesTableData.apartment_id),
+          tag: moor.Value(_tagController.text),
+          tag_id: moor.Value(myImagesTableData.tag_id),
+          image: moor.Value(path.basename(file.path)),
+        );
+        dao.upsertImage(companion);
         successDialog(context, status.message, showNeutralButton: true);
       } else {
         errorDialog(context, status.message, showNeutralButton: true);

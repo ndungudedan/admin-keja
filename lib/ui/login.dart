@@ -5,6 +5,7 @@ import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/user.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/index.dart';
+import 'package:admin_keja/ui/register.dart';
 import 'package:admin_keja/utility/connectioncallback.dart';
 import 'package:admin_keja/views/inputFieldArea.dart';
 import 'package:admin_keja/views/submitButton.dart';
@@ -135,6 +136,14 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 login();
                               },
                             ),
+                            FlatButton(onPressed: (){
+                              Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => Register()));
+                            }, child: Text('CREATE ACCOUNT ?',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.blue
+                            ),))
                           ],
                         )),
                   ),
@@ -155,12 +164,15 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       var result = await NetworkApi()
           .login(_emailController.text.trim(), _passwordController.text);
       print(result);
-      if (result != Constants.fail) {
-        var Map = json.decode(result);
-        userResponse = UserResponse.fromJson(Map);
+      var map = json.decode(result);
+      userResponse = UserResponse.fromJson(map);
+      print(map);
         setState(() {
           loading = false;
         });
+      if (result !=null) {
+        
+        
         if (userResponse.status.code == Constants.success) {
           savePrefs(userResponse.data);
           Navigator.of(context)

@@ -8,6 +8,7 @@ import 'package:admin_keja/ui/about.dart';
 import 'package:admin_keja/ui/changeCredentials.dart';
 import 'package:admin_keja/ui/contactus.dart';
 import 'package:admin_keja/ui/editCompany.dart';
+import 'package:admin_keja/ui/CreateCompany.dart';
 import 'package:admin_keja/ui/login.dart';
 import 'package:admin_keja/ui/map.dart';
 import 'package:admin_keja/ui/terms.dart';
@@ -62,16 +63,18 @@ class _MyHomePageState extends State<Settings> {
             expandedHeight: 220.0,
             automaticallyImplyLeading: false,
             actions: [
-              IconButton(
-                icon: Icon(Icons.edit),
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => EditCompany(
-                            company: company,
-                          )));
-                },
-              ),
+              company.id != null
+                  ? IconButton(
+                      icon: Icon(Icons.edit),
+                      color: Colors.white,
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => EditCompany(
+                                  company: company,
+                                )));
+                      },
+                    )
+                  : SizedBox()
             ],
             flexibleSpace: company.id != null
                 ? FlexibleSpaceBar(
@@ -80,25 +83,28 @@ class _MyHomePageState extends State<Settings> {
                     background: Container(
                       child: Stack(
                         fit: StackFit.expand,
-                        children: [ColorFiltered(
-                                  colorFilter: ColorFilter.mode(
-                                      LightColors.kLavender, BlendMode.color),
-                                  child:
-                                  CachedNetworkImage(
-                    imageUrl: 
-        constants.path + sharedPreferences.getCompanyId()+ constants.folder + company.logo,
-                    fit: BoxFit.fitWidth,
-                    placeholder: (context, url) => Container(
-                        alignment: Alignment(0.0, 2.0),
-                        child: Center(child: CircularProgressIndicator())),
-                    errorWidget: (context, url, error) => Container(
-                        alignment: Alignment(0.0, 2.0),
-                        child: Image.asset(
-                                  'assets/images/pin7.jpg',
-                                  fit: BoxFit.fitWidth,
-                                )),
-                  ),
-                                ),
+                        children: [
+                          ColorFiltered(
+                            colorFilter: ColorFilter.mode(
+                                LightColors.kLavender, BlendMode.color),
+                            child: CachedNetworkImage(
+                              imageUrl: constants.path +
+                                  sharedPreferences.getCompanyId() +
+                                  constants.folder +
+                                  company.logo,
+                              fit: BoxFit.fitWidth,
+                              placeholder: (context, url) => Container(
+                                  alignment: Alignment(0.0, 2.0),
+                                  child: Center(
+                                      child: CircularProgressIndicator())),
+                              errorWidget: (context, url, error) => Container(
+                                  alignment: Alignment(0.0, 2.0),
+                                  child: Image.asset(
+                                    'assets/images/launcher.png',
+                                    fit: BoxFit.fitWidth,
+                                  )),
+                            ),
+                          ),
                           Positioned(
                             bottom: 50,
                             left: 0,
@@ -117,6 +123,9 @@ class _MyHomePageState extends State<Settings> {
                                   Text(
                                     company.address,
                                     style: TextStyle(color: Colors.white),
+                                  ),Text(
+                                    company.location,
+                                    style: TextStyle(color: Colors.white),
                                   ),
                                 ],
                               ),
@@ -131,35 +140,26 @@ class _MyHomePageState extends State<Settings> {
                     centerTitle: true,
                     background: Stack(
                       fit: StackFit.expand,
-                      children: [CachedNetworkImage(
-                    imageUrl: 
-        constants.path + sharedPreferences.getCompanyId()+ constants.folder + company.logo,
-                    fit: BoxFit.fitWidth,
-                    placeholder: (context, url) => Container(
-                        alignment: Alignment(0.0, 2.0),
-                        child: Center(child: CircularProgressIndicator())),
-                    errorWidget: (context, url, error) => Container(
-                        alignment: Alignment(0.0, 2.0),
-                        child: Image.asset(
-                                  'assets/images/pin7.jpg',
-                                  fit: BoxFit.fitWidth,
-                                )),
-                  ),
+                      children: [
+                        Image.asset(
+                          'assets/images/launcher.png',
+                          fit: BoxFit.fitWidth,
+                        ),
                         Positioned(
                             bottom: 100,
                             left: 50,
                             right: 50,
                             top: 100,
                             child: Container(
-                              height: 50,
-                              width: 50,
+                              height: 40,
+                              width: 40,
                               child: FlatButton(
                                 onPressed: () {
                                   Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => EditCompany()));
+                                      builder: (context) => CreateCompany()));
                                 },
                                 child: Text('Create Company'),
-                                color: Colors.orange,
+                                color: Colors.deepOrange,
                               ),
                             ))
                       ],
@@ -216,6 +216,7 @@ class _MyHomePageState extends State<Settings> {
             ),
             ListTile(
               onTap: () {
+                unsetPrefs();
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
                       builder: (BuildContext context) => LoginPage()),
@@ -233,11 +234,15 @@ class _MyHomePageState extends State<Settings> {
 
   void getPrefs() async {
     company.id = sharedPreferences.getCompanyId();
-    company.address = sharedPreferences.getCompanyAddress();
+    company.address = sharedPreferences.getCompanyAddress();company.location = sharedPreferences.getCompanyLocation();
     // company.adminId = sharedPrefsManagement.();
     company.email = sharedPreferences.getCompanyEmail();
     company.logo = sharedPreferences.getCompanyPhoto();
     company.phone = sharedPreferences.getCompanyPhone();
     company.name = sharedPreferences.getCompanyName();
+  }
+
+  void unsetPrefs() {
+    sharedPreferences.unsetEmail();
   }
 }

@@ -29,6 +29,7 @@ MyCompany _$MyCompanyFromJson(Map<String, dynamic> json) {
     logo: json['logo'] as String,
     phone: json['phone'] as String,
     email: json['email'] as String,
+    location: json['location'] as String,
     name: json['name'] as String,
     status: json['status'] == null
         ? null
@@ -45,6 +46,7 @@ Map<String, dynamic> _$MyCompanyToJson(MyCompany instance) => <String, dynamic>{
       'logo': instance.logo,
       'phone': instance.phone,
       'address': instance.address,
+      'location': instance.location,
       'email': instance.email,
       'status': instance.status,
     };

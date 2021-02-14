@@ -1,4 +1,4 @@
-package com.example.admin_keja
+package com.tidtech.admin_keja
 
 import io.flutter.embedding.android.FlutterActivity
 

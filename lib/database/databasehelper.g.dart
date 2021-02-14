@@ -29,6 +29,7 @@ class MyApartmentTableData extends DataClass
   final String likes;
   final String comments;
   final bool enabled;
+  final bool vacant;
   MyApartmentTableData(
       {@required this.onlineid,
       @required this.banner,
@@ -49,7 +50,8 @@ class MyApartmentTableData extends DataClass
       @required this.rating,
       @required this.likes,
       @required this.comments,
-      @required this.enabled});
+      @required this.enabled,
+      @required this.vacant});
   factory MyApartmentTableData.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -97,6 +99,8 @@ class MyApartmentTableData extends DataClass
           .mapFromDatabaseResponse(data['${effectivePrefix}comments']),
       enabled:
           boolType.mapFromDatabaseResponse(data['${effectivePrefix}enabled']),
+      vacant:
+          boolType.mapFromDatabaseResponse(data['${effectivePrefix}vacant']),
     );
   }
   @override
@@ -162,6 +166,9 @@ class MyApartmentTableData extends DataClass
     if (!nullToAbsent || enabled != null) {
       map['enabled'] = Variable<bool>(enabled);
     }
+    if (!nullToAbsent || vacant != null) {
+      map['vacant'] = Variable<bool>(vacant);
+    }
     return map;
   }
 
@@ -219,6 +226,8 @@ class MyApartmentTableData extends DataClass
       enabled: enabled == null && nullToAbsent
           ? const Value.absent()
           : Value(enabled),
+      vacant:
+          vacant == null && nullToAbsent ? const Value.absent() : Value(vacant),
     );
   }
 
@@ -246,6 +255,7 @@ class MyApartmentTableData extends DataClass
       likes: serializer.fromJson<String>(json['likes']),
       comments: serializer.fromJson<String>(json['comments']),
       enabled: serializer.fromJson<bool>(json['enabled']),
+      vacant: serializer.fromJson<bool>(json['vacant']),
     );
   }
   @override
@@ -272,6 +282,7 @@ class MyApartmentTableData extends DataClass
       'likes': serializer.toJson<String>(likes),
       'comments': serializer.toJson<String>(comments),
       'enabled': serializer.toJson<bool>(enabled),
+      'vacant': serializer.toJson<bool>(vacant),
     };
   }
 
@@ -295,7 +306,8 @@ class MyApartmentTableData extends DataClass
           String rating,
           String likes,
           String comments,
-          bool enabled}) =>
+          bool enabled,
+          bool vacant}) =>
       MyApartmentTableData(
         onlineid: onlineid ?? this.onlineid,
         banner: banner ?? this.banner,
@@ -317,6 +329,7 @@ class MyApartmentTableData extends DataClass
         likes: likes ?? this.likes,
         comments: comments ?? this.comments,
         enabled: enabled ?? this.enabled,
+        vacant: vacant ?? this.vacant,
       );
   @override
   String toString() {
@@ -340,7 +353,8 @@ class MyApartmentTableData extends DataClass
           ..write('rating: $rating, ')
           ..write('likes: $likes, ')
           ..write('comments: $comments, ')
-          ..write('enabled: $enabled')
+          ..write('enabled: $enabled, ')
+          ..write('vacant: $vacant')
           ..write(')'))
         .toString();
   }
@@ -387,7 +401,7 @@ class MyApartmentTableData extends DataClass
                                                                               .hashCode,
                                                                           $mrjc(
                                                                               comments.hashCode,
-                                                                              enabled.hashCode))))))))))))))))))));
+                                                                              $mrjc(enabled.hashCode, vacant.hashCode)))))))))))))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -411,7 +425,8 @@ class MyApartmentTableData extends DataClass
           other.rating == this.rating &&
           other.likes == this.likes &&
           other.comments == this.comments &&
-          other.enabled == this.enabled);
+          other.enabled == this.enabled &&
+          other.vacant == this.vacant);
 }
 
 class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
@@ -435,6 +450,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
   final Value<String> likes;
   final Value<String> comments;
   final Value<bool> enabled;
+  final Value<bool> vacant;
   const MyApartmentTableCompanion({
     this.onlineid = const Value.absent(),
     this.banner = const Value.absent(),
@@ -456,6 +472,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
     this.likes = const Value.absent(),
     this.comments = const Value.absent(),
     this.enabled = const Value.absent(),
+    this.vacant = const Value.absent(),
   });
   MyApartmentTableCompanion.insert({
     @required String onlineid,
@@ -478,6 +495,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
     @required String likes,
     @required String comments,
     @required bool enabled,
+    @required bool vacant,
   })  : onlineid = Value(onlineid),
         banner = Value(banner),
         bannertag = Value(bannertag),
@@ -491,7 +509,8 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
         rating = Value(rating),
         likes = Value(likes),
         comments = Value(comments),
-        enabled = Value(enabled);
+        enabled = Value(enabled),
+        vacant = Value(vacant);
   static Insertable<MyApartmentTableData> custom({
     Expression<String> onlineid,
     Expression<String> banner,
@@ -513,6 +532,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
     Expression<String> likes,
     Expression<String> comments,
     Expression<bool> enabled,
+    Expression<bool> vacant,
   }) {
     return RawValuesInsertable({
       if (onlineid != null) 'onlineid': onlineid,
@@ -535,6 +555,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
       if (likes != null) 'likes': likes,
       if (comments != null) 'comments': comments,
       if (enabled != null) 'enabled': enabled,
+      if (vacant != null) 'vacant': vacant,
     });
   }
 
@@ -558,7 +579,8 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
       Value<String> rating,
       Value<String> likes,
       Value<String> comments,
-      Value<bool> enabled}) {
+      Value<bool> enabled,
+      Value<bool> vacant}) {
     return MyApartmentTableCompanion(
       onlineid: onlineid ?? this.onlineid,
       banner: banner ?? this.banner,
@@ -580,6 +602,7 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
       likes: likes ?? this.likes,
       comments: comments ?? this.comments,
       enabled: enabled ?? this.enabled,
+      vacant: vacant ?? this.vacant,
     );
   }
 
@@ -646,6 +669,9 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
     if (enabled.present) {
       map['enabled'] = Variable<bool>(enabled.value);
     }
+    if (vacant.present) {
+      map['vacant'] = Variable<bool>(vacant.value);
+    }
     return map;
   }
 
@@ -671,7 +697,8 @@ class MyApartmentTableCompanion extends UpdateCompanion<MyApartmentTableData> {
           ..write('rating: $rating, ')
           ..write('likes: $likes, ')
           ..write('comments: $comments, ')
-          ..write('enabled: $enabled')
+          ..write('enabled: $enabled, ')
+          ..write('vacant: $vacant')
           ..write(')'))
         .toString();
   }
@@ -926,6 +953,18 @@ class $MyApartmentTableTable extends MyApartmentTable
     );
   }
 
+  final VerificationMeta _vacantMeta = const VerificationMeta('vacant');
+  GeneratedBoolColumn _vacant;
+  @override
+  GeneratedBoolColumn get vacant => _vacant ??= _constructVacant();
+  GeneratedBoolColumn _constructVacant() {
+    return GeneratedBoolColumn(
+      'vacant',
+      $tableName,
+      false,
+    );
+  }
+
   @override
   List<GeneratedColumn> get $columns => [
         onlineid,
@@ -947,7 +986,8 @@ class $MyApartmentTableTable extends MyApartmentTable
         rating,
         likes,
         comments,
-        enabled
+        enabled,
+        vacant
       ];
   @override
   $MyApartmentTableTable get asDslTable => this;
@@ -1072,6 +1112,12 @@ class $MyApartmentTableTable extends MyApartmentTable
           enabled.isAcceptableOrUnknown(data['enabled'], _enabledMeta));
     } else if (isInserting) {
       context.missing(_enabledMeta);
+    }
+    if (data.containsKey('vacant')) {
+      context.handle(_vacantMeta,
+          vacant.isAcceptableOrUnknown(data['vacant'], _vacantMeta));
+    } else if (isInserting) {
+      context.missing(_vacantMeta);
     }
     return context;
   }

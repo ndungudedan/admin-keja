@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'package:admin_keja/blocs/apartmentBloc.dart';
 import 'package:admin_keja/blocs/homeBloc.dart';
 import 'package:admin_keja/connection/networkapi.dart';
+import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/company.dart';
 import 'package:admin_keja/ui/company.dart';
 import 'package:admin_keja/ui/home.dart';
 import 'package:admin_keja/ui/settings.dart';
 import 'package:admin_keja/utility/floatingactionbutton.dart';
+import 'package:admin_keja/utility/utility.dart';
 import 'package:admin_keja/views/bottomBar.dart';
 import 'package:commons/commons.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +27,7 @@ class Index extends StatefulWidget {
 
 class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
   MyApartmentsBloc myApartmentsBloc;
+  Constants constants = Constants();
   MyHomeBloc myHomeBloc;
   int _selectedIndex = 0;
   var month, year;
@@ -89,19 +92,21 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
   Future<void> fetchCompany() async {
     var result = await NetworkApi().fetchCompany(sharedPreferences.getUserId());
     print(result);
-      var Map = json.decode(result);
-        MyCompany company = CompanyResponse.fromJson(Map).data;
-        saveCompany(company);
+    var Map = json.decode(result);
+
+    if (CompanyResponse.fromJson(Map).status.code == Constants.success) {
+      MyCompany company = CompanyResponse.fromJson(Map).data;
+      saveCompany(company);
       myApartmentsBloc.fetchMyApartments(company.id);
       myHomeBloc.fetchMyHome(company.id, month, year.toString());
-    
+    }
   }
 
   void saveCompany(MyCompany company) {
     sharedPreferences.setCompanyAddress(company.address);
     sharedPreferences.setCompanyEmail(company.email);
     sharedPreferences.setCompanyId(company.id);
-    sharedPreferences.setCompanyLocation(company.address);
+    sharedPreferences.setCompanyLocation(company.location);
     sharedPreferences.setCompanyName(company.name);
     sharedPreferences.setCompanyPhone(company.phone);
     sharedPreferences.setCompanyPhoto(company.logo);

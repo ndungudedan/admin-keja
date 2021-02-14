@@ -7,16 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:admin_keja/constants/constant.dart';
 
 class ApartmentCard extends StatelessWidget {
-   ApartmentCard({
+  ApartmentCard({
     Key key,
     this.itemIndex,
     this.apartment,
     this.press,
+    this.vacant,
   }) : super(key: key);
 
   final int itemIndex;
   final MyApartmentTableData apartment;
   final Function press;
+  final Function vacant;
   Constants constants = Constants();
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class ApartmentCard extends StatelessWidget {
         horizontal: kDefaultPadding,
         vertical: kDefaultPadding / 2,
       ),
-      height: 160,
+      height: 180,
       child: InkWell(
         onTap: press,
         child: Stack(
@@ -52,7 +54,7 @@ class ApartmentCard extends StatelessWidget {
               right: 0,
               child: Container(
                   padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
-                  height: 160,
+                  height: 180,
                   width: 200,
                   child: CachedNetworkImage(
                     imageUrl: constants.path +
@@ -60,46 +62,45 @@ class ApartmentCard extends StatelessWidget {
                         constants.folder +
                         apartment.banner,
                     fit: BoxFit.cover,
-                    
                     placeholder: (context, url) => Container(
                         alignment: Alignment(0.0, 2.0),
                         child: Center(child: CircularProgressIndicator())),
                     errorWidget: (context, url, error) => Container(
                         alignment: Alignment(0.0, 2.0),
                         child: Image.asset(
-                                  'assets/images/pin7.jpg',
-                                  fit: BoxFit.fitWidth,
-                                )),
+                          'assets/images/placeholder.png',
+                          fit: BoxFit.fitWidth,
+                        )),
                   )),
             ),
             Positioned(
               bottom: 0,
               left: 0,
               child: SizedBox(
-                height: 140,
+                height: 160,
                 width: size.width - 200,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    //Spacer(),
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: kDefaultPadding),
-                      child: Text(
-                        apartment.title,
-                        softWrap: true,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Styles.primaryFontColor,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w700,
-                        ),
+                    Spacer(),
+                    Text(
+                      apartment.title,
+                      softWrap: true,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Styles.primaryFontColor,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    RichTextArea(
-                      title: '',
-                      txt: apartment.category,
+                    Row(
+                      children: [
+                        RichTextArea(
+                          title: '',
+                          txt: apartment.category,
+                        ),
+                      ],
                     ),
                     Row(
                       children: <Widget>[
@@ -142,6 +143,29 @@ class ApartmentCard extends StatelessWidget {
                         SizedBox(width: 5.0),
                         Text(
                           apartment.rating,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: Styles.h4,
+                              fontWeight: Styles.lightFont),
+                        )
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(5.0,0,5,0),
+                          child: SizedBox(
+                            height: 10,
+                            width: 10,
+                            child: Checkbox(
+                                value: apartment.vacant,
+                                onChanged: vacant
+                                ),
+                          ),
+                        ),
+                        SizedBox(width: 5.0),
+                        Text(
+                          'vacant',
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: Styles.h4,

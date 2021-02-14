@@ -50,7 +50,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
           title: "Enhance your house management",
           body:
               "Get to see real time updates on rent payments adn arrears.",
-          image: _buildImage('assets/images/pin7.jpg'),
+          image: _buildImage('assets/images/onboard2.jpg'),
           decoration: pageDecoration,
         ),
     
@@ -58,7 +58,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
           title: "Get set, Ready!!! Launch",
           body:
               "Lets get you rolling on this rollercoaster.",
-          image: _buildImage('assets/images/pin3.png'),
+          image: _buildImage('assets/images/onboard3.jpg'),
           decoration: pageDecoration,
         ),
       ],

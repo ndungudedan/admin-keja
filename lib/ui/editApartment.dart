@@ -71,6 +71,8 @@ class _CreateApartmentState extends State<EditApartment> {
     apartment.space = apartmentTableData.space;
     apartment.title = apartmentTableData.title;
     apartment.video = apartmentTableData.video;
+    apartment.vacant = apartmentTableData.vacant;
+    apartment.enabled = apartmentTableData.enabled;
     return apartment;
   }
 
@@ -183,11 +185,11 @@ class _CreateApartmentState extends State<EditApartment> {
                   submitStep2();
                 }
               } else if (step == 3) {
-                if (features.length >= 11) {
+                if (features.length >= 4) {
                   submitStep4();
                 } else {
                   _scaffoldKey.currentState
-                      .showSnackBar(snack('Not less than 11 features'));
+                      .showSnackBar(snack('Not less than 4 features'));
                 }
               }
             },
@@ -506,6 +508,8 @@ class _CreateApartmentState extends State<EditApartment> {
           rating: moor.Value(apartment.rating),
           likes: moor.Value(apartment.likes),
           comments: moor.Value(apartment.comments),
+          enabled: moor.Value(apartment.enabled),
+          vacant: moor.Value(apartment.vacant),
         );
         dao.upsertApartment(companion);
         successDialog(context, status.message, showNeutralButton: true);
@@ -554,6 +558,8 @@ class _CreateApartmentState extends State<EditApartment> {
           rating: moor.Value(apartment.rating),
           likes: moor.Value(apartment.likes),
           comments: moor.Value(apartment.comments),
+          enabled: moor.Value(apartment.enabled),
+          vacant: moor.Value(apartment.vacant),
         );
         dao.upsertApartment(companion);
         successDialog(context, status.message, showNeutralButton: true);

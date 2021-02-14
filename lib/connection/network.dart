@@ -23,6 +23,7 @@ class Network {
       body: json,
     );
     if (response.statusCode == 200) {
+      print(response.body);
       return response.body;
     } else {
       print(response.statusCode);
@@ -30,13 +31,13 @@ class Network {
     }
   }
 
-  Future uploadApartment(List<File> files,File banner, var tags, var features, var details,
-      Function onProgress) async {
+  Future uploadApartment(List<File> files, File banner, var tags, var features,
+      var details, Function onProgress) async {
     List<MultipartFile> imageList = new List<MultipartFile>();
-    var bannerupload =await MultipartFile.fromFile(
-        banner.path,
-        filename: path.basename(banner.path),
-      );
+    var bannerupload = await MultipartFile.fromFile(
+      banner.path,
+      filename: path.basename(banner.path),
+    );
     for (File file in files) {
       var multipartFile = await MultipartFile.fromFile(
         file.path,
@@ -60,7 +61,7 @@ class Network {
       "units": details[UploadData.units],
       "companyId": details[UploadData.companyId],
       "bannertag": details[UploadData.bannertag],
-      "banner":bannerupload,
+      "banner": bannerupload,
       "tags": tags,
       "features": features,
       "images": imageList,
@@ -80,8 +81,9 @@ class Network {
       return Constants.fail;
     }
   }
-  Future updateBannerApartment(File file, var tag, var apartmentId,
-      Function onProgress) async {
+
+  Future updateBannerApartment(
+      File file, var tag, var apartmentId, Function onProgress) async {
     var multipartFile = await MultipartFile.fromFile(
       file.path,
       filename: path.basename(file.path),
@@ -109,6 +111,37 @@ class Network {
       return Constants.fail;
     }
   }
+
+   Future addImage(
+      File file, var tag, var apartmentId, Function onProgress) async {
+    var multipartFile = await MultipartFile.fromFile(
+      file.path,
+      filename: path.basename(file.path),
+    );
+
+    FormData formData = FormData.fromMap({
+      'functionality': 'addImage',
+      "tag": tag,
+      "apartmentId": apartmentId,
+      "companyId": sharedPreferences.getCompanyId(),
+      "image": multipartFile,
+    });
+
+    Dio dio = new Dio();
+    var response = await dio.post(url, data: formData,
+        onSendProgress: (int sent, int total) {
+      double progress = (sent / total) * 100;
+      onProgress(progress);
+      print("progress:  $progress");
+    });
+    if (response.statusCode == 200) {
+      return response.data;
+    } else {
+      print(response.statusCode);
+      return Constants.fail;
+    }
+  }
+
   Future updateApartment(File file, var tag, var apartmentId, var picId,
       Function onProgress) async {
     List<MultipartFile> imageList = new List<MultipartFile>();
@@ -155,19 +188,21 @@ class Network {
     if (response.statusCode == 200) {
       return response.data;
     } else {
-     print(response.statusCode);
+      print(response.statusCode);
       return Constants.fail;
     }
   }
 
   Future updateCompany(var file, var details) async {
     List<MultipartFile> imageList = new List<MultipartFile>();
-
-    var multipartFile = await MultipartFile.fromFile(
+if(file!=null){
+  var multipartFile = await MultipartFile.fromFile(
       file.path,
       filename: path.basename(file.path),
     );
     imageList.add(multipartFile);
+}
+    
 
     FormData formData = FormData.fromMap({
       'functionality': 'updateCompany',
@@ -177,6 +212,38 @@ class Network {
       "location": details[UploadData.location],
       "address": details[UploadData.address],
       "companyId": details[UploadData.companyId],
+      "images": imageList,
+    });
+
+    Dio dio = new Dio();
+    var response = await dio.post(url, data: formData);
+    if (response.statusCode == 200) {
+      return response.data;
+    } else {
+      print(response.statusCode);
+      return Constants.fail;
+    }
+  }
+
+  Future createCompany(var file, var details, Function onProgress) async {
+      List<MultipartFile> imageList = new List<MultipartFile>();
+if(file!=null){
+  var multipartFile = await MultipartFile.fromFile(
+      file.path,
+      filename: path.basename(file.path),
+    );
+    imageList.add(multipartFile);
+}
+    
+
+    FormData formData = FormData.fromMap({
+      "functionality": "createCompany",
+      "title": details[UploadData.title],
+      "phone": details[UploadData.phone],
+      "email": details[UploadData.email],
+      "location": details[UploadData.location],
+      "address": details[UploadData.address],
+      "userId": sharedPreferences.getUserId(),
       "images": imageList,
     });
 

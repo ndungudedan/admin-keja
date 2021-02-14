@@ -48,7 +48,8 @@ class MyApartmentsBloc {
         rating: Value(myApartment.rating),
         likes: Value(myApartment.likes),
         comments: Value(myApartment.comments),
-        enabled: Value(myApartment.enabled=='1' ? true : false),
+        enabled: Value(myApartment.enabled),
+        vacant: Value(myApartment.vacant),
       );
       _items.add(companion);
     });

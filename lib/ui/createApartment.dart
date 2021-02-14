@@ -712,7 +712,7 @@ class _CreateApartmentState extends State<CreateApartment> {
                     }),
               ),
             ),
-            features.length < 4
+            features.length < 10
                 ? Align(
                     alignment: FractionalOffset.bottomCenter,
                     child: Container(
