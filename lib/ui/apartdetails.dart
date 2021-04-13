@@ -611,7 +611,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
   _showDialog(var picId) async {
     await showDialog<String>(
       context: context,
-      child: AlertDialog(
+      builder: (BuildContext context) => AlertDialog(
         contentPadding: const EdgeInsets.all(8.0),
         content: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -664,7 +664,7 @@ class _MyHomePageState extends State<ApartmentDetails> {
   _showBannerDialog(var tag) async {
     await showDialog<String>(
       context: context,
-      child: AlertDialog(
+      builder: (BuildContext context) => AlertDialog(
         contentPadding: const EdgeInsets.all(8.0),
         content: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
