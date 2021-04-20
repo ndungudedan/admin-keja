@@ -7,7 +7,6 @@ import 'package:admin_keja/database/dao.dart';
 import 'package:admin_keja/database/databasehelper.dart';
 import 'package:admin_keja/database/dboperations.dart';
 import 'package:admin_keja/management/management.dart';
-import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/editPhotoViewer.dart';
