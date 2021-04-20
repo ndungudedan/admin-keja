@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:admin_keja/blocs/apartmentBloc.dart';
 import 'package:admin_keja/blocs/homeBloc.dart';
-import 'package:admin_keja/common/app_icons.dart';
 import 'package:admin_keja/connection/networkapi.dart';
 import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/management/management.dart';
@@ -56,7 +55,7 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          //Home(),
+          Home(),
           Company(),
           Settings(),
         ],
@@ -68,21 +67,25 @@ class _MyHomePageState extends State<Index> with TickerProviderStateMixin {
               .push(MaterialPageRoute(builder: (context) => CreateApartment()));
         },
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.white,
-        backgroundColor: kSecondaryColor,
-        currentIndex: _selectedIndex,
-        onTap: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        items: [
-          BottomNavigationBarItem(icon: Icon(AppIcons.home),label: 'HOME'),
-          BottomNavigationBarItem(icon: Icon(AppIcons.article_alt),label: 'ACCOUNT'),
-        ],
-      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      bottomNavigationBar: MyBottomAppBar(
+          selected: _selectedIndex,
+          homePressed: () {
+            //infoDialog(context, 'You dont have acces to this page');
+            setState(() {
+              _selectedIndex = 0;
+            });
+          },
+          companyPressed: () {
+            setState(() {
+              _selectedIndex = 1;
+            });
+          },
+          settingsPressed: () {
+            setState(() {
+              _selectedIndex = 2;
+            });
+          }),
     );
   }
 

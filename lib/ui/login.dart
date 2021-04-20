@@ -13,6 +13,8 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -174,16 +176,32 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         
         
         if (userResponse.status.code == Constants.success) {
+          showTopSnackBar(
+    context,
+    CustomSnackBar.success(
+      message:
+          "success",
+    ),
+);
           savePrefs(userResponse.data);
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => Index()));
         } else {
-          _scaffoldKey.currentState
-              .showSnackBar(snack(userResponse.status.message));
+          showTopSnackBar(
+    context,
+    CustomSnackBar.error(
+      message:userResponse.status.message,
+    ),
+);
         }
       } else {
-        _scaffoldKey.currentState
-            .showSnackBar(snack("Failed..Please try later"));
+        showTopSnackBar(
+    context,
+    CustomSnackBar.error(
+      message:
+          "Something went wrong. Please try again later",
+    ),
+);
       }
     }
   }
@@ -203,7 +221,13 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => Index()));
     } else {
-      _scaffoldKey.currentState.showSnackBar(snack("Invalid credentials"));
+      showTopSnackBar(
+    context,
+    CustomSnackBar.error(
+      message:
+          "Invalid Credentals",
+    ),
+);
       setState(() {
         loading = false;
       });

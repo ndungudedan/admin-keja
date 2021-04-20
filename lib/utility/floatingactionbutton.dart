@@ -1,3 +1,4 @@
+import 'package:admin_keja/common/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
@@ -19,12 +20,9 @@ class floatingButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children:  <Widget>[
-            RotatedBox(
-              quarterTurns: 1,
-              child: Icon(
-                Icons.explore,
-                color: Colors.amber,
-              ),
+            Icon(
+              AppIcons.home,
+              color: Colors.amber,
             ),
             SizedBox(width: 8.0),
             Text(

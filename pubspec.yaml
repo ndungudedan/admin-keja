@@ -55,6 +55,7 @@ dependencies:
   moor: # use the latest version
   sqlite3_flutter_libs: # Also use the latest version.
   moor_db_viewer:
+  top_snackbar_flutter:
 
 
 
