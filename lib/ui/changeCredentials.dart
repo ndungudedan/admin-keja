@@ -1,12 +1,10 @@
 import 'dart:convert';
-
 import 'package:admin_keja/connection/networkapi.dart';
 import 'package:admin_keja/constants/constant.dart';
 import 'package:admin_keja/management/management.dart';
 import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/models/user.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
-import 'package:admin_keja/ui/index.dart';
 import 'package:admin_keja/utility/connectioncallback.dart';
 import 'package:admin_keja/views/inputFieldArea.dart';
 import 'package:admin_keja/views/submitButton.dart';
@@ -56,6 +54,7 @@ class _LoginPageState extends State<ChangeCredentials>
   @override
   void initState() {
     super.initState();
+    _emailController.text = sharedPreferences.getEmail();
     _loginButtonController = AnimationController(
         duration: Duration(milliseconds: 3000), vsync: this);
     buttonSqueezeAnimation = Tween(

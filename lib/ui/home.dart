@@ -147,14 +147,14 @@ class _MyHomePageState extends State<Home> {
                             pieTouchData:
                                 PieTouchData(touchCallback: (pieTouchResponse) {
                               setState(() {
-                                if (pieTouchResponse.touchInput
+                                /* if (pieTouchResponse.touchInput
                                         is FlLongPressEnd ||
                                     pieTouchResponse.touchInput is FlPanEnd) {
                                   touchedIndex = -1;
                                 } else {
                                   touchedIndex =
                                       pieTouchResponse.touchedSectionIndex;
-                                }
+                                } */
                               });
                             }),
                             borderData: FlBorderData(

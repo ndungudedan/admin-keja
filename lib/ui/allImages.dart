@@ -7,7 +7,6 @@ import 'package:admin_keja/database/dao.dart';
 import 'package:admin_keja/database/databasehelper.dart';
 import 'package:admin_keja/database/dboperations.dart';
 import 'package:admin_keja/management/management.dart';
-import 'package:admin_keja/models/apartment.dart';
 import 'package:admin_keja/models/status.dart';
 import 'package:admin_keja/theme/colors/light_colors.dart';
 import 'package:admin_keja/ui/editPhotoViewer.dart';
@@ -216,7 +215,11 @@ class _MyHomePageState extends State<AllImages> {
   _showDialog(var picId) async {
     await showDialog<String>(
       context: context,
+<<<<<<< HEAD
       builder:(BuildContext context)=> AlertDialog(
+=======
+      builder: (BuildContext context) => AlertDialog(
+>>>>>>> e77183f377756c30a3df4ec2b552978287b3f0de
         contentPadding: const EdgeInsets.all(8.0),
         content: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
